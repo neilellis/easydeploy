@@ -6,6 +6,7 @@ export EASYDEPLOY_PORTS=80
 export EASYDEPLOY_UPDATE_CRON="0/4 * * * *"
 export EASYDEPLOY_PACKAGES=
 export EASYDEPLOY_PROCESS_NUMBER=1
+export EASYDEPLOY_EXTERNAL_PORTS=
 
 . /home/easydeploy/config/ed.sh
 
@@ -56,7 +57,7 @@ sudo chmod a+rwx /var/run/docker.sock
 cd
 
 sudo ufw allow 22
-for port in ${EASYDEPLOY_PORTS}
+for port in ${EASYDEPLOY_PORTS} ${EASYDEPLOY_EXTERNAL_PORTS}
 do
 sudo ufw allow ${port}
 done

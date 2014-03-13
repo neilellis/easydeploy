@@ -20,7 +20,7 @@ cat  ~/.ssh/easydeploy_id_rsa.pub
 echo "Press Enter to continue"
 read line
 ssh  -o "StrictHostKeyChecking no" ${USERBANE}@${IP_ADDRESS} "[ -d ~/.ssh ] || ssh-keygen -q -t rsa -N """  &
-scp  -o "StrictHostKeyChecking no" *  ${USERBANE}@${IP_ADDRESS}:~
+scp  -o "StrictHostKeyChecking no" -r *  ${USERBANE}@${IP_ADDRESS}:~
 scp  -o "StrictHostKeyChecking no" ~/.ssh/easydeploy_* ${USERBANE}@${IP_ADDRESS}:~/.ssh/
 ssh  -o "StrictHostKeyChecking no" ${USERBANE}@${IP_ADDRESS} "./bootstrap.sh ${GIT_URL_HOST} ${GIT_URL_USER} ${COMPONENT} ${DEPLOY_ENV} ""$3"" &> /tmp/output.txt " &
 ssh  -o "StrictHostKeyChecking no" ${USERBANE}@${IP_ADDRESS} "tail -F  /tmp/output.txt "

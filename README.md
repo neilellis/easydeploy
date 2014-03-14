@@ -73,7 +73,9 @@ Finally the DEPLOY_ENV says which environment we're deploying too. This will als
 
 The first time the script is run it will create the eeasydeploy ssh keys and tell you the public key. You will need to use this public key to grant access to your git repository - and that is why it is always listed at the beginning of a deploy.
 
-Once the keys are created this command will deploy your application to the hostname supplied - run it within a docker container and keep it running using
+Once the keys are created this command will deploy your application to the hostname supplied - run it within a docker container and keep it running using supervisord
+
+# Watch this project, easydeploy is in it's infancy - but boy is it simple to use :) #
 
 
 

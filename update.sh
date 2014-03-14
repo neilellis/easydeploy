@@ -1,6 +1,11 @@
 #!/bin/bash
 set -eux
-duration="$[ ( $RANDOM % 3600 )  + 1 ]s"
+if [ $# -eq 0 ]
+then
+    duration=0
+else
+    duration=$1
+fi
 echo "Sleeping for $duration to stagger updates"
 sleep $duration
 echo "Disabling supervisor and killing run.sh"

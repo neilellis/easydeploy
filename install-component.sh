@@ -37,7 +37,7 @@ sudo cp template-run.conf /home/easydeploy/template/
 if [ ! -z ${EASYDEPLOY_UPDATE_CRON} ]
 then
     sudo crontab <<EOF2
-    ${EASYDEPLOY_UPDATE_CRON} /home/easydeploy/bin/update.sh &> /va/log/easydeploy/update.log
+${EASYDEPLOY_UPDATE_CRON} /home/easydeploy/bin/update.sh "$[ ( $RANDOM % 3600 )  + 1 ]s" &> /va/log/easydeploy/update.log
 EOF2
 fi
 

@@ -9,4 +9,5 @@ for port in ${EASYDEPLOY_PORTS}
 do
     export DOCKER_ARGS="$DOCKER_ARGS  -p $(($port + $OFFSET)):$(($port + $OFFSET))"
 done
-docker run -t -i  $DOCKER_ARGS --rm=true -dns 8.8.8.8 $(cat /home/easydeploy/.install-type) $DOCKER_COMMANDS
+[ -f /var/easydeploy/container/$1 ] || mkdir -p /var/easydeploy/container/$1
+docker run -t -i  $DOCKER_ARGS --rm=true -v /var/easydeploy/container/$1:/var/easydeploy -dns 8.8.8.8 $(cat /home/easydeploy/.install-type) $DOCKER_COMMANDS

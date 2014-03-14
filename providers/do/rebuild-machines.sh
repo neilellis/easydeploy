@@ -1,5 +1,5 @@
 #!/bin/sh
-set -eu
+set -u
 if ! which tugboat
 then
     sudo gem install tugboat

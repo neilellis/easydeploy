@@ -18,6 +18,7 @@ then
 else
     ./deploy.sh ${IP_ADDRESS}
     export IMAGE=$(./providers/${PROVIDER}/make-image.sh ${MACHINE_NAME} template-${GIT_URL_USER}-${COMPONENT}  ${IP_ADDRESS} | tail -1)
+    sleep 30
     ./providers/${PROVIDER}/deprovision.sh ${MACHINE_NAME}
     if [ $IMAGE == "FAILED" ]
     then
@@ -25,6 +26,7 @@ else
         exit -1
     else
         echo "Image created on ${PROVIDER} was ${IMAGE}"
+        exit 0
     fi
 
 fi

@@ -20,7 +20,9 @@ fi
 sudo apt-get install -y supervisor
 sudo [ -d /home/easydeploy/bin ] || mkdir /home/easydeploy/bin
 sudo [ -d /var/log/easydeploy ] || mkdir /var/log/easydeploy
+sudo [ -d /var/easydeploy ] || mkdir /var/easydeploy
 sudo chown easydeploy:easydeploy /var/log/easydeploy
+sudo chown easydeploy:easydeploy /var/easydeploy
 sudo [ -d /home/easydeploy/template ] || mkdir /home/easydeploy/template
 sudo mv -f run.sh update.sh /home/easydeploy/bin
 sudo chmod 755 /home/easydeploy/bin/*
@@ -65,6 +67,6 @@ yes | sudo ufw enable
 sudo service supervisor stop || true
 sudo service supervisor start
 [ -f  /home/easydeploy/config/post-install.sh ] && sudo bash /home/easydeploy/config/post-install.sh
-[ -f  /home/easydeploy/config/post-install-userland.sh ] && sudo su easydeploy bash  /home/easydeploy/config/post-install-userland.sh
+[ -f  /home/easydeploy/config/post-install-userland.sh ] && sudo su  easydeploy "cd; bash  /home/easydeploy/config/post-install-userland.sh"
 
 exit 0

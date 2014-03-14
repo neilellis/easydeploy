@@ -67,5 +67,4 @@ sudo service supervisor start
 [ -f  /home/easydeploy/config/post-install.sh ] && sudo bash /home/easydeploy/config/post-install.sh
 [ -f  /home/easydeploy/config/post-install-userland.sh ] && sudo su easydeploy bash  /home/easydeploy/config/post-install-userland.sh
 
-
-
+exit 0

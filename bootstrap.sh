@@ -11,7 +11,7 @@ error() {
    exit $3
 }
 
-trap 'error "${BASH_SOURCE}" "${LINENO}" $?' ERR
+trap 'error "${BASH_SOURCE}" "${LINENO}" "$?"' ERR
 set -eux
 export GIT_URL_HOST=$1
 export GIT_URL_USER=$2

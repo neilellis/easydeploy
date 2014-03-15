@@ -30,6 +30,10 @@ DOCKER_ARGS (misnamed) is a set of options that are passed to docker before the 
 
 EASYDEPLOY_PACKAGES is a space seperated list of (apt-get) packages to deploy prior to the running of the install script.
 
+EASYDEPLOY_STATE can be stateless or stateful the default behaviour is stateful, stateful services destroy all traces of their state on restarts using dockers '--rm=true' and by running 'docker rm $(docker -q -a)' in the update.sh script.
+
+EASYDEPLOY_UPDATE_CRON should be a cron pattern that will be used to run the update.sh script which updates your application on a regular basis set this to 'none' (the default) if you don't want the script run.
+
 ### The Dockerfile
 
 Thsis should be a normal Dockerfile.

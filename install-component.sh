@@ -7,6 +7,7 @@ export EASYDEPLOY_UPDATE_CRON="0/4 * * * *"
 export EASYDEPLOY_PACKAGES=
 export EASYDEPLOY_PROCESS_NUMBER=1
 export EASYDEPLOY_EXTERNAL_PORTS=
+export EASYDEPLOY_UPDATE_CRON=none
 
 . /home/easydeploy/config/ed.sh
 
@@ -44,7 +45,7 @@ fi
 
 sudo cp template-run.conf /home/easydeploy/template/
 
-if [ ! -z ${EASYDEPLOY_UPDATE_CRON} ]
+if [ ${EASYDEPLOY_UPDATE_CRON} != "none" ]
 then
     sudo crontab <<EOF2
 ${EASYDEPLOY_UPDATE_CRON} /home/easydeploy/bin/update.sh "$[ ( $RANDOM % 3600 )  + 1 ]s" &> /va/log/easydeploy/update.log

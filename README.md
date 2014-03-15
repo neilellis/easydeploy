@@ -1,7 +1,7 @@
 easydeploy
 ==========
 
-A set of scripts that all incredibly easy deployment and running of apps using Docker and supervisord
+A set of scripts that allow incredibly easy deployment and running of apps using Docker and supervisord
 
 ## 0. Highlights
 
@@ -36,7 +36,7 @@ This file should contain the following:
     export EASYDEPLOY_PROCESS_NUMBER=
     export EASYDEPLOY_PACKAGES=
 
-All variables are optional and *must* be exported (all the scripts rely on that.
+All variables are optional and *must* be exported (all the scripts rely on that).
 
 EASYDEPLOY_PORTS should be a space separated list of ports that should be mapped on the docker instance(s) so a value of "80 8080" translates to `-p 80:80 -p 8080:8080`
 
@@ -59,7 +59,7 @@ This should be a normal Dockerfile however the following *easydeploy* extensions
 #### MOD
 
 
-    #MOD <module-name> <arg>*
+    MOD <module-name> <arg>*
 
     Note the # before MOD it's an extension :-)
 

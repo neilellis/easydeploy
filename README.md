@@ -145,7 +145,9 @@ NB: We only support `export PROVIDER=do` at present.
 This is similar to Upgrade Machines, however instead it uses an existing machine image without creating a new one first.
 
 
-## Watch this project, easydeploy is in it's infancy - but boy is it simple to use :) ##
+#easydeploy is powered by#
+
+![Powered by Docker](http://blog.docker.io/wp-content/uploads/2013/08/KuDr42X_ITXghJhSInDZekNEF0jLt3NeVxtRye3tqco.png)
 
 
 

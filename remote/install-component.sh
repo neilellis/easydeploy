@@ -1,5 +1,19 @@
 #!/bin/sh
 set -eux
+cd $(dirname $0)
+DIR=$(pwd)
+
+function dockerfileExtensions() {
+    while read line
+    do
+        command=$(echo $line | cut -d" " -f1)
+        case "$command" in
+        MOD) bash ${DIR}/modules/$(echo $line | sed 's/^MOD[\\t ]*//g') ;;
+        *) echo "$line";;
+        esac
+    done
+
+}
 
 export COMPONENT=$1
 export EASYDEPLOY_PORTS=80
@@ -67,7 +81,11 @@ sudo addgroup easydeploy docker
 sudo chmod a+rwx /var/run/docker.sock
 sudo chown -R easydeploy:easydeploy /home/easydeploy/
 cd /home/easydeploy/config
+cat Dockerfile | dockerfileExtensions > Dockerfile.processed
+mv -f  Dockerfile Dockerfile.orig
+mv -f  Dockerfile.processed Dockerfile
 sudo su easydeploy -c "cd /home/easydeploy/config ; docker build -t ${COMPONENT} ."
+mv -f Dockerfile.orig Dockerfile
 sudo chmod a+rwx /var/run/docker.sock
 cd
 

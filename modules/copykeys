@@ -1,0 +1,11 @@
+#!/bin/sh
+cat <<'EOF'
+ADD ./id_rsa $HOME/.ssh/id_rsa
+ADD ./id_rsa.pub $HOME/.ssh/id_rsa.pub
+RUN chmod 600 $HOME/.ssh/*
+RUN chmod 700 $HOME/.ssh
+RUN echo 'ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no $*' > /root/ssh
+RUN chmod +x ssh
+ENV GIT_SSH /root/ssh
+RUN apt-get install git
+EOF

@@ -3,7 +3,25 @@ easydeploy
 
 A set of scripts that all incredibly easy deployment and running of apps using Docker and supervisord
 
-## 1. Creating an easydeploy project
+## 0. Highlights
+
+
+### Add modules to your dockerfiles
+
+    MOD newrelic-sysmond  7fab41848a24fdcdf3c6868cf94fb17f457684387a8
+
+
+### Set up an Ubuntu host with supervisord running a docker instance containing your app
+
+    deploy.sh snapito-logstash.profile
+
+### Re-image and upgrade multiple machines quickly
+
+    upgrade-machines.sh snapito-gateway-prod.profile
+
+
+
+## 1. Creating a Project
 
 At present easydeploy only supports Ubuntu/git/Docker combination. So we start by creating a git project - on GitLab, GitHub or anywhere which allows for SSH based git access.
 
@@ -36,10 +54,20 @@ EASYDEPLOY_UPDATE_CRON should be a cron pattern that will be used to run the upd
 
 ### The Dockerfile
 
-This should be a normal Dockerfile.
+This should be a normal Dockerfile however the following *easydeploy* extensions are supported:
+
+#### MOD
 
 
-## 2. Deploying it
+    #MOD <module-name> <arg>*
+
+    Note the # before MOD it's an extension :-)
+
+This will look for the script that provides  `<module-name>` passing it the arguments supplied. The result of the script execution will end up in the Dockerfile.
+
+You can add your own modules by placing them in the directory ~/.edmods the file should be a bash shell script compatible with the host OS (Ubuntu) called <module-name> and should out valid Dockerfile syntax.
+
+## 2. Deployment
 
 ### Deployment profile files
 
@@ -107,6 +135,8 @@ If you are using a supported cloud provider (currently Digital Ocean only) then 
 This command will create a temporary machine, deploy to it, create a machine image and then use that image to re-image all the deployed servers that match the profile (on Digital Ocean we do that by matching the droplet name of ${DEPLOY_ENV}-${GIT_URL_USER}-${COMPONENT}).
 
 Easydeploy will look for the variable PROVIDER in the profile file and use that to determine which scripts to run internally.
+
+NB: We only support `export PROVIDER=do` at present.
 
 ### Rebuild Machines
 

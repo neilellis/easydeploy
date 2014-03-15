@@ -15,6 +15,9 @@ then
     sudo apt-get install -y ${EASYDEPLOY_PACKAGES}
 fi
 
+
+
+
 [ -f /home/easydeploy/config/pre-install.sh ] && sudo bash /home/easydeploy/config/pre-install.sh
 
 sudo apt-get install -y supervisor
@@ -31,6 +34,13 @@ export COMPONENT=${COMPONENT}
 export EASYDEPLOY_PROCESS_NUMBER=${EASYDEPLOY_PROCESS_NUMBER}
 envsubst < template-run.conf  > /etc/supervisor/conf.d/run.conf
 EOF
+
+if [[ ${EASYDEPLOY_STATE} == "stateless" ]]
+then
+    touch /home/easydeploy/.stateless-service
+    touch /var/easydeploy/.stateless-service
+fi
+
 
 sudo cp template-run.conf /home/easydeploy/template/
 

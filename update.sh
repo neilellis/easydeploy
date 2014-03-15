@@ -12,13 +12,18 @@ echo "Disabling supervisor and killing run.sh"
 touch /tmp/easydeploy-run-disable
 service supervisor stop
 killall run.sh
-docker rm $(docker -q -a)
 sudo su - easydeploy <<EOF
 cd /home/easydeploy/config
 git pull
 docker build -t $(cat /home/easydeploy/.install-type) .
 EOF
 . /home/easydeploy/config/ed.sh
+
+if [[ ${EASYDEPLOY_STATE} == "stateless" ]]
+then
+    docker rm $(docker -q -a)
+fi
+
  envsubst < /home/easydeploy/template/template-run.conf  > /etc/supervisor/conf.d/run.conf
 echo "Rebooting"
 shutdown -r +2

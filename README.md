@@ -16,6 +16,7 @@ export DOCKER_ARGS=
 export EASYDEPLOY_PORTS=
 export EASYDEPLOY_EXTERNAL_PORTS=
 export EASYDEPLOY_PROCESS_NUMBER=
+export EASYDEPLOY_PACKAGES=
 
 All variables are optional and *must* be exported (all the scripts rely on that.
 
@@ -26,6 +27,8 @@ EASYDEPLOY_EXTERNAL_PORTS should be a space separated list of ports that should 
 EASYDEPLOY_PROCESS_NUMBER (misnamed) is the number of instances that should be run on each host.
 
 DOCKER_ARGS (misnamed) is a set of options that are passed to docker before the name of the instance to run. Here you can do your own port mapping like "-p 80:8080" - but don't forget to expose the ports using EASYDEPLOY_EXTERNAL_PORTS
+
+EASYDEPLOY_PACKAGES is a space seperated list of (apt-get) packages to deploy prior to the running of the install script.
 
 ### The Dockerfile
 

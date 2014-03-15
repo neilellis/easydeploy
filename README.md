@@ -96,8 +96,26 @@ This is the script that is run by supervisord which then runs your docker contai
 This script triggers a new git pull and a complete rebuild of the docker container, then it reboots the host.
 
 
+## 4. Cloud Functions
 
-# Watch this project, easydeploy is in it's infancy - but boy is it simple to use :) #
+If you are using a supported cloud provider (currently Digital Ocean only) then you also can do some more dvanced functions.
+
+### Upgrade Machines
+
+    ./upgrade-machines.sh <profile-file>
+
+This command will create a temporary machine, deploy to it, create a machine image and then use that image to re-image all the deployed servers that match the profile (on Digital Ocean we do that by matching the droplet name of ${DEPLOY_ENV}-${GIT_URL_USER}-${COMPONENT}).
+
+Easydeploy will look for the variable PROVIDER in the profile file and use that to determine which scripts to run internally.
+
+### Rebuild Machines
+
+    ./rebuild-machines.sh <profile-file>
+
+This is similar to Upgrade Machines, however instead it uses an existing machine image without creating a new one first.
+
+
+## Watch this project, easydeploy is in it's infancy - but boy is it simple to use :) ##
 
 
 

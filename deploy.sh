@@ -22,7 +22,7 @@ cat  ~/.ssh/easydeploy_id_rsa.pub
 echo "******************************************************************"
 
 ssh  -o "StrictHostKeyChecking no" ${USERNAME}@${IP_ADDRESS} "[ -d ~/.ssh ] || ssh-keygen -q -t rsa -N """  &
-scp  -o "StrictHostKeyChecking no" -r *  ${USERNAME}@${IP_ADDRESS}:~
+scp  -o "StrictHostKeyChecking no" -r remote/*  ${USERNAME}@${IP_ADDRESS}:~
 scp  -o "StrictHostKeyChecking no" ~/.ssh/easydeploy_* ${USERNAME}@${IP_ADDRESS}:~/.ssh/
 ssh  -o "StrictHostKeyChecking no" ${USERNAME}@${IP_ADDRESS} "./bootstrap.sh ${GIT_URL_HOST} ${GIT_URL_USER} ${COMPONENT} ${DEPLOY_ENV} \"${OTHER_ARGS}\" "
 

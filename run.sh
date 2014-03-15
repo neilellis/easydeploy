@@ -3,12 +3,12 @@ OFFSET=$1
 export DOCKER_COMMANDS=
 export EASYDEPLOY_PORTS=
 export DOCKER_ARGS=
-if [[ ${EASYDEPLOY_STATE} == "stateless" ]]
-then
-    DOCKER_ARGS="$DOCKER_ARGS --rm==true"
-fi
 set -eu
 . /home/easydeploy/config/ed.sh
+if [[ ${EASYDEPLOY_STATE} == "stateless" ]]
+then
+    export DOCKER_ARGS="$DOCKER_ARGS --rm==true"
+fi
 for port in ${EASYDEPLOY_PORTS}
 do
     export DOCKER_ARGS="$DOCKER_ARGS  -p $(($port + $OFFSET)):$(($port + $OFFSET))"

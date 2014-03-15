@@ -11,7 +11,7 @@ sleep $duration
 echo "Disabling supervisor and killing run.sh"
 touch /tmp/easydeploy-run-disable
 service supervisor stop
-killall run.sh
+killall run.sh  || echo "no run.sh killed"
 sudo su - easydeploy <<EOF
 cd /home/easydeploy/config
 git pull
@@ -21,7 +21,7 @@ EOF
 
 if [[ ${EASYDEPLOY_STATE} == "stateless" ]]
 then
-    docker rm $(docker -q -a)
+     [ $(docker ps -q -a|wc -l) -gt 0 ]  && docker rm $(docker ps -q -a)
 fi
 
  envsubst < /home/easydeploy/template/template-run.conf  > /etc/supervisor/conf.d/run.conf

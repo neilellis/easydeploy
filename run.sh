@@ -14,4 +14,4 @@ do
     export DOCKER_ARGS="$DOCKER_ARGS  -p $(($port + $OFFSET)):$(($port + $OFFSET))"
 done
 [ -f /var/easydeploy/container/$1 ] || mkdir -p /var/easydeploy/container/$1
-docker run -t -i  $DOCKER_ARGS -v /var/easydeploy/container/$1:/var/easydeploy -dns 8.8.8.8 $(cat /home/easydeploy/.install-type) $DOCKER_COMMANDS
+docker run -t -i  $DOCKER_ARGS -v /var/easydeploy/container/$1:/var/easydeploy/local -v /var/easydeploy/share:/var/easydeploy/share   -dns 8.8.8.8 $(cat /home/easydeploy/.install-type) $DOCKER_COMMANDS

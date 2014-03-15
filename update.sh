@@ -10,14 +10,16 @@ echo "Sleeping for $duration to stagger updates"
 sleep $duration
 echo "Disabling supervisor and killing run.sh"
 touch /tmp/easydeploy-run-disable
+touch /var/easydeploy/shared/easydeploy-run-disable
 service supervisor stop
 killall run.sh  || echo "no run.sh killed"
+. /home/easydeploy/config/ed.sh
 sudo su - easydeploy <<EOF
 cd /home/easydeploy/config
 git pull
-docker build -t $(cat /home/easydeploy/.install-type) .
+docker build --no-cache=true -t ${COMPONENT} .
 EOF
-. /home/easydeploy/config/ed.sh
+
 
 if [[ ${EASYDEPLOY_STATE} == "stateless" ]]
 then
@@ -28,4 +30,5 @@ fi
 echo "Rebooting"
 shutdown -r +2
 sleep 118
+rm /var/easydeploy/shared/easydeploy-run-disable
 rm /tmp/easydeploy-run-disable

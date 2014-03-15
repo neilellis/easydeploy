@@ -11,16 +11,16 @@ At present easydeploy only supports Ubuntu/git/Docker combination. So we start b
 
 This file should contain the following:
 
-export DOCKER_COMMANDS=
-export DOCKER_ARGS=
-export EASYDEPLOY_PORTS=
-export EASYDEPLOY_EXTERNAL_PORTS=
-export EASYDEPLOY_PROCESS_NUMBER=
-export EASYDEPLOY_PACKAGES=
+    export DOCKER_COMMANDS=
+    export DOCKER_ARGS=
+    export EASYDEPLOY_PORTS=
+    export EASYDEPLOY_EXTERNAL_PORTS=
+    export EASYDEPLOY_PROCESS_NUMBER=
+    export EASYDEPLOY_PACKAGES=
 
 All variables are optional and *must* be exported (all the scripts rely on that.
 
-EASYDEPLOY_PORTS should be a space separated list of ports that should be mapped on the docker instance(s) so a value of "80 8080" translates to -p 80:80 -p 8080:8080
+EASYDEPLOY_PORTS should be a space separated list of ports that should be mapped on the docker instance(s) so a value of "80 8080" translates to `-p 80:80 -p 8080:8080`
 
 EASYDEPLOY_EXTERNAL_PORTS should be a space separated list of ports that should be open on the *host* machine.
 
@@ -30,15 +30,13 @@ DOCKER_ARGS (misnamed) is a set of options that are passed to docker before the 
 
 EASYDEPLOY_PACKAGES is a space seperated list of (apt-get) packages to deploy prior to the running of the install script.
 
-EASYDEPLOY_STATE can be stateless or stateful the default behaviour is stateful, stateful services destroy all traces of their state on restarts using dockers '--rm=true' and by running 'docker rm $(docker -q -a)' in the update.sh script.
+EASYDEPLOY_STATE can be 'stateless' or 'stateful' the default behaviour is stateful, stateful services destroy all traces of their state on restarts using dockers `--rm=true` and by running `docker rm $(docker -q -a)` in the update.sh script.
 
 EASYDEPLOY_UPDATE_CRON should be a cron pattern that will be used to run the update.sh script which updates your application on a regular basis set this to 'none' (the default) if you don't want the script run.
 
 ### The Dockerfile
 
-Thsis should be a normal Dockerfile.
-
-AND THAT IS IT!!!
+This should be a normal Dockerfile.
 
 
 ## 2. Deploying it
@@ -81,6 +79,23 @@ Finally the DEPLOY_ENV says which environment we're deploying too. This will als
 The first time the script is run it will create the eeasydeploy ssh keys and tell you the public key. You will need to use this public key to grant access to your git repository - and that is why it is always listed at the beginning of a deploy.
 
 Once the keys are created this command will deploy your application to the hostname supplied - run it within a docker container and keep it running using supervisord
+
+
+## 3. Runtime
+
+### The host
+
+As part of the deployment process a user called 'easydeploy' will be created on the host system. In the `/home/easydeploy` directory will be a bin directory containing scripts used by the easydeploy runtime.
+
+#### run.sh
+
+This is the script that is run by supervisord which then runs your docker container, this script should be run by the easydeploy user.
+
+#### update.sh
+
+This script triggers a new git pull and a complete rebuild of the docker container, then it reboots the host.
+
+
 
 # Watch this project, easydeploy is in it's infancy - but boy is it simple to use :) #
 

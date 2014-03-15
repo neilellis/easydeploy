@@ -25,8 +25,10 @@ sudo apt-get install -y supervisor
 sudo [ -d /home/easydeploy/bin ] || mkdir /home/easydeploy/bin
 sudo [ -d /var/log/easydeploy ] || mkdir /var/log/easydeploy
 sudo [ -d /var/easydeploy ] || mkdir /var/easydeploy
+sudo [ -d /var/easydeploy/share ] || mkdir /var/easydeploy/share
 sudo chown easydeploy:easydeploy /var/log/easydeploy
 sudo chown easydeploy:easydeploy /var/easydeploy
+sudo chown easydeploy:easydeploy /var/easydeploy/share
 sudo [ -d /home/easydeploy/template ] || mkdir /home/easydeploy/template
 sudo mv -f run.sh update.sh /home/easydeploy/bin
 sudo chmod 755 /home/easydeploy/bin/*
@@ -39,7 +41,7 @@ EOF
 if [[ ${EASYDEPLOY_STATE} == "stateless" ]]
 then
     touch /home/easydeploy/.stateless-service
-    touch /var/easydeploy/.stateless-service
+    touch /var/easydeploy/share/.stateless-service
 fi
 
 

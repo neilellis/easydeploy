@@ -8,7 +8,7 @@ source $ENV_FILE
 fi
 set -eu
 cd $(dirname $0) &> /dev/null
-./providers/${PROVIDER}/rebuild-machines.sh
+../providers/${PROVIDER}/rebuild-machines.sh
 
 
 

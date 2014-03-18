@@ -13,11 +13,11 @@ A set of scripts that allow incredibly easy deployment and running of apps using
 
 ### Set up an Ubuntu host with supervisord running a docker instance containing your app
 
-    deploy.sh snapito-logstash.profile
+    ed -p snapito-logstash.profile deploy   88.37.2.89
 
 ### Re-image and upgrade multiple machines quickly
 
-    upgrade-machines.sh snapito-gateway-prod.profile
+    ed -p snapito-gateway-prod.profile upgrade
 
 
 
@@ -102,7 +102,7 @@ Finally the DEPLOY_ENV says which environment we're deploying too. This will als
 
 ### Deploying
 
-    ./deploy.sh <profile-file> <ip-or-hostname>
+    ezd -p <profile-file> deploy <ip-or-hostname>
 
 The first time the script is run it will create the eeasydeploy ssh keys and tell you the public key. You will need to use this public key to grant access to your git repository - and that is why it is always listed at the beginning of a deploy.
 
@@ -130,7 +130,7 @@ If you are using a supported cloud provider (currently Digital Ocean only) then 
 
 ### Upgrade Machines
 
-    ./upgrade-machines.sh <profile-file>
+    ezd -p  <profile-file> upgrade
 
 This command will create a temporary machine, deploy to it, create a machine image and then use that image to re-image all the deployed servers that match the profile (on Digital Ocean we do that by matching the droplet name of ${DEPLOY_ENV}-${GIT_URL_USER}-${COMPONENT}).
 
@@ -140,7 +140,7 @@ NB: We only support `export PROVIDER=do` at present.
 
 ### Rebuild Machines
 
-    ./rebuild-machines.sh <profile-file>
+    ezd -p <profile-file> rebuild
 
 This is similar to Upgrade Machines, however instead it uses an existing machine image without creating a new one first.
 

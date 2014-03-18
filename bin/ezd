@@ -1,0 +1,99 @@
+#!/bin/sh
+DIR=$(pwd)
+cd $(dirname $0)
+usage()
+{
+cat << EOF
+usage: $0 options
+
+Main easy deploy command
+
+OPTIONS:
+   -h      Show this message
+   -e      Environment to deploy to (DEPLOY_ENV in a profile file)
+   -p      Deployment profile file
+
+
+Sub commands
+
+deploy <ip-address>
+create
+scale
+remote-tail
+rebuild
+upgrade
+
+EOF
+}
+
+
+ENVIRONMENT=
+while getopts "he:p:" OPTION
+do
+     case $OPTION in
+         h)
+             usage
+             exit 1
+             ;;
+         e)
+             ENVIRONMENT=$OPTARG
+             ;;
+         p)
+             PROFILE="$OPTARG"
+             cd $DIR
+             source ${PROFILE}
+             cd -
+             ;;
+         ?)
+             usage
+             exit
+             ;;
+     esac
+done
+
+if [[ -z PROFILE ]]
+then
+    echo "Please specify the deployment profile to use, this is normally a file ending in .profile"
+     exit 1
+fi
+
+shift $((OPTIND-1))
+
+echo $@
+
+command=$1
+shift
+
+case $command in
+     help)
+         usage
+         exit 1
+         ;;
+     image)
+         ../commands/build-image.sh $@
+         ;;
+     deploy)
+         ../commands/deploy.sh $@
+         ;;
+     create)
+         ../commands/deploy-and-provision.sh $@
+         ;;
+     rebuild)
+         ../commands/rebuild-machines.sh $@
+         ;;
+     upgrade)
+         ../commands/upgrade-machines.sh $@
+         ;;
+     tail)
+         ../commands/remote-tail.sh $@
+         ;;
+     scale)
+         ../commands/scale.sh $@
+         ;;
+     *)
+        usage;
+        exit 1
+         ;;
+ esac
+
+

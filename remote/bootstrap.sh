@@ -20,8 +20,15 @@ export DEPLOY_ENV=$4
 export OTHER_ARGS=$5
 cd
 
+if !  grep "nameserver 8.8.8.8" /etc/resolv.conf
+then
+    echo "nameserver 8.8.8.8" >> /etc/resolv.conf
+    echo "nameserver 8.8.4.4" >> /etc/resolv.conf
+fi
 
-sudo locale-gen en_GB.UTF-8
+
+
+#sudo locale-gen en_GB.UTF-8
 sudo bash <<EOF
 echo 'LANG="en_GB.UTF-8"' > /etc/default/locale
 EOF

@@ -5,7 +5,7 @@ export EASYDEPLOY_PORTS=
 export DOCKER_ARGS=
 set -eu
 . /home/easydeploy/config/ed.sh
-if [[ ${EASYDEPLOY_STATE} == "stateless" ]]
+if [ "${EASYDEPLOY_STATE}" == "stateless" ]
 then
     export DOCKER_ARGS="$DOCKER_ARGS --rm==true"
 fi

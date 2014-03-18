@@ -2,15 +2,6 @@
 trap 'echo FAILED' ERR
 
 set -eux
-if ! which tugboat
-then
-    sudo gem install tugboat
-fi
-if tugboat info $1
-then
-    tugboat destroy -c $1
-fi
-
 tugboat create --quiet --size=${DO_IMAGE_SIZE} --image=${DO_BASE_IMAGE} --region=${DO_REGION}  --keys=${DO_KEYS} --private-networking  $1
 
 while ! tugboat wait $1

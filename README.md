@@ -145,6 +145,11 @@ NB: We only support `export PROVIDER=do` at present.
 This is similar to Upgrade Machines, however instead it uses an existing machine image without creating a new one first.
 
 
+
+## 4. Examples
+
+More will be forthcoming :-) but for now https://github.com/cazcade/easydeploy-logstash should give you the idea!
+
 #easydeploy is powered by#
 
 ![Powered by Docker](http://blog.docker.io/wp-content/uploads/2013/08/KuDr42X_ITXghJhSInDZekNEF0jLt3NeVxtRye3tqco.png)

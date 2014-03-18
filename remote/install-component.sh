@@ -16,9 +16,14 @@ function dockerfileExtensions() {
 }
 
 export COMPONENT=$1
+shift
+export DEPLOY_ENV=$1
+shift
+export APP_ARGS="$@"
 export EASYDEPLOY_PORTS=80
 export EASYDEPLOY_UPDATE_CRON="0/4 * * * *"
 export EASYDEPLOY_PACKAGES=
+export EASYDEPLOY_STATE="stateful"
 export EASYDEPLOY_PROCESS_NUMBER=1
 export EASYDEPLOY_EXTERNAL_PORTS=
 export EASYDEPLOY_UPDATE_CRON=none
@@ -42,7 +47,13 @@ sudo [ -d /var/easydeploy ] || mkdir /var/easydeploy
 sudo [ -d /var/easydeploy/share ] || mkdir /var/easydeploy/share
 sudo chown easydeploy:easydeploy /var/log/easydeploy
 sudo chown easydeploy:easydeploy /var/easydeploy
+
+#store useful info for scripts
+echo ${EASYDEPLOY_STATE} > /var/easydeploy/share/.config/edstate
+echo ${APP_ARGS} > /var/easydeploy/share/.config/app_args
+echo ${COMPONENT} > /var/easydeploy/share/.config/component
 sudo chown easydeploy:easydeploy /var/easydeploy/share
+
 sudo [ -d /home/easydeploy/template ] || mkdir /home/easydeploy/template
 sudo mv -f run.sh update.sh /home/easydeploy/bin
 sudo chmod 755 /home/easydeploy/bin/*

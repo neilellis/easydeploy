@@ -14,10 +14,14 @@ error() {
 trap 'error "${BASH_SOURCE}" "${LINENO}" "$?"' ERR
 set -eux
 export GIT_URL_HOST=$1
-export GIT_URL_USER=$2
-export COMPONENT=$3
-export DEPLOY_ENV=$4
-export OTHER_ARGS=$5
+shift
+export GIT_URL_USER=$1
+shift
+export COMPONENT=$1
+shift
+export DEPLOY_ENV=$1
+shift
+export OTHER_ARGS="$@"
 cd
 
 if !  grep "nameserver 8.8.8.8" /etc/resolv.conf

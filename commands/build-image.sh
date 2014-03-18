@@ -7,7 +7,9 @@ fi
 set -eu
 cd $(dirname $0) &> /dev/null
 export TIMESTAMP=$(date +%s)
-export MACHINE_NAME="template-${GIT_URL_USER}-${COMPONENT}-${TIMESTAMP}"
+. common.sh
+export MACHINE_NAME=$(templateName)
+
 export IP_ADDRESS=$(../providers/${PROVIDER}/provision.sh ${MACHINE_NAME} | tail -1)
 if [ $IP_ADDRESS == "FAILED" ]
 then
@@ -20,7 +22,7 @@ else
     ../providers/${PROVIDER}/deprovision.sh ${MACHINE_NAME}
     if [ $IMAGE == "FAILED" ]
     then
-        echo "Failed to create image template-${GIT_URL_USER}-${COMPONENT}"
+        echo "Failed to create image ${MACHINE_NAME}"
         exit -1
     else
         echo "Image created on ${PROVIDER} was ${IMAGE}"

@@ -8,7 +8,8 @@ source $ENV_FILE
 fi
 set -eu
 cd $(dirname $0) &> /dev/null
-export MACHINE_NAME="${DEPLOY_ENV}-${GIT_URL_USER}-${COMPONENT}"
+. common.sh
+export MACHINE_NAME=$(machineName)
 export IP_ADDRESS=$(../providers/${PROVIDER}/provision.sh ${MACHINE_NAME} | tail -1)
 if [ $IP_ADDRESS == "FAILED" ]
 then

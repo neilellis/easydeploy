@@ -12,7 +12,11 @@ fi
 
 [ -z "${MIN_INSTANCES}" ] && export MIN_INSTANCES=0
 [ -z "${MAX_INSTANCES}" ] && export MAX_INSTANCES=1
-export MACHINE_NAME="${DEPLOY_ENV}-${GIT_URL_USER}-${COMPONENT}"
+
+
+cd $(dirname $0)
+. ../../commands/common.sh
+MACHINE_NAME=$(machineName)
 set -eux
 
 

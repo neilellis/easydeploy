@@ -13,11 +13,11 @@ A set of scripts that allow incredibly easy deployment and running of apps using
 
 ### Set up an Ubuntu host with supervisord running a docker instance containing your app
 
-    ed -p snapito-logstash.profile deploy   88.37.2.89
+    ezd -p snapito-logstash.profile deploy   88.37.2.89
 
 ### Re-image and upgrade multiple machines quickly
 
-    ed -p snapito-gateway-prod.profile upgrade
+    ezd -p snapito-gateway-prod.profile upgrade
 
 
 

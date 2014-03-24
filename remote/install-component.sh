@@ -58,7 +58,7 @@ echo ${GIT_BRANCH} > /var/easydeploy/share/.config/branch
 sudo chown easydeploy:easydeploy /var/easydeploy/share
 
 sudo [ -d /home/easydeploy/template ] || mkdir /home/easydeploy/template
-sudo mv -f run.sh update.sh /home/easydeploy/bin
+sudo mv -f run.sh update.sh gitpoll.sh /home/easydeploy/bin
 sudo chmod 755 /home/easydeploy/bin/*
 sudo /bin/bash <<EOF
 export COMPONENT=${COMPONENT}
@@ -103,6 +103,7 @@ cd /home/easydeploy/deployment
 cat Dockerfile | dockerfileExtensions > Dockerfile.processed
 mv -f  Dockerfile Dockerfile.orig
 mv -f  Dockerfile.processed Dockerfile
+service docker start || true
 sudo su easydeploy -c "cd /home/easydeploy/deployment ; docker build --no-cache=true -t ${COMPONENT} ."
 mv -f Dockerfile.orig Dockerfile
 sudo chmod a+rwx /var/run/docker.sock
@@ -116,6 +117,8 @@ done
 yes | sudo ufw enable
 sudo service supervisor stop || true
 service docker stop
+[ -e  /tmp/supervisor.sock ] && sudo unlink /tmp/supervisor.sock
+[ -e  /var/run/supervisor.sock  ] && sudo unlink /var/run/supervisor.sock
 sleep 10
 killall docker || true
 service docker start

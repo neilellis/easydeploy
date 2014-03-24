@@ -109,7 +109,7 @@ case $command in
          exit 1
          ;;
      image)
-         ../commands/build-image.sh $@
+         ../commands/image.sh $@
          ;;
      deploy)
          ../commands/deploy.sh $@

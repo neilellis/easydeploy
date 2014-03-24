@@ -89,6 +89,23 @@ Again all variables should be exported, and here are the variables:
     export DO_IMAGE_SIZE=62
     export DO_REGION=4
 
+    #Loadbalancers Only
+    export LB_TARGET_USER=snapito
+    export LB_TARGET_ENV=prod
+    export LB_TARGET_COMPONENT=api
+    export LB_HTTP_CHECK_URL="/image?url=example.com&freshness=60&key=monitor"
+    export LB_RATELIMIT_AFTER=1024
+    export LB_MAXCONN=1024
+    export LB_MAXCONN_PER=256
+    export LB_CHECK_INTERVAL=5000
+    export LB_TIMEOUT=600s
+    export LB_STATS_PASSWORD=123
+
+    #Scaling
+    export MIN_INSTANCES=2
+    export MAX_INSTANCES=2
+
+
 To understand these, let's look at where easydeploy downloads your project (from the previous section). As mentioned earlier we only support git and the git url will be built as follows
 
 
@@ -178,9 +195,16 @@ NB: We only support `export PROVIDER=do` at present.
 
 This is similar to Upgrade Machines, however instead it uses an existing machine image without creating a new one first.
 
+## 5. Continuous Deployment
+
+Continuous deployment is pretty much a given for easydeploy, we assume that you're trying to do this. Easydeploy manages CD in an incredibly simple manner, using supervisord and a simple shellscript. In the /home/easydeploy/bin directory is a script called gitpoll.sh this script will be started by supervisord - it checks for changes to the deployment git project.
+
+If the project has changed then a docker build request is also triggered to update the docker image.
+
+HOW DO I REDEPLOY? Is probably what you're asking right now. Well it's simple, the best way to do this is to make sure the process that you run in the docker container responds to a simple Ctrl-C - because that's what easydeploy will send the app when a build has finished. Once your app exits supervisord will restart it in the new docker container. Simple.
 
 
-## 4. Examples
+## 6. Examples
 
 More will be forthcoming :-) but for now https://github.com/cazcade/easydeploy-logstash should give you the idea!
 

@@ -13,9 +13,9 @@ touch /tmp/easydeploy-run-disable
 touch /var/easydeploy/shared/easydeploy-run-disable
 service supervisor stop
 killall run.sh  || echo "no run.sh killed"
-. /home/easydeploy/config/ed.sh
+. /home/easydeploy/deployment/ed.sh
 sudo su - easydeploy <<EOF
-cd /home/easydeploy/config
+cd /home/easydeploy/deployment
 git pull
 docker build --no-cache=true -t ${COMPONENT} .
 EOF

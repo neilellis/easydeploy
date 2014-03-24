@@ -1,7 +1,7 @@
 #!/bin/sh
 trap 'echo FAILED' ERR
 
-set -eux
+set -e
 if ! which tugboat
 then
     sudo gem install tugboat

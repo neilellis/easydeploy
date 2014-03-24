@@ -5,16 +5,9 @@ then
     exit -1
 fi
 trap 'echo FAILED' ERR
-if [ $# -eq 1 ]
-then
-    cd $(dirname $1)
-    export ENV_FILE=$(pwd)/$1
-    cd -
-    source $ENV_FILE
-    shift
-fi
 cd $(dirname $0) &> /dev/null
-machines=$(../providers/${PROVIDER}/list-machines-by-ip.sh | tr '\n' ' ')
+. common.sh
+machines=$(../providers/${PROVIDER}/list-machines-by-ip.sh $(machineName) | tr '\n' ' ')
 cmd="multitail "
 for machine in $machines
 do

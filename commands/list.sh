@@ -2,7 +2,8 @@
 
 set -eu
 cd $(dirname $0) &> /dev/null
-../providers/${PROVIDER}/rebuild-machines.sh
+../providers/${PROVIDER}/list-machines.sh
+
 
 
 

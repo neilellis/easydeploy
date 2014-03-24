@@ -19,6 +19,8 @@ export COMPONENT=$1
 shift
 export DEPLOY_ENV=$1
 shift
+export GIT_BRANCH=$1
+shift
 export APP_ARGS="$@"
 export EASYDEPLOY_PORTS=80
 export EASYDEPLOY_UPDATE_CRON="0/4 * * * *"
@@ -28,7 +30,7 @@ export EASYDEPLOY_PROCESS_NUMBER=1
 export EASYDEPLOY_EXTERNAL_PORTS=
 export EASYDEPLOY_UPDATE_CRON=none
 
-. /home/easydeploy/config/ed.sh
+. /home/easydeploy/deployment/ed.sh
 
 if [ ! -z ${EASYDEPLOY_PACKAGES} ]
 then
@@ -38,13 +40,13 @@ fi
 
 
 
-[ -f /home/easydeploy/config/pre-install.sh ] && sudo bash /home/easydeploy/config/pre-install.sh
 
 sudo apt-get install -y supervisor
 sudo [ -d /home/easydeploy/bin ] || mkdir /home/easydeploy/bin
 sudo [ -d /var/log/easydeploy ] || mkdir /var/log/easydeploy
 sudo [ -d /var/easydeploy ] || mkdir /var/easydeploy
 sudo [ -d /var/easydeploy/share ] || mkdir /var/easydeploy/share
+sudo [ -d /var/easydeploy/share/.config/ ] || mkdir /var/easydeploy/share/.config/
 sudo chown easydeploy:easydeploy /var/log/easydeploy
 sudo chown easydeploy:easydeploy /var/easydeploy
 
@@ -52,6 +54,7 @@ sudo chown easydeploy:easydeploy /var/easydeploy
 echo ${EASYDEPLOY_STATE} > /var/easydeploy/share/.config/edstate
 echo ${APP_ARGS} > /var/easydeploy/share/.config/app_args
 echo ${COMPONENT} > /var/easydeploy/share/.config/component
+echo ${GIT_BRANCH} > /var/easydeploy/share/.config/branch
 sudo chown easydeploy:easydeploy /var/easydeploy/share
 
 sudo [ -d /home/easydeploy/template ] || mkdir /home/easydeploy/template
@@ -87,15 +90,20 @@ sudo sh -c "echo deb http://get.docker.io/ubuntu docker main > /etc/apt/sources.
 sudo apt-get -y update
 sudo apt-get install -y lxc-docker
 
+
+#Pre installation custom tasks
+[ -f /home/easydeploy/deployment/pre-install.sh ] && sudo bash /home/easydeploy/deployment/pre-install.sh
+
+
 #sudo addgroup worker docker
 sudo addgroup easydeploy docker
 sudo chmod a+rwx /var/run/docker.sock
 sudo chown -R easydeploy:easydeploy /home/easydeploy/
-cd /home/easydeploy/config
+cd /home/easydeploy/deployment
 cat Dockerfile | dockerfileExtensions > Dockerfile.processed
 mv -f  Dockerfile Dockerfile.orig
 mv -f  Dockerfile.processed Dockerfile
-sudo su easydeploy -c "cd /home/easydeploy/config ; docker build -t ${COMPONENT} ."
+sudo su easydeploy -c "cd /home/easydeploy/deployment ; docker build --no-cache=true -t ${COMPONENT} ."
 mv -f Dockerfile.orig Dockerfile
 sudo chmod a+rwx /var/run/docker.sock
 cd
@@ -107,8 +115,12 @@ sudo ufw allow ${port}
 done
 yes | sudo ufw enable
 sudo service supervisor stop || true
+service docker stop
+sleep 10
+killall docker || true
+service docker start
 sudo service supervisor start
-[ -f  /home/easydeploy/config/post-install.sh ] && sudo bash /home/easydeploy/config/post-install.sh
-[ -f  /home/easydeploy/config/post-install-userland.sh ] && sudo su  easydeploy "cd; bash  /home/easydeploy/config/post-install-userland.sh"
+[ -f  /home/easydeploy/deployment/post-install.sh ] && sudo bash /home/easydeploy/deployment/post-install.sh
+[ -f  /home/easydeploy/deployment/post-install-userland.sh ] && sudo su  easydeploy "cd; bash  /home/easydeploy/deployment/post-install-userland.sh"
 
 exit 0

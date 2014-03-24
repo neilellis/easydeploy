@@ -128,6 +128,40 @@ This script triggers a new git pull and a complete rebuild of the docker contain
 
 If you are using a supported cloud provider (currently Digital Ocean only) then you also can do some more dvanced functions.
 
+
+### Create Image
+
+    ezd -p  <profile-file> image
+
+Creates an image on the cloud provider specified by `${PROVIDER}` from the profile. Specifically it creates an appropriate instance, deploys to it and then snapshots it.
+
+
+### Create Single Instance
+
+     ezd -p  <profile-file> create
+
+Creates a single instance ignoring any scaling parameters set in the profile and deploys to it.
+
+### Tail All Instances
+
+     ezd -p  <profile-file> tail
+
+To use this you *must* have `multitail` installed (try Homebrew `brew install multitail` on Macs). This command will create a multitail session split for each server. Not suitable for large numbers of instances.
+
+
+### Scale to N Instances
+
+     ezd -p  <profile-file> scale <N>
+
+This will scale the number of instances to N, if the current number of instances is larger they will be destroyed if less then they will be created.
+
+
+### List Instances
+
+     ezd -p  <profile-file> scale <N>
+
+This will list all instances of the deployment profile, however the way the results are displayed are currently provider specific.
+
 ### Upgrade Machines
 
     ezd -p  <profile-file> upgrade

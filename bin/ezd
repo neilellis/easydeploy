@@ -1,6 +1,21 @@
-#!/bin/sh
+#!/bin/bash
+set -e
+#Defaults
+export LB_HTTP_CHECK_URL="/"
+export LB_RATELIMIT_AFTER=1024
+export LB_MAXCONN=1024
+export LB_MAXCONN_PER=256
+export LB_CHECK_INTERVAL=5000
+export LB_TIMEOUT=10s
+export LB_STATS_PASSWORD=password
+export LB_TARGET_COMPONENT=
+export COMPONENT_MODIFIER=
+export MIN_INSTANCES=0
+export MAX_INSTANCES=10000000
+
+
 DIR=$(pwd)
-cd $(dirname $0)
+cd $(dirname $0) > /dev/null
 usage()
 {
 cat << EOF
@@ -10,7 +25,8 @@ Main easy deploy command
 
 OPTIONS:
    -h      Show this message
-   -e      Environment to deploy to (DEPLOY_ENV in a profile file)
+   -b      Git branch to use (overrides GIT_BRANCH in a profile file)
+   -e      Environment to deploy to (overrides DEPLOY_ENV in a profile file)
    -p      Deployment profile file
 
 
@@ -27,8 +43,10 @@ EOF
 }
 
 
-ENVIRONMENT=
-while getopts "he:p:" OPTION
+
+e=
+branch=
+while getopts "he:p:b:" OPTION
 do
      case $OPTION in
          h)
@@ -36,12 +54,15 @@ do
              exit 1
              ;;
          e)
-             ENVIRONMENT=$OPTARG
+             e=$OPTARG
+             ;;
+         b)
+             branch=$OPTARG
              ;;
          p)
-             PROFILE="$OPTARG"
+             profile="$OPTARG"
              cd $DIR
-             source ${PROFILE}
+             source ${profile}
              cd -
              ;;
          ?)
@@ -51,16 +72,34 @@ do
      esac
 done
 
-if [[ -z PROFILE ]]
+if [ ! -z "$e" ]
+then
+    export DEPLOY_ENV="$e"
+fi
+
+
+if [ -z "$profile" ]
 then
     echo "Please specify the deployment profile to use, this is normally a file ending in .profile"
      exit 1
 fi
 
+if [ -z "$GIT_BRANCH" ]
+then
+    if [ ! -z "$branch" ]
+    then
+        export GIT_BRANCH=${branch}
+    elif [ ${DEPLOY_ENV} == "prod" ] ||  [ ${DEPLOY_ENV} == "alt-prod" ]
+    then
+         echo "Using master branch"
+         export GIT_BRANCH=master
+    else
+         echo "Using ${DEPLOY_ENV} branch"
+         export GIT_BRANCH=${DEPLOY_ENV}
+    fi
+fi
+
 shift $((OPTIND-1))
-
-echo $@
-
 command=$1
 shift
 
@@ -84,11 +123,20 @@ case $command in
      upgrade)
          ../commands/upgrade-machines.sh $@
          ;;
+     update)
+         ../commands/update.sh $@
+         ;;
+     update-lb)
+         ../commands/update-lb.sh $@
+         ;;
      tail)
          ../commands/remote-tail.sh $@
          ;;
      scale)
          ../commands/scale.sh $@
+         ;;
+     list)
+         ../commands/list.sh $@
          ;;
      *)
         usage;

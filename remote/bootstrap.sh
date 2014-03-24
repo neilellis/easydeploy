@@ -21,6 +21,8 @@ export COMPONENT=$1
 shift
 export DEPLOY_ENV=$1
 shift
+export GIT_BRANCH=$1
+shift
 export OTHER_ARGS="$@"
 cd
 
@@ -61,27 +63,18 @@ chmod 600 ~/.ssh/*
 chmod 700 ~/.ssh
 ssh -o StrictHostKeyChecking=no git@${GIT_URL_HOST}  /bin/bash  &> /dev/null</dev/null  || true
 git clone git@${GIT_URL_HOST}:${GIT_URL_USER}/easydeploy-${COMPONENT}.git
-if [ ${DEPLOY_ENV} == "prod" ] ||  [ ${DEPLOY_ENV} == "alt-prod" ]
-then
-    echo "Using master branch"
-    cd easydeploy-${COMPONENT}
-    git checkout master
-    cd -
-else
-    echo "Using ${DEPLOY_ENV}  branch"
-    cd easydeploy-${COMPONENT}
-    git checkout ${DEPLOY_ENV}
-    cd -
-fi
-ln -s /home/easydeploy/easydeploy-${COMPONENT}/ /home/easydeploy/config
-cp -f ~/.ssh/id_rsa  /home/easydeploy/config/id_rsa
-cp -f ~/.ssh/id_rsa.pub  /home/easydeploy/config/id_rsa.pub
+cd easydeploy-${COMPONENT}
+git checkout ${GIT_BRANCH}
+cd -
+ln -s /home/easydeploy/easydeploy-${COMPONENT}/ /home/easydeploy/deployment
+cp -f ~/.ssh/id_rsa  /home/easydeploy/deployment/id_rsa
+cp -f ~/.ssh/id_rsa.pub  /home/easydeploy/deployment/id_rsa.pub
 EOF
 
 
 
 echo "Installing ${COMPONENT} on ${DEPLOY_ENV}"
-bash ./install-component.sh ${COMPONENT} ${DEPLOY_ENV} ${OTHER_ARGS}
+bash ./install-component.sh ${COMPONENT} ${DEPLOY_ENV} ${GIT_BRANCH} ${OTHER_ARGS}
 echo "**** EASYDEPLOY-COMPONENT-INSTALL-FINISHED ****"
 exit 0
 

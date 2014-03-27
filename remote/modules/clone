@@ -1,0 +1,6 @@
+#!/bin/sh
+branch=$(cat /var/easydeploy/share/.config/deploy_env)
+cat <<EOF
+RUN git clone $2
+RUN cd $1; (git checkout $branch || git checkout master); cd ..
+EOF

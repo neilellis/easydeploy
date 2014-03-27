@@ -13,12 +13,9 @@ touch /tmp/easydeploy-run-disable
 touch /var/easydeploy/shared/easydeploy-run-disable
 service supervisor stop
 killall run.sh  || echo "no run.sh killed"
+export EASYDEPLOY_HOST_IP=$(/sbin/ifconfig eth0 | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p')
 . /home/easydeploy/deployment/ed.sh
-sudo su - easydeploy <<EOF
-cd /home/easydeploy/deployment
-git pull
-docker build --no-cache=true -t ${COMPONENT} .
-EOF
+sudo su - easydeploy -c "/home/easydeploy/bin/build.sh"
 
 
 if [[ ${EASYDEPLOY_STATE} == "stateless" ]]

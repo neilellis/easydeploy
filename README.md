@@ -175,7 +175,7 @@ This will scale the number of instances to N, if the current number of instances
 
 ### List Instances
 
-     ezd -p  <profile-file> scale <N>
+     ezd -p  <profile-file> list
 
 This will list all instances of the deployment profile, however the way the results are displayed are currently provider specific.
 
@@ -197,7 +197,11 @@ This is similar to Upgrade Machines, however instead it uses an existing machine
 
 ## 5. Continuous Deployment
 
-Continuous deployment is pretty much a given for easydeploy, we assume that you're trying to do this. Easydeploy manages CD in an incredibly simple manner, using supervisord and a simple shellscript. In the /home/easydeploy/bin directory is a script called gitpoll.sh this script will be started by supervisord - it checks for changes to the deployment git project.
+Continuous deployment is integral to easydeploy, it will assume that you're trying to do this if you're app has `export EASYDEPLOY_STATE="stateless"` set in the `ed.sh`file. If it doesn't have this value set then we treat it as stateful and do not attempt to rebuild it automatically. Stateless apps are always preferable as gradually accrued unwanted or unexpected state can be deleted at any time.
+
+**TRY TO MAKE ALL YOUR APPS STATELESS, EXCEPT YOUR ACTUAL DATABASE**
+
+Easydeploy manages CD in an incredibly simple manner, using supervisord and a simple shellscript. In the /home/easydeploy/bin directory is a script called gitpoll.sh this script will be started by supervisord - it checks for changes to the deployment git project.
 
 If the project has changed then a docker build request is also triggered to update the docker image.
 

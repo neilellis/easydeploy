@@ -1,5 +1,0 @@
-#!/bin/sh
-cat <<EOF
-RUN git clone $2
-RUN cd $1; (git checkout $GIT_BRANCH || git checkout master); cd ..
-EOF

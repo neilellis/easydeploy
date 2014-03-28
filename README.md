@@ -208,7 +208,47 @@ If the project has changed then a docker build request is also triggered to upda
 HOW DO I REDEPLOY? Is probably what you're asking right now. Well it's simple, the best way to do this is to make sure the process that you run in the docker container responds to a simple Ctrl-C - because that's what easydeploy will send the app when a build has finished. Once your app exits supervisord will restart it in the new docker container. Simple.
 
 
-## 6. Examples
+
+## 6. Special Directories
+
+### /var/easydeploy/container/XX -> /var/local
+
+The  /var/easydeploy/container/XX directory where XX is the instance number of the docker container is mapped to the /var/easydeploy/local of each docker instance. Therefore it is not shared with other containers. This is most useful for seeing 'under the hood' of a running docker container by having access to it's files from the host.
+
+
+### /var/easydeploy/share -> /var/share , /var/easydeploy/share
+
+A directory shared between the host machine and all the docker containers on that machine. This is a quick way of passing files from the host to all containers or for files to be shared by containers within a host. It appears as both /var/share and /var/easydepoy/share in the container.  This directory has some very useful sub-directories listed below.
+
+### /var/easydeploy/share/.config
+
+Various configuration data usually one value per file. Files include
+
+ * app_args - the additional arguments to be passed to the running container ${APP_ARGS}
+ * component - the name of the application component placed on the machine ${COMPONENT}
+ * edstate - whether this is a stateful or stateless app ${EASYDEPLOY_STATE}
+ * branch - the git branch being used, usually master for prod/alt-prod environments or the name of the environment ${GIT_BRANCH}
+ * deploy_env - the deployment envitonment (e.g. prod,dev,test) ${DEPLOY_ENV}
+ * machines.txt a list of machines that were present at build time, usually used to get the serf nodes seeded.
+
+
+### /var/easydeploy/share/sync
+
+This directory is the parent directory for those synchronized using btsync. The various sub directories work with a subset of nodes, they are useful for sharing large (MB-GB)  binary objects between machines and containers.
+
+#### /var/easydeploy/share/sync/global
+
+**All** nodes in **all** environments, so don't put anything big in here :-) - you probably want to use `/var/easydeploy/sync/env` instead.
+
+#### /var/easydeploy/share/sync/env
+
+All nodes in the environment (i.e. dev, prod etc).
+
+#### /var/easydeploy/share/sync/component
+
+All nodes with the same component type and in the same environment (i.e. dev, prod etc).
+
+## A. Examples
 
 More will be forthcoming :-) but for now https://github.com/cazcade/easydeploy-logstash should give you the idea!
 

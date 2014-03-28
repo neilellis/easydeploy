@@ -1,0 +1,46 @@
+{
+    "device_name": "${EASYDEPLOY_HOST_IP}",
+    "listening_port": 9595,
+    "pid_file": "/var/run/btsync/btsync.pid",
+
+
+    "check_for_updates": true,
+    "use_upnp": false,
+    "download_limit": 0,
+    "upload_limit": 0,
+    "shared_folders": [
+        {
+            "secret": "${EASYDEPLOY_GLOBAL_SYNC_SECRET}",
+            "dir": "/var/easydeploy/share/sync/global",
+            "use_relay_server": true,
+            "use_tracker": true,
+            "use_dht": false,
+            "search_lan": true,
+            "use_sync_trash": true,
+            "known_hosts": [
+            ]
+        },
+        {
+            "secret": "${EASYDEPLOY_COMPONENT_SYNC_SECRET}",
+            "dir": "/var/easydeploy/share/sync/component",
+            "use_relay_server": true,
+            "use_tracker": true,
+            "use_dht": false,
+            "search_lan": true,
+            "use_sync_trash": true,
+            "known_hosts": [
+            ]
+        },
+        {
+            "secret": "${EASYDEPLOY_ENV_SYNC_SECRET}",
+            "dir": "/var/easydeploy/share/sync/env",
+            "use_relay_server": true,
+            "use_tracker": true,
+            "use_dht": false,
+            "search_lan": true,
+            "use_sync_trash": true,
+            "known_hosts": [
+            ]
+        }
+    ]
+}

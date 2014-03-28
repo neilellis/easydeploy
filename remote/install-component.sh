@@ -22,10 +22,45 @@ export EASYDEPLOY_HOST_IP=$(/sbin/ifconfig eth0 | sed -En 's/127.0.0.1//;s/.*ine
 
 . /home/easydeploy/deployment/ed.sh
 
+
+#Create main directories
+sudo [ -d /home/easydeploy/bin ] || mkdir /home/easydeploy/bin
+sudo [ -d /var/log/easydeploy ] || mkdir /var/log/easydeploy
+sudo [ -d /var/easydeploy ] || mkdir /var/easydeploy
+sudo [ -d /var/easydeploy/share ] || mkdir /var/easydeploy/share
+sudo [ -d /var/easydeploy/share/sync ] || mkdir /var/easydeploy/share/sync
+sudo [ -d /var/easydeploy/share/sync/global ] || mkdir /var/easydeploy/share/sync/global
+sudo [ -d /var/easydeploy/share/sync/component ] || mkdir /var/easydeploy/share/sync/component
+sudo [ -d /var/easydeploy/share/sync/env ] || mkdir /var/easydeploy/share/sync/env
+sudo [ -d /var/easydeploy/share/.config/ ] || mkdir /var/easydeploy/share/.config/
+
+#store useful info for scripts
+echo ${EASYDEPLOY_STATE} > /var/easydeploy/share/.config/edstate
+echo ${APP_ARGS} > /var/easydeploy/share/.config/app_args
+echo ${COMPONENT} > /var/easydeploy/share/.config/component
+echo ${GIT_BRANCH} > /var/easydeploy/share/.config/branch
+echo ${DEPLOY_ENV} > /var/easydeploy/share/.config/deploy_env
+sudo chown easydeploy:easydeploy /var/easydeploy/share
+
 if [ ! -z ${EASYDEPLOY_PACKAGES} ]
 then
     sudo apt-get install -y ${EASYDEPLOY_PACKAGES}
 fi
+
+#Security
+sudo apt-get install -y denyhosts
+
+#Sync
+sudo apt-get install -y  rhash
+[ -d  /var/run/btsync/ ] || sudo mkdir  /var/run/btsync/
+[ -f /usr/local/bin/btsync ] || sudo curl http://btsync.s3-website-us-east-1.amazonaws.com/btsync_x64.tar.gz | tar xvzf - -C /usr/local/bin/ btsync
+sudo chown root:root /usr/local/bin/btsync
+sudo chmod 755 /usr/local/bin/btsync
+export EASYDEPLOY_GLOBAL_SYNC_SECRET="$(cat /home/easydeploy/.ssh/id_rsa | sed -e 's/0/1/g' | rhash --sha512 - )"
+export EASYDEPLOY_COMPONENT_SYNC_SECRET="$(cat /home/easydeploy/.ssh/id_rsa /var/easydeploy/share/.config/component /var/easydeploy/share/.config/deploy_env | rhash --sha512 - )"
+export EASYDEPLOY_ENV_SYNC_SECRET="$(cat /home/easydeploy/.ssh/id_rsa /var/easydeploy/share/.config/deploy_env | rhash --sha512 - )"
+sudo envsubst < btsync.cfg.json >  /etc/btsync.cfg
+sudo chown -R easydeploy:easydeploy /var/easydeploy/share/sync
 
 
 sudo apt-get install -y unzip
@@ -43,21 +78,9 @@ sudo apt-get install -y supervisor timelimit
 sudo [ -d /home/easydeploy/modules ] && rm -rf /home/easydeploy/modules
 sudo cp -r modules /home/easydeploy
 
-sudo [ -d /home/easydeploy/bin ] || mkdir /home/easydeploy/bin
-sudo [ -d /var/log/easydeploy ] || mkdir /var/log/easydeploy
-sudo [ -d /var/easydeploy ] || mkdir /var/easydeploy
-sudo [ -d /var/easydeploy/share ] || mkdir /var/easydeploy/share
-sudo [ -d /var/easydeploy/share/.config/ ] || mkdir /var/easydeploy/share/.config/
 sudo chown easydeploy:easydeploy /var/log/easydeploy
 sudo chown easydeploy:easydeploy /var/easydeploy
 
-#store useful info for scripts
-echo ${EASYDEPLOY_STATE} > /var/easydeploy/share/.config/edstate
-echo ${APP_ARGS} > /var/easydeploy/share/.config/app_args
-echo ${COMPONENT} > /var/easydeploy/share/.config/component
-echo ${GIT_BRANCH} > /var/easydeploy/share/.config/branch
-echo ${DEPLOY_ENV} > /var/easydeploy/share/.config/deploy_env
-sudo chown easydeploy:easydeploy /var/easydeploy/share
 
 sudo [ -d /home/easydeploy/template ] || mkdir /home/easydeploy/template
 [ -f machines.txt ] && mv -f machines.txt  /var/easydeploy/share/.config/machines.txt
@@ -110,8 +133,9 @@ sudo su easydeploy -c "/home/easydeploy/bin/build.sh"
 sudo chmod a+rwx /var/run/docker.sock
 cd
 
-sudo ufw allow 22
-sudo ufw allow 7946
+sudo ufw allow 22   #ssh
+sudo ufw allow 7946 #serf
+sudo ufw allow 9595 #btsync
 
 for port in ${EASYDEPLOY_PORTS} ${EASYDEPLOY_EXTERNAL_PORTS}
 do

@@ -52,15 +52,65 @@ sudo apt-get install -y denyhosts
 
 #Sync
 sudo apt-get install -y  rhash
-[ -d  /var/run/btsync/ ] || sudo mkdir  /var/run/btsync/
-[ -f /usr/local/bin/btsync ] || sudo curl http://btsync.s3-website-us-east-1.amazonaws.com/btsync_x64.tar.gz | tar xvzf - -C /usr/local/bin/ btsync
-sudo chown root:root /usr/local/bin/btsync
-sudo chmod 755 /usr/local/bin/btsync
-export EASYDEPLOY_GLOBAL_SYNC_SECRET="$(cat /home/easydeploy/.ssh/id_rsa | sed -e 's/0/1/g' | rhash --sha512 - )"
-export EASYDEPLOY_COMPONENT_SYNC_SECRET="$(cat /home/easydeploy/.ssh/id_rsa /var/easydeploy/share/.config/component /var/easydeploy/share/.config/deploy_env | rhash --sha512 - )"
-export EASYDEPLOY_ENV_SYNC_SECRET="$(cat /home/easydeploy/.ssh/id_rsa /var/easydeploy/share/.config/deploy_env | rhash --sha512 - )"
-sudo envsubst < btsync.cfg.json >  /etc/btsync.cfg
+sudo add-apt-repository -y ppa:tuxpoldo/btsync
+sudo apt-get update
+echo "n" | sudo apt-get install -y btsync
+export EASYDEPLOY_GLOBAL_SYNC_SECRET="$(cat /home/easydeploy/.ssh/id_rsa | sed -e 's/0/1/g' | rhash --sha512 - | cut -c1-64 )"
+export EASYDEPLOY_COMPONENT_SYNC_SECRET="$(cat /home/easydeploy/.ssh/id_rsa /var/easydeploy/share/.config/component /var/easydeploy/share/.config/deploy_env | rhash --sha512 - | cut -c1-64)"
+export EASYDEPLOY_ENV_SYNC_SECRET="$(cat /home/easydeploy/.ssh/id_rsa /var/easydeploy/share/.config/deploy_env | rhash --sha512 - | cut -c1-64)"
+sudo cat >  /etc/btsync/default.conf <<EOF
+//!/usr/lib/btsync/btsync-daemon --config
+//
+// in this profile, btsync will run as my user ID
+// DAEMON_UID=easydeploy
+//
+{
+    "device_name": "$EASYDEPLOY_HOST_IP",
+    "listening_port": 9595,
+    "check_for_updates": false,
+    "storage_path":"/var/easydeploy/share/sync",
+    "use_upnp": false,
+    "download_limit": 0,
+    "upload_limit": 0,
+    "shared_folders": [
+        {
+            "secret": "$EASYDEPLOY_GLOBAL_SYNC_SECRET",
+            "dir": "/var/easydeploy/share/sync/global",
+            "use_relay_server": true,
+            "use_tracker": true,
+            "use_dht": false,
+            "search_lan": true,
+            "use_sync_trash": true
+
+        },
+        {
+            "secret": "$EASYDEPLOY_COMPONENT_SYNC_SECRET",
+            "dir": "/var/easydeploy/share/sync/component",
+            "use_relay_server": true,
+            "use_tracker": true,
+            "use_dht": false,
+            "search_lan": true,
+            "use_sync_trash": true
+
+        },
+        {
+            "secret": "$EASYDEPLOY_ENV_SYNC_SECRET",
+            "dir": "/var/easydeploy/share/sync/env",
+            "use_relay_server": true,
+            "use_tracker": true,
+            "use_dht": false,
+            "search_lan": true,
+            "use_sync_trash": true
+
+        }
+    ]
+}
+EOF
+echo 'AUTOSTART="all"' > /etc/default/btsync
 sudo chown -R easydeploy:easydeploy /var/easydeploy/share/sync
+sudo chown -R easydeploy:easydeploy /etc/btsync/default.conf
+sudo chmod 600 /etc/btsync/default.conf
+sudo service btsync start
 
 
 sudo apt-get install -y unzip
@@ -151,6 +201,7 @@ sleep 10
 sudo killall docker || true
 sudo service docker start
 sudo service supervisor start
+sudo supervisorctl restart all
 [ -f  /home/easydeploy/deployment/post-install.sh ] && sudo bash /home/easydeploy/deployment/post-install.sh
 [ -f  /home/easydeploy/deployment/post-install-userland.sh ] && sudo su  easydeploy "cd; bash  /home/easydeploy/deployment/post-install-userland.sh"
 

@@ -3,22 +3,38 @@ easydeploy
 
 A set of scripts that allow incredibly easy deployment and running of apps using Docker and supervisord
 
-## 0. Highlights
+## 0. Intro
 
 
-### Add modules to your dockerfiles
+### Highlights
+
+#### Add modules to your Dockerfiles
 
     MOD newrelic-sysmond  7fab41848a24fdcdf3c6868cf94fb17f457684387a8
 
-
-### Set up an Ubuntu host with supervisord running a docker instance containing your app
+#### Set up an Ubuntu host with supervisord running a Docker instance containing your app
 
     ezd -p snapito-logstash.profile deploy   88.37.2.89
 
-### Re-image and upgrade multiple machines quickly
+#### Re-image and upgrade multiple machines quickly
 
     ezd -p snapito-gateway-prod.profile upgrade
 
+#### Built in (bit torrent) large file syncing
+
+    /var/easydeploy/share/sync/global
+
+#### Self updating
+
+Git is polled regularly and when a change occurs the Docker container is rebuilt.
+
+### Philosophy
+
+Tools to help you, not a straight jacket to trap you.
+
+Easydeploy **IS NOT A PaaS**
+
+Convention over configuration.
 
 
 ## 1. Creating a Project
@@ -61,11 +77,9 @@ This should be a normal Dockerfile however the following *easydeploy* extensions
 
     MOD <module-name> <arg>*
 
-    Note the # before MOD it's an extension :-)
-
 This will look for the script that provides  `<module-name>` passing it the arguments supplied. The result of the script execution will end up in the Dockerfile.
 
-You can add your own modules by placing them in the directory ~/.edmods the file should be a bash shell script compatible with the host OS (Ubuntu) called <module-name> and should out valid Dockerfile syntax.
+You can add your own modules by placing them in the directory ~/.edmods on the machine from which you deploy. The file should be a bash shell script compatible with the host OS (Ubuntu) called <module-name> and should output (to stdout) valid Dockerfile syntax.
 
 ## 2. Deployment
 
@@ -209,7 +223,7 @@ HOW DO I REDEPLOY? Is probably what you're asking right now. Well it's simple, t
 
 
 
-## 6. Special Directories
+## 6. Shared Directories
 
 ### /var/easydeploy/container/XX -> /var/local
 

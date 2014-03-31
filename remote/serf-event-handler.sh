@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 HANDLER_DIR="/etc/serf/handlers"
 
 if [ "$SERF_EVENT" = "user" ]; then
@@ -9,5 +9,5 @@ else
     EVENT=$SERF_EVENT
 fi
 
-HANDLER="$HANDLER_DIR/$EVENT.sh"
-[ -f "$HANDLER" ] && bash "$HANDLER" || :
+HANDLER="$HANDLER_DIR/${EVENT}.sh"
+[ -f "$HANDLER" ] && $HANDLER

@@ -6,6 +6,7 @@ machines=$(../providers/${PROVIDER}/list-machines-by-ip.sh $(machineName) | tr '
 for machine in $machines
 do
     ./deploy.sh $machine
+    ssh  -o "StrictHostKeyChecking no" ${USERNAME}@${IP_ADDRESS} "reboot"
 done
 
 

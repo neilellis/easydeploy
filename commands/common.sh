@@ -5,16 +5,16 @@ function templateName()  {
     then
         if [[ ! -z "$COMPONENT_MODIFIER" ]]
         then
-            echo "template-${LB_TARGET_USER}-${LB_TARGET_COMPONENT}-${COMPONENT_MODIFIER}-lb"
+            echo "template-${DEPLOY_ENV}-${PROJECT}-${LB_TARGET_COMPONENT}-${COMPONENT_MODIFIER}-lb"
         else
-            echo "template-${LB_TARGET_USER}-${LB_TARGET_COMPONENT}-lb"
+            echo "template-${DEPLOY_ENV}-${PROJECT}-${LB_TARGET_COMPONENT}-lb"
         fi
     else
         if [[ ! -z "$COMPONENT_MODIFIER" ]]
         then
-            echo "template-${GIT_URL_USER}-${COMPONENT}-${COMPONENT_MODIFIER}"
+            echo "template-${DEPLOY_ENV}-${PROJECT}-${COMPONENT}-${COMPONENT_MODIFIER}"
         else
-            echo "template-${GIT_URL_USER}-${COMPONENT}"
+            echo "template-${DEPLOY_ENV}-${PROJECT}-${COMPONENT}"
         fi
     fi
 }
@@ -24,27 +24,37 @@ function machineName() {
     then
         if [[ ! -z "$COMPONENT_MODIFIER" ]]
         then
-            echo "${DEPLOY_ENV}-${LB_TARGET_USER}-${LB_TARGET_COMPONENT}-${COMPONENT_MODIFIER}-lb"
+            echo "${DEPLOY_ENV}-${PROJECT}-${LB_TARGET_COMPONENT}-${COMPONENT_MODIFIER}-lb"
         else
-            echo "${DEPLOY_ENV}-${LB_TARGET_USER}-${LB_TARGET_COMPONENT}-lb"
+            echo "${DEPLOY_ENV}-${PROJECT}-${LB_TARGET_COMPONENT}-lb"
         fi
     else
         if [[ ! -z "$COMPONENT_MODIFIER" ]]
         then
-            echo "${DEPLOY_ENV}-${GIT_URL_USER}-${COMPONENT}-${COMPONENT_MODIFIER}"
+            echo "${DEPLOY_ENV}-${PROJECT}-${COMPONENT}-${COMPONENT_MODIFIER}"
         else
-            echo "${DEPLOY_ENV}-${GIT_URL_USER}-${COMPONENT}"
+            echo "${DEPLOY_ENV}-${PROJECT}-${COMPONENT}"
         fi
     fi
 }
 
+function projectMachinePrefix() {
+    echo "${DEPLOY_ENV}-${PROJECT}-"
+}
 
 
 function targetMachineName() {
         if [[ ! -z "$COMPONENT_MODIFIER" ]]
         then
-            echo "${DEPLOY_ENV}-${LB_TARGET_USER}-${LB_TARGET_COMPONENT}-${COMPONENT_MODIFIER}"
+            echo "${DEPLOY_ENV}-${PROJECT}-${LB_TARGET_COMPONENT}-${COMPONENT_MODIFIER}"
         else
-            echo "${DEPLOY_ENV}-${LB_TARGET_USER}-${LB_TARGET_COMPONENT}"
+            echo "${DEPLOY_ENV}-${PROJECT}-${LB_TARGET_COMPONENT}"
         fi
+}
+
+function sync() {
+    rsync --progress --rsh="/usr/bin/ssh -o 'StrictHostKeyChecking no' " --compress \
+     --recursive --times --perms --links \
+     --exclude ".Sync*"  \
+     "$@"
 }

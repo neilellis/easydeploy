@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 function section() {
     echo "$1"

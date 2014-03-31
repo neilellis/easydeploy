@@ -2,6 +2,7 @@
 export APP_ARGS=
 trap 'echo FAILED' ERR
 cd $(dirname $0) &> /dev/null
+. common.sh
 export IP_ADDRESS=$1
 echo "IP = $1"
 set -eu
@@ -13,16 +14,20 @@ echo "************************** Public Key ****************************"
 cat  ~/.ssh/easydeploy_id_rsa.pub
 echo "******************************************************************"
 
-ssh  -o "StrictHostKeyChecking no" ${USERNAME}@${IP_ADDRESS} "[ -d ~/.ssh ] || (echo | ssh-keygen -q -t rsa -N '' ) ; mkdir -p ~/modules/"
-scp  -o "StrictHostKeyChecking no" -r ../remote/*  ${USERNAME}@${IP_ADDRESS}:~
-[ -f ~/.edmods ] && scp  -o "StrictHostKeyChecking no" -r ~/.edmods/*  ${USERNAME}@${IP_ADDRESS}:~/modules/
+ssh  -o "StrictHostKeyChecking no" ${USERNAME}@${IP_ADDRESS} "[ -d ~/.ssh ] || (echo | ssh-keygen -q -t rsa -N '' ) ; mkdir -p ~/modules/ ; mkdir -p /var/easydeploy/share/sync/global/;  mkdir -p /var/easydeploy/share/deployer/"
+sync ../remote/  ${USERNAME}@${IP_ADDRESS}:~/
+[ -f ~/.edmods ] && sync ~/.ezd/modules/  ${USERNAME}@${IP_ADDRESS}:~/modules/
 scp  -o "StrictHostKeyChecking no" ~/.ssh/easydeploy_* ${USERNAME}@${IP_ADDRESS}:~/.ssh/
 if [ ! -z "$PROVIDER" ]
 then
  ../providers/${PROVIDER}/list-machines.sh > /tmp/ed-machine-list.txt
     scp  -o "StrictHostKeyChecking no" /tmp/ed-machine-list.txt ${USERNAME}@${IP_ADDRESS}:~/machines.txt
 fi
+[ -d ~/.ezd/project/${PROJECT}/upload/bootstrap_sync/ ] && sync ~/.ezd/project/${PROJECT}/upload/bootstrap_sync/   ${USERNAME}@${IP_ADDRESS}:/var/easydeploy/share/sync/global/
+[ -d ~/.ezd/project/${PROJECT}/upload/share/ ] && sync ~/.ezd/project/${PROJECT}/upload/share/   ${USERNAME}@${IP_ADDRESS}:/var/easydeploy/share/deployer/
+
 ssh  -o "StrictHostKeyChecking no" ${USERNAME}@${IP_ADDRESS} "./bootstrap.sh ${GIT_URL_HOST} ${GIT_URL_USER} ${COMPONENT} ${DEPLOY_ENV} ${GIT_BRANCH} \"${APP_ARGS}\" "
+
 
 
 

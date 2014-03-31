@@ -1,12 +1,22 @@
 #!/bin/sh
 # install maven
-branch=$(cat /var/easydeploy/share/.config/git_branch)
+branch=$(cat /var/easydeploy/share/.config/branch)
+[ -d /var/easydeploy/share/sync/global/.m2 ] && cp -r /var/easydeploy/share/sync/global/.m2 .m2
 cat <<EOF
 FROM neilellis/easydeploy-java-mvn-base
+WORKDIR /root
+ADD ./id_rsa /root/.ssh/id_rsa
+ADD ./id_rsa.pub /root/.ssh/id_rsa.pub
+RUN chmod 600 /root/.ssh/*
+RUN chmod 700 /root/.ssh
+RUN echo 'ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no \$*' > /root/ssh
+ENV GIT_SSH /root/ssh
+RUN chmod +x /root/ssh
 RUN git clone $2
-RUN cd $1; (git checkout $branch || git checkout master)
+WORKDIR /root/$1
+RUN git checkout $branch
+ADD .m2 /root/.m2
 RUN mvn install -Dmaven.test.skip
-ADD /var/easydeploy/share/sync/global/.m2 /root/.m2
 RUN export MAVEN_OPTS="-XX:OnOutOfMemoryError='kill -9 %p' -XX:+UseG1GC -Xmx1g -XX:MaxGCPauseMillis=50 \
      -Ddeploy.profile=$(cat /var/easydeploy/share/.config/deploy_env) \
      -Djava.awt.headless=true \

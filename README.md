@@ -139,6 +139,12 @@ The first time the script is run it will create the eeasydeploy ssh keys and tel
 
 Once the keys are created this command will deploy your application to the hostname supplied - run it within a docker container and keep it running using supervisord
 
+#### File uploads
+
+The contents of ~/.ezd/upload/share/ will be pushed to the directory /var/eadydeploy/share/deployer/ on the remote machine during a deploy and before the installation scripts are run.
+
+The contents of ~/.ezd/upload/bootstrap_sync/ will be pushed to the directory /var/eadydeploy/share/sync/global on the remote machine during a deploy and before the installation scripts are run. * NB: This ensures any core files that are used by the syncing process are their before syncing starts. *
+
 
 ## 3. Runtime
 
@@ -209,6 +215,15 @@ NB: We only support `export PROVIDER=do` at present.
 
 This is similar to Upgrade Machines, however instead it uses an existing machine image without creating a new one first.
 
+
+### Wire Machines Together
+
+    ezd -p <profile-file> wire
+
+This tells each machine in this *profile* of all the machines in the *project/environment* of each others presence so that service discovery can then take place. This command knows nothing about your architecture and is simply telling each serf agent in this profile about the machines in this project/environment.
+
+This command should not need to be run regularly as serf will self-heal itself. However it does need to be run after a scale operation at present.
+
 ## 5. Continuous Deployment
 
 Continuous deployment is integral to easydeploy, it will assume that you're trying to do this if you're app has `export EASYDEPLOY_STATE="stateless"` set in the `ed.sh`file. If it doesn't have this value set then we treat it as stateful and do not attempt to rebuild it automatically. Stateless apps are always preferable as gradually accrued unwanted or unexpected state can be deleted at any time.
@@ -261,6 +276,14 @@ All nodes in the environment (i.e. dev, prod etc).
 #### /var/easydeploy/share/sync/component
 
 All nodes with the same component type and in the same environment (i.e. dev, prod etc).
+
+### /var/easydeploy/share/tmp
+
+This directory is the parent directory of the self deleting directories, anything placed within the following directories will be deleted according to the appropriate timescales:
+
+* /var/easydeploy/share/tmp/hourly checked hourly, older than one hour deleted
+* /var/easydeploy/share/tmp/daily checked daily, older than one day deleted
+* /var/easydeploy/share/tmp/monthly checked daily, older than 31 days deleted
 
 ## A. Examples
 

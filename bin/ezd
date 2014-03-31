@@ -61,9 +61,9 @@ do
              ;;
          p)
              profile="$OPTARG"
-             cd $DIR
+             cd $DIR > /dev/null
              source ${profile}
-             cd -
+             cd - > /dev/null
              ;;
          ?)
              usage
@@ -91,7 +91,6 @@ then
         export GIT_BRANCH=${branch}
     elif [ ${DEPLOY_ENV} == "prod" ] ||  [ ${DEPLOY_ENV} == "alt-prod" ]
     then
-         echo "Using master branch"
          export GIT_BRANCH=master
     else
          echo "Using ${DEPLOY_ENV} branch"
@@ -137,6 +136,9 @@ case $command in
          ;;
      list)
          ../commands/list.sh $@
+         ;;
+     wire)
+         ../commands/wire.sh $@
          ;;
      *)
         usage;

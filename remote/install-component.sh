@@ -28,11 +28,16 @@ sudo [ -d /home/easydeploy/bin ] || mkdir /home/easydeploy/bin
 sudo [ -d /var/log/easydeploy ] || mkdir /var/log/easydeploy
 sudo [ -d /var/easydeploy ] || mkdir /var/easydeploy
 sudo [ -d /var/easydeploy/share ] || mkdir /var/easydeploy/share
+sudo [ -d /var/easydeploy/share/tmp ] || mkdir /var/easydeploy/share/tmp
+sudo [ -d /var/easydeploy/share/tmp/hourly ] || mkdir /var/easydeploy/share/tmp/hourly
+sudo [ -d /var/easydeploy/share/tmp/daily ] || mkdir /var/easydeploy/share/tmp/daily
+sudo [ -d /var/easydeploy/share/tmp/monthly ] || mkdir /var/easydeploy/share/tmp/monthly
 sudo [ -d /var/easydeploy/share/sync ] || mkdir /var/easydeploy/share/sync
 sudo [ -d /var/easydeploy/share/sync/global ] || mkdir /var/easydeploy/share/sync/global
 sudo [ -d /var/easydeploy/share/sync/component ] || mkdir /var/easydeploy/share/sync/component
 sudo [ -d /var/easydeploy/share/sync/env ] || mkdir /var/easydeploy/share/sync/env
 sudo [ -d /var/easydeploy/share/.config/ ] || mkdir /var/easydeploy/share/.config/
+sudo [ -d /var/easydeploy/share/.config/dynamic/components ] || mkdir -p /var/easydeploy/share/.config/dynamic/components
 
 #store useful info for scripts
 echo ${EASYDEPLOY_STATE} > /var/easydeploy/share/.config/edstate
@@ -114,14 +119,27 @@ sudo service btsync start
 
 
 sudo apt-get install -y unzip
-wget https://dl.bintray.com/mitchellh/serf/0.5.0_linux_amd64.zip
+[ -f 0.5.0_linux_amd64.zip ] || wget https://dl.bintray.com/mitchellh/serf/0.5.0_linux_amd64.zip
 unzip 0.5.0_linux_amd64.zip
-sudo mv serf /usr/local/bin
+sudo mv -f serf /usr/local/bin
 [ -d /etc/serf ] || sudo mkdir /etc/serf
-sudo mv -f serf-event-handler.sh /etc/serf/event-handler.sh
+sudo cp -f serf-event-handler.sh /etc/serf/event-handler.sh
 [ -d /etc/serf ] || sudo mkdir /etc/serf
 [ -d /etc/serf/handlers ] && sudo rm -rf /etc/serf/handlers
-sudo mv -f serf-handlers /etc/serf/handlers
+sudo cp -rf serf-handlers /etc/serf/handlers
+sudo chmod 755 /etc/serf/handlers/*
+sudo chmod 755 /etc/serf/event-handler.sh
+
+components=$(serf members -tag deploy_env=${DEPLOY_ENV} |  tr -s ' ' | cut -d' ' -f4 | tr ',' '\n' | grep '^component=' | cut -d= -f2 | sort -u)
+
+for c in $components
+do
+    serf members -tag deploy_env=${DEPLOY_ENV} -tag component=${c}   | tr -s ' ' | cut -d' ' -f2 | cut -d: -f1 > /var/easydeploy/share/.config/dynamic/components/${c}.txt
+    serf members -tag deploy_env=${DEPLOY_ENV} -tag component=${c}   |  tr -s ',' ';' | tr -s ' ' |  tr ' ' ',' > /var/easydeploy/share/.config/dynamic/components/${c}.csv
+done
+
+serf members -tag deploy_env=${DEPLOY_ENV}  | tr -s ' ' | cut -d' ' -f2 > /var/easydeploy/share/.config/dynamic/components/all.txt
+serf members -tag deploy_env=${DEPLOY_ENV} |  tr -s ',' ';' | tr -s ' ' |  tr ' ' ',' > /var/easydeploy/share/.config/dynamic/components/all.csv
 
 
 sudo apt-get install -y supervisor timelimit
@@ -133,8 +151,8 @@ sudo chown easydeploy:easydeploy /var/easydeploy
 
 
 sudo [ -d /home/easydeploy/template ] || mkdir /home/easydeploy/template
-[ -f machines.txt ] && mv -f machines.txt  /var/easydeploy/share/.config/machines.txt
-sudo mv -f run.sh update.sh gitpoll.sh build.sh /home/easydeploy/bin
+[ -f machines.txt ] && cp -f machines.txt  /var/easydeploy/share/.config/machines.txt
+sudo cp -f run.sh update.sh gitpoll.sh build.sh /home/easydeploy/bin
 sudo chmod 755 /home/easydeploy/bin/*
 sudo /bin/bash <<EOF
 export COMPONENT=${COMPONENT}
@@ -157,6 +175,9 @@ if [ ${EASYDEPLOY_UPDATE_CRON} != "none" ]
 then
     sudo crontab <<EOF2
 ${EASYDEPLOY_UPDATE_CRON} /home/easydeploy/bin/update.sh "$[ ( $RANDOM % 3600 )  + 1 ]s" &> /va/log/easydeploy/update.log
+0 * * * * find /var/easydeploy/share/tmp/hourly -mmin +60 -exec rm {} \;
+0 3 * * * find /var/easydeploy/share/tmp/daily  -mtime +1 -exec rm {} \;
+0 4 * * * find /var/easydeploy/share/tmp/monthly -mtime +31 -exec rm {} \;
 EOF2
 fi
 

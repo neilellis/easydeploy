@@ -130,17 +130,6 @@ sudo cp -rf serf-handlers /etc/serf/handlers
 sudo chmod 755 /etc/serf/handlers/*
 sudo chmod 755 /etc/serf/event-handler.sh
 
-components=$(serf members -tag deploy_env=${DEPLOY_ENV} |  tr -s ' ' | cut -d' ' -f4 | tr ',' '\n' | grep '^component=' | cut -d= -f2 | sort -u)
-
-for c in $components
-do
-    serf members -tag deploy_env=${DEPLOY_ENV} -tag component=${c}   | tr -s ' ' | cut -d' ' -f2 | cut -d: -f1 > /var/easydeploy/share/.config/dynamic/components/${c}.txt
-    serf members -tag deploy_env=${DEPLOY_ENV} -tag component=${c}   |  tr -s ',' ';' | tr -s ' ' |  tr ' ' ',' > /var/easydeploy/share/.config/dynamic/components/${c}.csv
-done
-
-serf members -tag deploy_env=${DEPLOY_ENV}  | tr -s ' ' | cut -d' ' -f2 > /var/easydeploy/share/.config/dynamic/components/all.txt
-serf members -tag deploy_env=${DEPLOY_ENV} |  tr -s ',' ';' | tr -s ' ' |  tr ' ' ',' > /var/easydeploy/share/.config/dynamic/components/all.csv
-
 
 sudo apt-get install -y supervisor timelimit
 sudo [ -d /home/easydeploy/modules ] && rm -rf /home/easydeploy/modules
@@ -152,7 +141,7 @@ sudo chown easydeploy:easydeploy /var/easydeploy
 
 sudo [ -d /home/easydeploy/template ] || mkdir /home/easydeploy/template
 [ -f machines.txt ] && cp -f machines.txt  /var/easydeploy/share/.config/machines.txt
-sudo cp -f run.sh update.sh gitpoll.sh build.sh /home/easydeploy/bin
+sudo cp -f run.sh update.sh gitpoll.sh build.sh update-components.sh /home/easydeploy/bin
 sudo chmod 755 /home/easydeploy/bin/*
 sudo /bin/bash <<EOF
 export COMPONENT=${COMPONENT}
@@ -175,11 +164,14 @@ if [ ${EASYDEPLOY_UPDATE_CRON} != "none" ]
 then
     sudo crontab <<EOF2
 ${EASYDEPLOY_UPDATE_CRON} /home/easydeploy/bin/update.sh "$[ ( $RANDOM % 3600 )  + 1 ]s" &> /va/log/easydeploy/update.log
+*/10 * * * * /home/easydeploy/bin/update-components.sh
+EOF2
+fi
+sudo su - easydeploy -c "crontab" <<EOF2
 0 * * * * find /var/easydeploy/share/tmp/hourly -mmin +60 -exec rm {} \;
 0 3 * * * find /var/easydeploy/share/tmp/daily  -mtime +1 -exec rm {} \;
 0 4 * * * find /var/easydeploy/share/tmp/monthly -mtime +31 -exec rm {} \;
 EOF2
-fi
 
 cd
 sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 36A1D7869245C8950F966E92D8576A8BA88D21E9
@@ -199,7 +191,12 @@ sudo addgroup easydeploy docker
 sudo chmod a+rwx /var/run/docker.sock
 sudo chown -R easydeploy:easydeploy /home/easydeploy/
 cd /home/easydeploy/deployment
-service docker start || true
+sudo service docker start || true
+
+
+sudo chown -R easydeploy:easydeploy /var/easydeploy
+sudo /home/easydeploy/bin/update-components.sh
+#BUILD!!!
 sudo su easydeploy -c "/home/easydeploy/bin/build.sh"
 sudo chmod a+rwx /var/run/docker.sock
 cd

@@ -10,7 +10,7 @@ function dockerfileExtensions() {
     done
 
 }
-
+~/bin/update-components.sh
 cd /home/easydeploy/deployment
 cat Dockerfile | dockerfileExtensions > Dockerfile.processed
 mv -f  Dockerfile Dockerfile.orig

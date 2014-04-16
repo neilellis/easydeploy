@@ -1,11 +1,10 @@
 #!/bin/sh
 set -e
 cd $(dirname $0) &> /dev/null
-export TIMESTAMP=$(date +%s)
 . common.sh
 export MACHINE_NAME=$(templateName)-$(date +%s)
 
-export IP_ADDRESS=$(../providers/${PROVIDER}/provision.sh ${MACHINE_NAME} | tail -1)
+export IP_ADDRESS=$(../providers/${PROVIDER}/provision.sh $@ ${MACHINE_NAME} | tail -1)
 if [ $IP_ADDRESS == "FAILED" ]
 then
     echo "Failed to provision $MACHINE_NAME"

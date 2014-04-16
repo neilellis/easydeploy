@@ -14,8 +14,41 @@ export MIN_INSTANCES=0
 export MAX_INSTANCES=10000000
 
 
+if ! which serf  &> /dev/null
+then
+    echo "Please download and install 'serf' before continuing."
+    echo "See http://www.serfdom.io/intro/getting-started/install.html "
+    echo "If you're on a Mac then try: "
+#    echo 'ruby -e "$(curl -fsSL https://raw.github.com/Homebrew/homebrew/go/install)" \#If you don\'t have Homebrew'
+#    echo " $ brew install phinze/cask/brew-cask \# If you don't have cask"
+    echo " $ brew cask install serf"
+fi
+
+if ! which parallel  &> /dev/null
+then
+    echo "Please download and install 'GNU Parallel' before continuing."
+    echo "If you're on a Mac then try: "
+    echo "$ brew install parallel"
+fi
+
+if ! which tugboat &> /dev/null
+then
+    echo "Please download and install 'tugboat' before continuing, if you have Ruby installed then 'sudo gem install tugboat' should do the job."
+fi
+
+if [ ! -f ~/.ezd/serf_key ]
+then
+    [ -d ~/.ezd ] ||  mkdir ~/.ezd
+    serf keygen > ~/.ezd/serf_key
+fi
+
+
+[ -f ~/.ssh/easydeploy_id_rsa ] || (ssh-keygen -q -t rsa -N "" -f ~/.ssh/easydeploy_id_rsa && echo "FIRST RUN!! Make sure the following key has access to your git repository, you'll have problems if not. Run this script again now that we've generated your key." && cat  ~/.ssh/easydeploy_id_rsa.pub && exit 0)
+
+
 DIR=$(pwd)
-cd $(dirname $0) > /dev/null
+cd $(dirname $0) &> /dev/null
+. ../commands/common.sh
 usage()
 {
 cat << EOF
@@ -107,6 +140,9 @@ case $command in
          usage
          exit 1
          ;;
+     clean)
+         ../commands/clean.sh $@
+         ;;
      image)
          ../commands/image.sh $@
          ;;
@@ -136,6 +172,12 @@ case $command in
          ;;
      list)
          ../commands/list.sh $@
+         ;;
+     watch)
+         ../commands/watch.sh $@
+         ;;
+     remote)
+         ../commands/remote.sh $@
          ;;
      wire)
          ../commands/wire.sh $@

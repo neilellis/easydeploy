@@ -22,7 +22,7 @@
         },
         {
             "secret": "$EASYDEPLOY_COMPONENT_SYNC_SECRET",
-            "dir": "/var/easydeploy/share/sync/component",
+            "dir": "/var/easydeploy/share/sync/discovery",
             "use_relay_server": true,
             "use_tracker": true,
             "use_dht": false,
@@ -34,6 +34,17 @@
         {
             "secret": "$EASYDEPLOY_ENV_SYNC_SECRET",
             "dir": "/var/easydeploy/share/sync/env",
+            "use_relay_server": true,
+            "use_tracker": true,
+            "use_dht": false,
+            "search_lan": true,
+            "use_sync_trash": true,
+            "known_hosts": [
+            ]
+        },
+        {
+            "secret": "$EASYDEPLOY_ENV_SYNC_SECRET",
+            "dir": "/var/easydeploy/share/.config/sync",
             "use_relay_server": true,
             "use_tracker": true,
             "use_dht": false,

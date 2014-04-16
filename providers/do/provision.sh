@@ -1,8 +1,25 @@
 #!/bin/sh
 #trap 'echo FAILED' ERR
+cd $(dirname $0)
+. ../../commands/common.sh
 
-set -ex
-tugboat create --quiet --size=${DO_IMAGE_SIZE} --image=${DO_BASE_IMAGE} --region=${DO_REGION}  --keys=${DO_KEYS} --private-networking  $1
+set -eux
+image=${DO_BASE_IMAGE}
+while getopts "F" OPTION
+do
+     case $OPTION in
+         F)
+             image=$(tugboat info_image -n $(templateName) | grep ID: | cut -d: -f2  | tr -d ' ' | tail -1)
+             ;;
+         ?)
+             echo "-F for fast"
+             exit
+             ;;
+     esac
+done
+shift $((OPTIND-1))
+
+tugboat create --size=${DO_IMAGE_SIZE} --image=${image} --region=${DO_REGION}  --keys=${DO_KEYS} --private-networking  $1   >&2
 
 while ! tugboat wait $1
 do
@@ -13,6 +30,4 @@ while ! tugboat ssh -c "true" $1
 do
     sleep 60
 done
-cd $(dirname $0)
-. ../../commands/common.sh
 $(pwd)/list-machines-by-ip.sh $1

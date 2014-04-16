@@ -7,17 +7,17 @@ export IP_ADDRESS=$1
 echo "IP = $1"
 set -eu
 
-echo "You may be prompted with a password a couple of times, make sure you have it ready :-)"
-[ -f ~/.ssh/easydeploy_id_rsa ] || (ssh-keygen -q -t rsa -N "" -f ~/.ssh/easydeploy_id_rsa && echo "FIRST RUN!! Make sure the following key has access to your git repository, you'll have problems if not. Run this script again now that we've generated your key." && cat  ~/.ssh/easydeploy_id_rsa.pub && exit 0)
 
 echo "************************** Public Key ****************************"
 cat  ~/.ssh/easydeploy_id_rsa.pub
 echo "******************************************************************"
 
-ssh  -o "StrictHostKeyChecking no" ${USERNAME}@${IP_ADDRESS} "[ -d ~/.ssh ] || (echo | ssh-keygen -q -t rsa -N '' ) ; mkdir -p ~/modules/ ; mkdir -p /var/easydeploy/share/sync/global/;  mkdir -p /var/easydeploy/share/deployer/"
+ssh  -o "StrictHostKeyChecking no" ${USERNAME}@${IP_ADDRESS} "[ -d ~/.ssh ] || (echo | ssh-keygen -q -t rsa -N '' ) ; mkdir -p ~/modules/ ; mkdir -p /var/easydeploy/share/sync/global/; mkdir ~/keys ; mkdir -p /var/easydeploy/share/deployer/"
 sync ../remote/  ${USERNAME}@${IP_ADDRESS}:~/
-[ -f ~/.edmods ] && sync ~/.ezd/modules/  ${USERNAME}@${IP_ADDRESS}:~/modules/
+[ -d ~/.ezd/modules/  ] && sync ~/.ezd/modules/  ${USERNAME}@${IP_ADDRESS}:~/modules/
+[ -d ~/.ezd/scripts/  ] && sync ~/.ezd/user-scripts/  ${USERNAME}@${IP_ADDRESS}:~/user-scripts/
 scp  -o "StrictHostKeyChecking no" ~/.ssh/easydeploy_* ${USERNAME}@${IP_ADDRESS}:~/.ssh/
+scp  -o "StrictHostKeyChecking no" ~/.ssh/id*.pub ${USERNAME}@${IP_ADDRESS}:~/keys
 if [ ! -z "$PROVIDER" ]
 then
  ../providers/${PROVIDER}/list-machines.sh > /tmp/ed-machine-list.txt
@@ -26,7 +26,10 @@ fi
 [ -d ~/.ezd/project/${PROJECT}/upload/bootstrap_sync/ ] && sync ~/.ezd/project/${PROJECT}/upload/bootstrap_sync/   ${USERNAME}@${IP_ADDRESS}:/var/easydeploy/share/sync/global/
 [ -d ~/.ezd/project/${PROJECT}/upload/share/ ] && sync ~/.ezd/project/${PROJECT}/upload/share/   ${USERNAME}@${IP_ADDRESS}:/var/easydeploy/share/deployer/
 
-ssh  -o "StrictHostKeyChecking no" ${USERNAME}@${IP_ADDRESS} "./bootstrap.sh ${GIT_URL_HOST} ${GIT_URL_USER} ${COMPONENT} ${DEPLOY_ENV} ${GIT_BRANCH} \"${APP_ARGS}\" "
+scp -o "StrictHostKeyChecking no" ~/.ezd/serf_key ${USERNAME}@${IP_ADDRESS}:~/serf_key
+
+ssh  -o "StrictHostKeyChecking no" ${USERNAME}@${IP_ADDRESS} "./bootstrap.sh ${GIT_URL_HOST} ${GIT_URL_USER} ${COMPONENT} ${DEPLOY_ENV} ${GIT_BRANCH} ${PROJECT} \"${APP_ARGS}\" "
+
 
 
 

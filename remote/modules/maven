@@ -17,15 +17,5 @@ WORKDIR /root/$1
 RUN git checkout $branch
 ADD .m2 /root/.m2
 RUN mvn install -Dmaven.test.skip
-RUN export MAVEN_OPTS="-XX:OnOutOfMemoryError='kill -9 %p' -XX:+UseG1GC -Xmx1g -XX:MaxGCPauseMillis=50 \
-     -Ddeploy.profile=$(cat /var/easydeploy/share/.config/deploy_env) \
-     -Djava.awt.headless=true \
-     -Dcom.sun.management.jmxremote \
-     -Dcom.sun.management.jmxremote.port=9191 \
-     -Dcom.sun.management.jmxremote.authenticate=false \
-     -Dcom.sun.management.jmxremote.ssl=false \
-     -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/var/local \
-     -Djava.rmi.server.hostname=$(hostname -i)"
-CMD mvn exec:java -pl $3
 EOF
 

@@ -12,19 +12,19 @@ fi
 
 while true
 do
-    git fetch > build_log.txt 2>&1
-    if [ -s build_log.txt ]
+    su  easydeploy -c "git fetch > .build_log.txt 2>&1"
+    if [ -s .build_log ]
     then
-       git pull
-       if /home/easydeploy/bin/build.sh
+       su easydeploy -c "git pull"
+       if su easydeploy -c "/home/easydeploy/bin/build.sh > /tmp/build.out"
        then
-            docker kill --signal="SIGINT" $(docker ps -q) || true
-            echo "Docker instances sent a Ctrl-C, to politely ask them to stop"
+           supervisorctl restart $(cat /var/easydeploy/share/.config/component):              echo "Component restarted"
        else
+            /home/easydeploy/bin/notify.sh "Build of $(cat /var/easydeploy/share/.config/component) failed on ${EASYDEPLOY_HOST_IP} " < tmp/build.out
             echo "Docker build failed, no redeploy attempted."
        fi
     else
         sleep 120
     fi
-    rm build_log.txt
+    [ -e .build_log ] && rm .build_log
 done

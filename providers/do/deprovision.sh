@@ -1,11 +1,11 @@
 #!/bin/sh
-set -e
-if ! which tugboat
-then
-    sudo gem install tugboat
-fi
-if tugboat info $1
-then
-    tugboat destroy -c $1
-fi
+cd $(dirname $0)
+. ../../commands/common.sh
+
+set -eux
+
+for id in $(./list-machines-by-id.sh "^${1} ")
+do
+    tugboat destroy -c -i ${id} || echo "Couldn't destroy ${id}"
+done
 

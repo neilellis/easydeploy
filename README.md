@@ -261,7 +261,7 @@ Various configuration data usually one value per file. Files include
  * machines.txt a list of machines that were present at build time, usually used to get the serf nodes seeded.
 
 
-### /var/easydeploy/share/.config/dynamic/components
+### /var/easydeploy/share/.config/sync/discovery
 
 This directory provides a nice and simple service discovery capability. The directory will be prepopulated on an install and then updated as members come and go. A file is created for each component in the environment in CSV format and as just a list of ip addresses in a .txt file. Also two files all.csv and all.txt contain all the machines in the environment.
 

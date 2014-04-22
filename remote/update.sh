@@ -1,5 +1,5 @@
 #!/bin/bash
-set -eux
+set -x
 if [ $# -eq 0 ]
 then
     duration=0s
@@ -18,10 +18,8 @@ export EASYDEPLOY_HOST_IP=$(/sbin/ifconfig eth0 | sed -En 's/127.0.0.1//;s/.*ine
 sudo su - easydeploy -c "/home/easydeploy/bin/build.sh"
 
 
-if [[ ${EASYDEPLOY_STATE} == "stateless" ]]
-then
-     [ $(docker ps -q -a|wc -l) -gt 0 ] && docker stop $(docker ps -q) && docker rm $(docker ps -q -a)
-fi
+[ $(docker ps -q -a|wc -l) -gt 0 ] && docker stop $(docker ps -q) && docker rm $(docker ps -q -a)
+docker images -a|grep '^<none>'|tr -s ' '|cut -d' ' -f 3|xargs docker rmi  || :
 
 sudo apt-get update
 sudo unattended-upgrades
@@ -31,3 +29,4 @@ shutdown -r +2
 sleep 118
 rm /var/easydeploy/share/.config/easydeploy-run-disable
 rm /tmp/easydeploy-run-disable
+

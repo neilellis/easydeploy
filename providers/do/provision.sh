@@ -1,9 +1,9 @@
-#!/bin/sh
+#!/bin/bash
 #trap 'echo FAILED' ERR
 cd $(dirname $0)
 . ../../commands/common.sh
 
-set -eux
+set -eu
 image=${DO_BASE_IMAGE}
 while getopts "F" OPTION
 do

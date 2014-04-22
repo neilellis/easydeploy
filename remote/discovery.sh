@@ -7,10 +7,18 @@ mkdir -p /var/easydeploy/share/.config/discovery/ || :
 ip=$(/sbin/ifconfig eth0 | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p')
 
 function joinSerf() {
-    while read ip
+    while read i
     do
        #If the machine is not available don't hang around, move on quickly
-       timelimit -t 2 -T 1 -s 2 serf join $ip || :
+       timelimit -t 2 -T 1 -s 2 serf join $i || :
+    done
+}
+
+function joinConsul() {
+    while read i
+    do
+       #If the machine is not available don't hang around, move on quickly
+       timelimit -t 2 -T 1 -s 2 consul join $i || :
     done
 }
 
@@ -21,12 +29,14 @@ then
     exit -1
 fi
 
-#Bootstrap from a bit torrent sync'd file
-echo "Attempting to join with other serf nodes, sending join request to all previously known machines in the environment."
-#We ask every node, because we don't want split brains, unless under
-#a zombie attack
-cat /var/easydeploy/share/.config/sync/discovery/all.txt |  joinSerf
-
+if [ -f /var/easydeploy/share/.config/sync/discovery/all.txt ]
+then
+    #Bootstrap from a bit torrent sync'd file
+    echo "Attempting to join with other serf nodes, sending join request to all previously known machines in the environment."
+    #We ask every node, because we don't want split brains, unless under
+    #a zombie attack
+    cat /var/easydeploy/share/.config/sync/discovery/all.txt |  joinSerf
+fi
 
 #Only bootstrap if we haven't already connected to other machines
 if (( $(serf members | wc -l) < 2 ))
@@ -89,6 +99,8 @@ EOF
     #Create a txt and csv file containing all the machines in the env
     serf members -tag deploy_env=${deploy_env}  | tr -s ' ' | cut -d' ' -f2  | cut -d: -f1 > /var/easydeploy/share/.config/discovery/all.txt
     serf members -tag deploy_env=${deploy_env} |  tr -s ',' ';' | tr -s ' ' |  tr ' ' ',' > /var/easydeploy/share/.config/discovery/all.csv
+
+    cat /var/easydeploy/share/.config/discovery/all.txt | joinConsul
 
     cat  /var/easydeploy/share/.config/discovery/all.txt /var/easydeploy/share/.config/sync/discovery/all.txt  | sort -u > /var/easydeploy/share/.config/sync/discovery/all.txt
 

@@ -26,6 +26,10 @@ export GIT_BRANCH=$1
 shift
 export PROJECT=$1
 shift
+export BACKUP_HOST=$1
+shift
+export MACHINE_NAME=$1
+shift
 export OTHER_ARGS="$@"
 cd
 
@@ -95,7 +99,7 @@ touch .bootstrapped
 fi
 
 echo "Installing ${COMPONENT} on ${DEPLOY_ENV}"
-bash ./install-component.sh ${COMPONENT} ${DEPLOY_ENV} ${GIT_BRANCH} ${PROJECT} ${OTHER_ARGS}
+bash ./install-component.sh ${COMPONENT} ${DEPLOY_ENV} ${GIT_BRANCH} ${PROJECT} ${BACKUP_HOST} ${MACHINE_NAME} ${OTHER_ARGS}
 echo "**** EASYDEPLOY-COMPONENT-INSTALL-FINISHED ****"
 exit 0
 

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -eu
 function dockerfileExtensions() {
     while read line
     do

@@ -3,12 +3,6 @@ cd /home/easydeploy/deployment
 export EASYDEPLOY_HOST_IP=$(/sbin/ifconfig eth0 | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p')
 
 . ./ed.sh
-if [ "$EASYDEPLOY_STATE" != "stateless" ]
-then
-    echo "Stateful app so not polling for project changes."
-    sleep 3600
-    exit 0
-fi
 
 while true
 do

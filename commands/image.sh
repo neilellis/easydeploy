@@ -5,7 +5,7 @@ cd $(dirname $0) &> /dev/null
 export MACHINE_NAME=$(templateName)-$(date +%s)
 
 export IP_ADDRESS=$(../providers/${PROVIDER}/provision.sh $@ ${MACHINE_NAME} | tail -1)
-if [ $IP_ADDRESS == "FAILED" ]
+if [ "$IP_ADDRESS" == "FAILED" ]
 then
     echo "Failed to provision $MACHINE_NAME"
     exit -1

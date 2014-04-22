@@ -27,8 +27,14 @@ export GIT_BRANCH=$1
 shift
 export PROJECT=$1
 shift
+export BACKUP_HOST=$1
+shift
+export MACHINE_NAME=$1
+shift
 export APP_ARGS="$@"
-export EASYDEPLOY_PORTS=80
+export EASYDEPLOY_ADMIN_SERVER=
+export EASYDEPLOY_PORTS=
+export EASYDEPLOY_PRIMARY_PORT=
 export EASYDEPLOY_UPDATE_CRON="0 4 * * *"
 export EASYDEPLOY_PACKAGES=
 export EASYDEPLOY_STATE="stateful"
@@ -52,6 +58,7 @@ sudo [ -d /var/easydeploy/share/tmp ] || mkdir /var/easydeploy/share/tmp
 sudo [ -d /var/easydeploy/share/tmp/hourly ] || mkdir /var/easydeploy/share/tmp/hourly
 sudo [ -d /var/easydeploy/share/tmp/daily ] || mkdir /var/easydeploy/share/tmp/daily
 sudo [ -d /var/easydeploy/share/tmp/monthly ] || mkdir /var/easydeploy/share/tmp/monthly
+sudo [ -d /var/easydeploy/share/backup ] || mkdir /var/easydeploy/share/backup
 sudo [ -d /var/easydeploy/share/sync ] || mkdir /var/easydeploy/share/sync
 sudo [ -d /var/easydeploy/share/sync/global ] || mkdir /var/easydeploy/share/sync/global
 sudo [ -d /var/easydeploy/share/sync/discovery ] || mkdir /var/easydeploy/share/sync/discovery
@@ -59,7 +66,7 @@ sudo [ -d /var/easydeploy/share/sync/env ] || mkdir /var/easydeploy/share/sync/e
 sudo [ -d /var/easydeploy/share/.config/ ] || mkdir /var/easydeploy/share/.config/
 sudo [ -d /var/easydeploy/share/.config/sync/discovery ] || mkdir -p /var/easydeploy/share/.config/sync/discovery
 
-sudo cp -f run.sh  serf-agent.sh update.sh gitpoll.sh build.sh discovery.sh notify.sh check_for_restart.sh intrusion.sh /home/easydeploy/bin
+sudo cp -f run.sh  serf-agent.sh consul-agent.sh update.sh gitpoll.sh build.sh discovery.sh notify.sh check_for_restart.sh intrusion.sh backup.sh health_check.sh supervisord_monitor.sh /home/easydeploy/bin
 [ -d user-scripts ] && sudo cp -rf user-scripts/*  /home/easydeploy/usr/bin/
 sudo chmod 755 /home/easydeploy/bin/*
 sudo chmod 755 /home/easydeploy/usr/bin/* ||:
@@ -72,11 +79,12 @@ cd /home/easydeploy
 chmod 600 ~/.ssh/*
 chmod 700 ~/.ssh
 ssh -o StrictHostKeyChecking=no git@${GIT_URL_HOST}  /bin/bash  &> /dev/null</dev/null  || true
-git clone git@${GIT_URL_HOST}:${GIT_URL_USER}/easydeploy-${COMPONENT}.git
+[ -d easydeploy-${COMPONENT} ] || git clone git@${GIT_URL_HOST}:${GIT_URL_USER}/easydeploy-${COMPONENT}.git
 cd easydeploy-${COMPONENT}
 git checkout ${GIT_BRANCH}
+git pull
 cd -
-ln -s /home/easydeploy/easydeploy-${COMPONENT}/ /home/easydeploy/deployment
+[ -e /home/easydeploy/deployment ] || ln -s /home/easydeploy/easydeploy-${COMPONENT}/ /home/easydeploy/deployment
 cp -f ~/.ssh/id_rsa  /home/easydeploy/deployment/id_rsa
 cp -f ~/.ssh/id_rsa.pub  /home/easydeploy/deployment/id_rsa.pub
 EOF
@@ -95,6 +103,8 @@ echo ${COMPONENT} > /var/easydeploy/share/.config/component
 echo ${GIT_BRANCH} > /var/easydeploy/share/.config/branch
 echo ${DEPLOY_ENV} > /var/easydeploy/share/.config/deploy_env
 echo ${PROJECT} > /var/easydeploy/share/.config/project
+echo ${BACKUP_HOST} > /var/easydeploy/share/.config/backup_host
+echo ${MACHINE_NAME} > /var/easydeploy/share/.config/hostname
 cp serf_key  /var/easydeploy/share/.config/serf_key
 sudo chown easydeploy:easydeploy /var/easydeploy/share
 
@@ -216,6 +226,80 @@ then
     touch /var/easydeploy/.install/serf
 fi
 
+sudo apt-get install -y dnsutils bind9
+
+cat > /etc/bind/consul.conf <<EOF
+zone "easydeploy" IN {
+    type forward;
+    forward only;
+    forwarders { 127.0.0.1 port 8600; };
+};
+EOF
+
+cat > /etc/bind/named.conf.options <<EOF
+options {
+    listen-on port 53 { 127.0.0.1; };
+    listen-on-v6 port 53 { ::1; };
+	directory "/var/cache/bind";
+	allow-query     { localhost; };
+    recursion yes;
+    dnssec-enable no;
+    dnssec-validation no;
+};
+	include "/etc/bind/consul.conf";
+EOF
+
+consul_server=true
+[ -z "$EASYDEPLOY_ADMIN_SERVER" ] && consul_server=false
+[ -d /etc/consul.d ] || sudo mkdir /etc/consul.d
+cat > /etc/consul.d/server.json <<EOF
+
+{
+  "datacenter": "dc1",
+  "data_dir": "/var/consul",
+  "log_level": "INFO",
+  "server": ${consul_server},
+  "domain" : "easydeploy.",
+  "encrypt" :"$(cat /var/easydeploy/share/.config/serf_key)",
+  "leave_on_terminate" : true
+}
+EOF
+
+if [ ! -f /var/easydeploy/.install/consul ]
+then
+    echo "Installing consul for service discovery and communication"
+    sudo apt-get install -y unzip
+    [ -f 0.1.0_linux_amd64.zip ] || wget https://dl.bintray.com/mitchellh/consul/0.1.0_linux_amd64.zip
+    unzip 0.1.0_linux_amd64.zip
+    sudo mv -f consul /usr/local/bin
+    touch /var/easydeploy/.install/consul
+fi
+
+echo "nameserver 127.0.0.1" > /etc/resolvconf/resolv.conf.d/head
+service bind9 restart
+
+
+ports=( ${EASYDEPLOY_PRIMARY_PORT} ${EASYDEPLOY_PORTS} ${EASYDEPLOY_EXTERNAL_PORTS} )
+if [ ! -z "$ports" ]
+then
+primary_port=${ports[0]}
+cat > /etc/consul.d/component.json <<EOF
+{
+    "service": {
+        "name": "${DEPLOY_ENV}-${PROJECT}-${COMPONENT}",
+        "port": ${primary_port},
+        "check": {
+            "script": "/home/easydeploy/bin/health_check.sh",
+            "interval": "30s"
+        }
+    }
+}
+EOF
+
+fi
+
+
+
 #Logstash is used for log aggregation
 if [ ! -f /var/easydeploy/.install/logstash ]
 then
@@ -230,10 +314,9 @@ cat > /etc/logstash.conf <<EOF
 input {
   file {
   add_field => {
-    component => "$(cat /var/easydeploy/share/.config/component)"
-    env =>  "$(cat /var/easydeploy/share/.config/deploy_env)"
-    host => "$(/sbin/ifconfig eth0 | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p')"
-
+    component => "${COMPONENT}"
+    env =>  "${DEPLOY_ENV}"
+    host => "${EASYDEPLOY_HOST_IP}"
     }
 
     type => "syslog"
@@ -256,15 +339,19 @@ then
 fi
 
 echo "Adding cron tasks"
-
+sudo apt-get install -y duplicity
 echo "*/5 * * * * root /home/easydeploy/bin/check_for_restart.sh &>  /var/log/easydeploy/restart.log" > /etc/cron.d/restart
+echo "*/5 * * * * easydeploy /home/easydeploy/bin/backup.sh &>  /var/log/easydeploy/backup.log" > /etc/cron.d/backup
 
 if [[ "${EASYDEPLOY_UPDATE_CRON}" != "none" ]]
 then
 echo "${EASYDEPLOY_UPDATE_CRON} root /home/easydeploy/bin/update.sh $[ ( $RANDOM % 3600 )  + 1 ]s &> /var/log/easydeploy/update.log" > /etc/cron.d/update
 fi
 
+echo "15 * * * * root /home/easydeploy/bin/supervisord_monitor.sh &>  /var/log/easydeploy/suprestart.log" > /etc/cron.d/suprestart
+
 chmod 755 /etc/cron.d/*
+
 
 
 sudo su - easydeploy -c "crontab" <<EOF2
@@ -314,9 +401,12 @@ cd
 
 
 echo "Configuring firewall"
-sudo ufw allow 22   #ssh
-sudo ufw allow 7946 #serf
-sudo ufw allow 9595 #btsync
+sudo ufw allow 22    #ssh
+sudo ufw allow 7946  #serf
+sudo ufw allow 8300  #consul
+sudo ufw allow 8301  #consul
+sudo ufw allow 8302  #consul
+sudo ufw allow 9595  #btsync
 
 for port in ${EASYDEPLOY_PORTS} ${EASYDEPLOY_EXTERNAL_PORTS}
 do
@@ -350,6 +440,7 @@ envsubst < template-run.conf  > /etc/supervisor/conf.d/run.conf
 EOF
 
 
+
 echo "Starting/Restarting services"
 sudo service supervisor stop || true
 sudo docker kill $(docker ps -q) || true
@@ -361,6 +452,8 @@ sudo killall docker || true
 sudo service docker start
 sudo service supervisor restart || true
 sudo supervisorctl restart all
+
+
 sudo cp rc.local /etc
 sudo chmod 755 /etc/rc.local
 sudo /etc/rc.local

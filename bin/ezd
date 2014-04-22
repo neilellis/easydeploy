@@ -12,6 +12,7 @@ export LB_TARGET_COMPONENT=
 export COMPONENT_MODIFIER=
 export MIN_INSTANCES=0
 export MAX_INSTANCES=10000000
+export BACKUP_HOST=localhost
 
 
 if ! which serf  &> /dev/null
@@ -79,7 +80,8 @@ EOF
 
 e=
 branch=
-while getopts "he:p:b:" OPTION
+export USE_PARALLEL=
+while getopts "he:p:b:P" OPTION
 do
      case $OPTION in
          h)
@@ -91,6 +93,9 @@ do
              ;;
          b)
              branch=$OPTARG
+             ;;
+         P)
+             export USE_PARALLEL=1
              ;;
          p)
              profile="$OPTARG"
@@ -139,6 +144,9 @@ case $command in
      help)
          usage
          exit 1
+         ;;
+     bootstrap)
+         ../commands/bootstrap.sh $@
          ;;
      clean)
          ../commands/clean.sh $@

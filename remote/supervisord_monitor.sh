@@ -1,9 +1,9 @@
 #!/bin/bash -x
-if service supervisord status
+if service supervisor status
 then
     echo "Supervisord running fine"
 else
-    if service supervisord restart
+    if service supervisor restart
     then
         echo "Restarted supervisord"
     else

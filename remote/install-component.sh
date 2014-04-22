@@ -343,7 +343,7 @@ sudo apt-get install -y duplicity
 echo "*/5 * * * * root /home/easydeploy/bin/check_for_restart.sh &>  /var/log/easydeploy/restart.log" > /etc/cron.d/restart
 echo "*/5 * * * * easydeploy /home/easydeploy/bin/backup.sh &>  /var/log/easydeploy/backup.log" > /etc/cron.d/backup
 
-if [[ "${EASYDEPLOY_UPDATE_CRON}" != "none" ]]
+if [[ ! -z "${EASYDEPLOY_UPDATE_CRON}" ]]
 then
 echo "${EASYDEPLOY_UPDATE_CRON} root /home/easydeploy/bin/update.sh $[ ( $RANDOM % 3600 )  + 1 ]s &> /var/log/easydeploy/update.log" > /etc/cron.d/update
 fi

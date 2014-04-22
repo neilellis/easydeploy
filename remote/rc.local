@@ -1,4 +1,3 @@
 #!/bin/bash -eux
 test -e /etc/ssh/ssh_host_dsa_key || dpkg-reconfigure openssh-server
-service supervisor start || :
 exit 0

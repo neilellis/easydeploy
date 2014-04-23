@@ -238,10 +238,10 @@ EOF
 
 cat > /etc/bind/named.conf.options <<EOF
 options {
-    listen-on port 53 { 127.0.0.1; };
+    listen-on port 53 { 127.0.0.1; ${EASYDEPLOY_HOST_IP} ;};
     listen-on-v6 port 53 { ::1; };
 	directory "/var/cache/bind";
-	allow-query     { localhost; };
+	allow-query     { any; };
     recursion yes;
     dnssec-enable no;
     dnssec-validation no;

@@ -66,6 +66,18 @@ sudo [ -d /var/easydeploy/share/sync/env ] || mkdir /var/easydeploy/share/sync/e
 sudo [ -d /var/easydeploy/share/.config/ ] || mkdir /var/easydeploy/share/.config/
 sudo [ -d /var/easydeploy/share/.config/sync/discovery ] || mkdir -p /var/easydeploy/share/.config/sync/discovery
 
+[ -d /ezlog ] || sudo ln -s  /var/log/easydeploy /ezlog
+[ -d /ezshare ] || sudo ln -s  /var/easydeploy/share /ezshare
+[ -d /ez ] || sudo ln -s  /var/easydeploy /ez
+[ -d /ezbin ] || sudo ln -s  /home/easydeploy/bin /ezbin
+[ -d /ezubin ] || sudo ln -s  /home/easydeploy/usr/bin /ezubin
+[ -d /ezsync ] || sudo ln -s  /var/easydeploy/share/sync /ezsync
+[ -d /ezbackup ] || sudo ln -s  /var/easydeploy/share/backup /ezbackup
+[ -d /eztmp ] || sudo ln -s  /var/easydeploy/share/tmp /eztmp
+
+
+
+
 sudo cp -f run.sh  serf-agent.sh consul-agent.sh update.sh gitpoll.sh build.sh discovery.sh notify.sh check_for_restart.sh intrusion.sh backup.sh health_check.sh supervisord_monitor.sh /home/easydeploy/bin
 [ -d user-scripts ] && sudo cp -rf user-scripts/*  /home/easydeploy/usr/bin/
 sudo chmod 755 /home/easydeploy/bin/*
@@ -238,13 +250,14 @@ EOF
 
 cat > /etc/bind/named.conf.options <<EOF
 options {
-    listen-on port 53 { 127.0.0.1; ${EASYDEPLOY_HOST_IP} ;};
+    listen-on port 53 { any;};
     listen-on-v6 port 53 { ::1; };
 	directory "/var/cache/bind";
 	allow-query     { any; };
     recursion yes;
     dnssec-enable no;
     dnssec-validation no;
+    version "none of your business";
 };
 	include "/etc/bind/consul.conf";
 EOF
@@ -286,7 +299,7 @@ primary_port=${ports[0]}
 cat > /etc/consul.d/component.json <<EOF
 {
     "service": {
-        "name": "${DEPLOY_ENV}-${PROJECT}-${COMPONENT}",
+        "name": "${MACHINE_NAME}",
         "port": ${primary_port},
         "check": {
             "script": "/home/easydeploy/bin/health_check.sh",
@@ -407,6 +420,7 @@ sudo ufw allow 8300  #consul
 sudo ufw allow 8301  #consul
 sudo ufw allow 8302  #consul
 sudo ufw allow 9595  #btsync
+sudo ufw allow from 172.16.0.0/12 to any port 53 #dns from containers
 
 for port in ${EASYDEPLOY_PORTS} ${EASYDEPLOY_EXTERNAL_PORTS}
 do

@@ -13,4 +13,4 @@ do
     export DOCKER_ARGS="$DOCKER_ARGS  -p ${EASYDEPLOY_HOST_IP}:$(($port + $OFFSET)):$(($port + $OFFSET))"
 done
 [ -f /var/easydeploy/container/$1 ] || mkdir -p /var/easydeploy/container/$1
-docker run --rm=true  --sig-proxy=true -t -i $DOCKER_ARGS -v /var/easydeploy/container/$1:/var/local -v /var/easydeploy/share:/var/share -v /var/easydeploy/share:/var/easydeploy/share -e EASYDEPLOY_HOST_IP=${EASYDEPLOY_HOST_IP} --dns 127.0.0.1 $(cat /var/easydeploy/share/.config/component) $DOCKER_COMMANDS
+echo | docker run --rm=true -t -i $DOCKER_ARGS -v /var/easydeploy/container/$1:/var/local -v /var/easydeploy/share:/var/share -v /var/easydeploy/share:/var/easydeploy/share -e EASYDEPLOY_HOST_IP=${EASYDEPLOY_HOST_IP} --dns ${EASYDEPLOY_HOST_IP} $(cat /var/easydeploy/share/.config/component) $DOCKER_COMMANDS

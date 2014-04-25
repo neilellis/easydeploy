@@ -101,10 +101,10 @@ cp -f ~/.ssh/id_rsa  /home/easydeploy/deployment/id_rsa
 cp -f ~/.ssh/id_rsa.pub  /home/easydeploy/deployment/id_rsa.pub
 EOF
 
+echo ${EASYDEPLOY_HOST_IP} > /var/easydeploy/share/.config/ip
 
 echo "Reading config"
 . /home/easydeploy/deployment/ed.sh
-
 
 
 #store useful info for scripts

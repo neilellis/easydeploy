@@ -9,7 +9,7 @@ do
     su  easydeploy -c "git fetch &> .build_log.txt"
     if [ -s .build_log.txt ]
     then
-       su easydeploy -c "git pull"
+       su easydeploy -c "git revert Dockerfile; git pull"
        if su easydeploy -c "/home/easydeploy/bin/build.sh 2>&1 | tee /tmp/build.out"
        then
            supervisorctl restart $(cat /var/easydeploy/share/.config/component):              echo "Component restarted"

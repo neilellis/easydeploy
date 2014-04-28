@@ -1,5 +1,7 @@
 #!/bin/bash
 
+chmod 755 ~/bin/*
+
 error() {
     echo "**** EASYDEPLOY-COMPONENT-INSTALL-FAILED ****"
    sourcefile=$1

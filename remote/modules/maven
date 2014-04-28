@@ -1,7 +1,8 @@
 #!/bin/sh
 # install maven
 branch=$(cat /var/easydeploy/share/.config/branch)
-[ -d /var/easydeploy/share/sync/global/.m2 ] && cp -r /var/easydeploy/share/sync/global/.m2 .m2
+[ -d .m2 ] || mkdir .m2
+[ -d /var/easydeploy/share/sync/global/.m2 ] && cp -r /var/easydeploy/share/sync/global/.m2/* .m2/
 cat <<EOF
 FROM neilellis/easydeploy-java-mvn-base
 WORKDIR /root

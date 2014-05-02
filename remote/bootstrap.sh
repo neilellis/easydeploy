@@ -1,7 +1,9 @@
 #!/bin/bash
 
+touch /tmp/.install-in-progress
+
 error() {
-   echo "**** EASYDEPLOY-COMPONENT-INSTALL-FAILED ****"
+   echo "**** FAIL ****"
    sourcefile=$1
    lineno=$2
    code=$3
@@ -29,6 +31,8 @@ shift
 export BACKUP_HOST=$1
 shift
 export MACHINE_NAME=$1
+shift
+export TARGET_COMPONENT=$1
 shift
 export OTHER_ARGS="$@"
 cd
@@ -99,8 +103,9 @@ touch .bootstrapped
 fi
 
 echo "Installing ${COMPONENT} on ${DEPLOY_ENV}"
-bash ./install-component.sh ${COMPONENT} ${DEPLOY_ENV} ${GIT_BRANCH} ${PROJECT} ${BACKUP_HOST} ${MACHINE_NAME} ${OTHER_ARGS}
-echo "**** EASYDEPLOY-COMPONENT-INSTALL-FINISHED ****"
+bash ./install-component.sh ${COMPONENT} ${DEPLOY_ENV} ${GIT_BRANCH} ${PROJECT} ${BACKUP_HOST} ${MACHINE_NAME} ${TARGET_COMPONENT} ${OTHER_ARGS}
+rm -f /tmp/.install-in-progress
+echo "**** SUCCESS ****"
 exit 0
 
 

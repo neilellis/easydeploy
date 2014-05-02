@@ -1,4 +1,6 @@
 #!/bin/sh
+export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/easydeploy/bin:/root/bin
+
 OFFSET=$1
 export DOCKER_COMMANDS=
 export EASYDEPLOY_PORTS=

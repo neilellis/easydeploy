@@ -1,6 +1,9 @@
 #!/bin/bash
 #This starts the serf agent and forces it to bind to the public IP address
 #this behaviour may change in the future, but for now it makes life easier
+export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/easydeploy/bin:/root/bin
+
+killall consul || :
 
 export EASYDEPLOY_HOST_IP=$(/sbin/ifconfig eth0 | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p')
 export PROJECT=$(cat /var/easydeploy/share/.config/project)

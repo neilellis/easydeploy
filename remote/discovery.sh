@@ -1,6 +1,5 @@
 #!/bin/bash -eu
-
-export PATH=$PATH:/usr/local/bin/
+export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/easydeploy/bin:/root/bin
 
 mkdir -p /var/easydeploy/share/.config/sync/discovery/ || :
 mkdir -p /var/easydeploy/share/.config/discovery/ || :
@@ -65,8 +64,8 @@ do
     #Create a txt and csv file for all the components in the env
     for c in $components
     do
-        serf members -tag deploy_env=${deploy_env} -tag component=${c}   | tr -s ' ' | cut -d' ' -f2 | cut -d: -f1 > /var/easydeploy/share/.config/discovery/${c}.txt
-        serf members -tag deploy_env=${deploy_env} -tag component=${c}   |  tr -s ',' ';' | tr -s ' ' |  tr ' ' ',' > /var/easydeploy/share/.config/discovery/${c}.csv
+        serf members -tag deploy_env=${deploy_env} -tag component=${c}   | tr -s ' ' | cut -d' ' -f2 | cut -d: -f1 | sort -u  > /var/easydeploy/share/.config/discovery/${c}.txt
+        serf members -tag deploy_env=${deploy_env} -tag component=${c}   |  tr -s ',' ';' | tr -s ' ' |  tr ' ' ',' | sort -u > /var/easydeploy/share/.config/discovery/${c}.csv
 
         if [ $c == "logstash" ]
         then

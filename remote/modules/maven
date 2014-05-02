@@ -1,11 +1,12 @@
 #!/bin/sh
 # install maven
 branch=$(cat /var/easydeploy/share/.config/branch)
-[ -d .m2 ] || mkdir .m2
-[ -d /var/easydeploy/share/sync/global/.m2 ] && cp -r /var/easydeploy/share/sync/global/.m2/* .m2/
+[ -d /home/easydeploy/deployment/.m2 ] || mkdir /home/easydeploy/deployment/.m2
+[ -d /var/easydeploy/share/sync/global/.m2 ] && cp -rf /var/easydeploy/share/sync/global/.m2/* /home/easydeploy/deployment/.m2/
 cat <<EOF
 FROM neilellis/easydeploy-java-mvn-base
 WORKDIR /root
+ENV HOME /root
 ADD ./id_rsa /root/.ssh/id_rsa
 ADD ./id_rsa.pub /root/.ssh/id_rsa.pub
 RUN chmod 600 /root/.ssh/*

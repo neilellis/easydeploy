@@ -1,4 +1,6 @@
 #!/bin/bash
+export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/easydeploy/bin:/root/bin
+
 HANDLER_DIR="/etc/serf/handlers"
 
 if [ "$SERF_EVENT" = "user" ]; then
@@ -10,4 +12,4 @@ else
 fi
 
 HANDLER="$HANDLER_DIR/${EVENT}.sh"
-[ -f "$HANDLER" ] && $HANDLER
+( [ -f "$HANDLER" ] && $HANDLER ) || :

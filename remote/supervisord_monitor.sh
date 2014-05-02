@@ -1,4 +1,5 @@
 #!/bin/bash -x
+export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/easydeploy/bin:/root/bin
 if service supervisor status
 then
     echo "Supervisord running fine"

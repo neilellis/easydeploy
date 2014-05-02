@@ -33,8 +33,11 @@ export BACKUP_HOST=$1
 shift
 export MACHINE_NAME=$1
 shift
+export TARGET_COMPONENT=$1
+shift
 export APP_ARGS="$@"
-export EASYDEPLOY_ADMIN_SERVER=
+export EASYDEPLOY_PRIMARY_ADMIN_SERVER=
+export EASYDEPLOY_SECONDARY_ADMIN_SERVER=
 export EASYDEPLOY_PORTS=
 export EASYDEPLOY_PRIMARY_PORT=
 export EASYDEPLOY_UPDATE_CRON="0 4 * * *"
@@ -80,7 +83,8 @@ sudo [ -d /var/easydeploy/share/.config/sync/discovery ] || mkdir -p /var/easyde
 
 
 
-sudo cp -f run.sh  serf-agent.sh consul-agent.sh update.sh gitpoll.sh build.sh discovery.sh notify.sh check_for_restart.sh intrusion.sh backup.sh health_check.sh supervisord_monitor.sh /home/easydeploy/bin
+sudo mv -f run.sh  serf-agent.sh consul-agent.sh update.sh gitpoll.sh build.sh discovery.sh notify.sh check_for_restart.sh intrusion.sh backup.sh health_check.sh restart-component.sh logstash-ship.sh  supervisord_monitor.sh /home/easydeploy/bin
+mv -f bashrc_profile ~/.bashrc_profile
 [ -d user-scripts ] && sudo cp -rf user-scripts/*  /home/easydeploy/usr/bin/
 sudo chmod 755 /home/easydeploy/bin/*
 sudo chmod 755 /home/easydeploy/usr/bin/* ||:
@@ -119,6 +123,7 @@ echo ${DEPLOY_ENV} > /var/easydeploy/share/.config/deploy_env
 echo ${PROJECT} > /var/easydeploy/share/.config/project
 echo ${BACKUP_HOST} > /var/easydeploy/share/.config/backup_host
 echo ${MACHINE_NAME} > /var/easydeploy/share/.config/hostname
+echo ${TARGET_COMPONENT} > /var/easydeploy/share/.config/target
 cp serf_key  /var/easydeploy/share/.config/serf_key
 sudo chown easydeploy:easydeploy /var/easydeploy/share
 
@@ -264,19 +269,27 @@ options {
 	include "/etc/bind/consul.conf";
 EOF
 
-consul_server=true
-[ -z "$EASYDEPLOY_ADMIN_SERVER" ] && consul_server=false
+consul_server=false
+consul_primary_server=false
+if [ ! -z "$EASYDEPLOY_PRIMARY_ADMIN_SERVER" ]
+then
+    consul_primary_server=true
+    consul_server=true
+else
+    [ ! -z "$EASYDEPLOY_SECONDARY_ADMIN_SERVER" ] && consul_server=true
+fi
 [ -d /etc/consul.d ] || sudo mkdir /etc/consul.d
 cat > /etc/consul.d/server.json <<EOF
 
 {
+  "bootstrap":${consul_primary_server},
   "datacenter": "dc1",
   "data_dir": "/var/consul",
   "log_level": "INFO",
   "server": ${consul_server},
   "domain" : "easydeploy.",
   "encrypt" :"$(cat /var/easydeploy/share/.config/serf_key)",
-  "leave_on_terminate" : true
+  "leave_on_terminate" : false
 }
 EOF
 
@@ -284,8 +297,9 @@ if [ ! -f /var/easydeploy/.install/consul ]
 then
     echo "Installing consul for service discovery and communication"
     sudo apt-get install -y unzip
-    [ -f 0.1.0_linux_amd64.zip ] || wget https://dl.bintray.com/mitchellh/consul/0.1.0_linux_amd64.zip
-    unzip 0.1.0_linux_amd64.zip
+    [ -f 0.2.0_linux_amd64.zip ] || wget https://dl.bintray.com/mitchellh/consul/0.1.0_linux_amd64.zip
+    [ -f 0.2.0_web_ui.zip ] || wget https://dl.bintray.com/mitchellh/consul/0.2.0_web_ui.zip
+    unzip 0.2.0_linux_amd64.zip
     sudo mv -f consul /usr/local/bin
     touch /var/easydeploy/.install/consul
 fi
@@ -325,22 +339,7 @@ then
         mv logstash-1.4.0 /usr/local/logstash
     fi
 
-cat > /etc/logstash.conf <<EOF
-input {
-  file {
-  add_field => {
-    component => "${COMPONENT}"
-    env =>  "${DEPLOY_ENV}"
-    host => "${EASYDEPLOY_HOST_IP}"
-    }
 
-    type => "syslog"
-    path => [ "/var/log/messages", "/var/log/syslog", "/var/log/*.log",  "/var/log/easydeploy/*.log" ]
-  }
-}
-
-output { stdout {} }
-EOF
     touch /var/easydeploy/.install/logstash
 fi
 
@@ -355,19 +354,22 @@ fi
 
 echo "Adding cron tasks"
 sudo apt-get install -y duplicity
-echo "*/5 * * * * root /home/easydeploy/bin/check_for_restart.sh &>  /var/log/easydeploy/restart.log" > /etc/cron.d/restart
-echo "*/5 * * * * easydeploy /home/easydeploy/bin/backup.sh &>  /var/log/easydeploy/backup.log" > /etc/cron.d/backup
+pathline="PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:"
+echo $pathline > /etc/cron.d/restart
+echo "*/15 * * * * root /bin/bash -l -c '/home/easydeploy/bin/check_for_restart.sh &>  /var/log/easydeploy/restart.log'" >> /etc/cron.d/restart
+echo $pathline > /etc/cron.d/backup
+echo "*/5 * * * * easydeploy /bin/bash -l -c '/home/easydeploy/bin/backup.sh &>  /var/log/easydeploy/backup.log'" >> /etc/cron.d/backup
 
 if [[ ! -z "${EASYDEPLOY_UPDATE_CRON}" ]]
 then
-echo "${EASYDEPLOY_UPDATE_CRON} root /home/easydeploy/bin/update.sh $[ ( $RANDOM % 3600 )  + 1 ]s &> /var/log/easydeploy/update.log" > /etc/cron.d/update
+echo $pathline > /etc/cron.d/update
+echo "${EASYDEPLOY_UPDATE_CRON} root /bin/bash -l -c '/home/easydeploy/bin/update.sh $[ ( $RANDOM % 3600 )  + 1 ]s &> /var/log/easydeploy/update.log'" >> /etc/cron.d/update
 fi
 
-echo "15 * * * * root /home/easydeploy/bin/supervisord_monitor.sh &>  /var/log/easydeploy/suprestart.log" > /etc/cron.d/suprestart
+echo $pathline > /etc/cron.d/suprestart
+echo "15 * * * * root /bin/bash -l -c '/home/easydeploy/bin/supervisord_monitor.sh &>  /var/log/easydeploy/suprestart.log'" >> /etc/cron.d/suprestart
 
 chmod 755 /etc/cron.d/*
-
-
 
 sudo su - easydeploy -c "crontab" <<EOF2
 0 * * * * find /var/easydeploy/share/tmp/hourly -mmin +60 -exec rm {} \;

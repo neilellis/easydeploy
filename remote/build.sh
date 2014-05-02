@@ -1,4 +1,6 @@
 #!/bin/bash -eu
+export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/easydeploy/bin:/root/bin
+
 function dockerfileExtensions() {
     while read line
     do

@@ -1,4 +1,4 @@
-#!/bin/bash -eu
+#!/bin/bash -eux
 export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/easydeploy/bin:/root/bin
 
 mkdir -p /var/easydeploy/share/.config/sync/discovery/ || :
@@ -64,6 +64,7 @@ do
     #Create a txt and csv file for all the components in the env
     for c in $components
     do
+
         serf members -tag deploy_env=${deploy_env} -tag component=${c}   | tr -s ' ' | cut -d' ' -f2 | cut -d: -f1 | sort -u  > /var/easydeploy/share/.config/discovery/${c}.txt
         serf members -tag deploy_env=${deploy_env} -tag component=${c}   |  tr -s ',' ';' | tr -s ' ' |  tr ' ' ',' | sort -u > /var/easydeploy/share/.config/discovery/${c}.csv
 
@@ -72,26 +73,44 @@ do
             logstash=$(cat /var/easydeploy/share/.config/discovery/${c}.txt| tail -1)
 
             cat > /etc/logstash.conf  <<EOF
-    input {
-      file {
-      add_field => {
-        component => "$(cat /var/easydeploy/share/.config/component)"
-        env =>  "$(cat /var/easydeploy/share/.config/deploy_env)"
-        host => "${ip}"
-
+input {
+  file {
+  add_field => {
+    component => "$(cat /var/easydeploy/share/.config/component)"
+    env =>  "$(cat /var/easydeploy/share/.config/deploy_env)"
+    hostname => "$(cat /var/easydeploy/share/.config/hostname)"
+    severity => ""
     }
 
     type => "syslog"
-        path => [ "/var/log/messages", "/var/log/syslog", "/var/log/*.log",  "/var/log/easydeploy/*.log" ]
-      }
+    path => [ "/var/log/messages", "/var/log/syslog" ]
+  }
+  file {
+  add_field => {
+    component => "$(cat /var/easydeploy/share/.config/component)"
+    env =>  "$(cat /var/easydeploy/share/.config/deploy_env)"
+    hostname => "$(cat /var/easydeploy/share/.config/hostname)"
+    severity => ""
     }
 
-    output {
-     tcp {  host =>"${logstash}" port => 7007 codec => "json" mode => "client"}
+    type => "ezd"
+    path => [ "/var/log/easydeploy/run*.log" ]
+  }
+}
+
+output {
+    tcp     { type => "linux"
+              port => "7007"
+              mode => client
+              codec => json
+              host => "$(cat /var/easydeploy/share/.config/deploy_env)-$(cat /var/easydeploy/share/.config/project)-logstash.service.easydeploy"
     }
+
+}
 
 EOF
-        supervisorctl restart logstash
+        chown easydeploy:easydeploy /etc/logstash.conf
+        supervisorctl restart logstash-ship
         fi
     done
 

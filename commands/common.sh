@@ -53,7 +53,7 @@ function targetMachineName() {
 }
 
 function sync() {
-    rsync --progress --rsh="/usr/bin/ssh -o 'StrictHostKeyChecking no' " --compress \
+    rsync --rsh="/usr/bin/ssh -o 'StrictHostKeyChecking no' " --compress \
      --recursive --times --perms --links \
      --exclude ".Sync*"  \
      "$@"

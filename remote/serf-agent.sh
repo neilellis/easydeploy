@@ -6,6 +6,10 @@ killall serf || :
 export EASYDEPLOY_HOST_IP=$(/sbin/ifconfig eth0 | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p')
 export PROJECT=$(cat /var/easydeploy/share/.config/project)
 export COMPONENT=$(cat /var/easydeploy/share/.config/component)
+if [ "$COMPONENT" == "lb" ]
+then
+    export COMPONENT="$(cat /var/easydeploy/share/.config/target)-lb"
+fi
 export DEPLOY_ENV=$(cat /var/easydeploy/share/.config/deploy_env)
 [ -d /var/serf ] || mkdir /var/serf
 #Assign a node name, bind to the public ip, add relevant tags and the event handlers.

@@ -14,6 +14,12 @@ export MIN_INSTANCES=0
 export MAX_INSTANCES=10000000
 export BACKUP_HOST=localhost
 
+if ! which wget  &> /dev/null
+then
+    echo "Please download and install 'wget' before continuing."
+    echo "If you're on a Mac then try: "
+    echo " $ brew  install wget"
+fi
 
 if ! which serf  &> /dev/null
 then
@@ -23,6 +29,40 @@ then
 #    echo 'ruby -e "$(curl -fsSL https://raw.github.com/Homebrew/homebrew/go/install)" \#If you don\'t have Homebrew'
 #    echo " $ brew install phinze/cask/brew-cask \# If you don't have cask"
     echo " $ brew cask install serf"
+fi
+
+
+if [ ! -f ~/.ezd/client_install/.consulx ]
+then
+    echo "Installing consul for service discovery and communication"
+    [ -d ~/.ezd/client_install/ ] || mkdir -p ~/.ezd/client_install/
+    cd ~/.ezd/client_install/
+    [ -f 0.2.0_darwin_amd64.zip ] || wget https://dl.bintray.com/mitchellh/consul/0.2.0_darwin_amd64.zip
+    unzip 0.2.0_darwin_amd64.zip
+    sudo mv -f consul /usr/local/bin
+    sudo chmod 755 /usr/local/bin/consul
+    cd -
+    [ -d  ~/.ezd/client_install/consul_ui ] || mkdir ~/.ezd/client_install/consul_ui
+    cd ~/.ezd/client_install/consul_ui
+    rm -rf ~/.ezd/client_install/consul_ui/* || :
+    [ -f 0.2.0_web_ui.zip ] ||  wget https://dl.bintray.com/mitchellh/consul/0.2.0_web_ui.zip
+    unzip 0.2.0_web_ui.zip
+    cd -
+
+cat > ~/.ezd/client_install/consul.json <<EOF
+
+{
+  "datacenter": "dc1",
+  "data_dir": "/tmp",
+  "log_level": "INFO",
+  "server": false,
+  "domain" : "easydeploy.",
+  "encrypt" :"$(cat ~/.ezd/serf_key)",
+  "leave_on_terminate" : true
+}
+EOF
+
+    touch  ~/.ezd/client_install/.consulx
 fi
 
 if ! which parallel  &> /dev/null
@@ -151,11 +191,17 @@ case $command in
      clean)
          ../commands/clean.sh $@
          ;;
+     consul-gui)
+         ../commands/consul-gui.sh $@
+         ;;
      image)
          ../commands/image.sh $@
          ;;
      deploy)
          ../commands/deploy.sh $@
+         ;;
+     destroy)
+         ../commands/destroy.sh $@
          ;;
      create)
          ../commands/deploy-and-provision.sh $@

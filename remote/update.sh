@@ -27,7 +27,7 @@ sudo su - easydeploy -c "/home/easydeploy/bin/build.sh"
 [ $(docker ps -q -a|wc -l) -gt 0 ] && docker stop $(docker ps -q) && docker rm $(docker ps -q -a)
 docker images -a|grep '^<none>'|tr -s ' '|cut -d' ' -f 3|xargs docker rmi  || :
 
-sudo apt-get update
+sudo apt-get -q update
 sudo unattended-upgrades
 #sudo apt-get -y upgrade
 echo "Rebooting"

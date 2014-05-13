@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 echo "Starting bootstrap process, please keep this running until your Consul DNS is working correctly"
 cd $(dirname $0) &> /dev/null

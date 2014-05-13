@@ -1,11 +1,9 @@
-#!/bin/sh
+#!/bin/bash -eu
 cd $(dirname $0)
-common.sh
-
-set -eux
+. common.sh
 
 for id in $(../providers/${PROVIDER}/list-machines-by-id.sh "^template-.*"| cut -d: -f2)
 do
-    tugboat destroy -i ${id} || echo "Couldn't destroy ${id}"
+    tugboat destroy -c -i ${id} || echo "Couldn't destroy ${id}"
 done
 

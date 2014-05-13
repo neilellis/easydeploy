@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -eu
 
 chmod 755 ~/bin/*
 
@@ -15,7 +15,6 @@ error() {
 trap 'error "${BASH_SOURCE}" "${LINENO}" "$?"' ERR
 
 
-set -eux
 cd $(dirname $0)
 DIR=$(pwd)
 
@@ -35,6 +34,9 @@ export MACHINE_NAME=$1
 shift
 export TARGET_COMPONENT=$1
 shift
+export EASYDEPLOY_REMOTE_IP_RANGE=$1
+shift
+
 export APP_ARGS="$@"
 export EASYDEPLOY_PRIMARY_ADMIN_SERVER=
 export EASYDEPLOY_SECONDARY_ADMIN_SERVER=
@@ -45,12 +47,10 @@ export EASYDEPLOY_PACKAGES=
 export EASYDEPLOY_STATE="stateful"
 export EASYDEPLOY_PROCESS_NUMBER=1
 export EASYDEPLOY_EXTERNAL_PORTS=
+export EASYDEPLOY_SERVICE_CHECK_INTERVAL=10s
 export EASYDEPLOY_UPDATE_CRON=none
 export EASYDEPLOY_HOST_IP=$(/sbin/ifconfig eth0 | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p')
-
-#Stay safe use the latest
-sudo apt-get update
-sudo apt-get -y upgrade
+export DEBIAN_FRONTEND=noninteractive
 
 echo "Creating directories"
 sudo [ -d /home/easydeploy/bin ] || mkdir /home/easydeploy/bin
@@ -83,16 +83,16 @@ sudo [ -d /var/easydeploy/share/.config/sync/discovery ] || mkdir -p /var/easyde
 
 
 
-sudo mv -f run.sh  serf-agent.sh consul-agent.sh update.sh gitpoll.sh build.sh discovery.sh notify.sh check_for_restart.sh intrusion.sh backup.sh health_check.sh restart-component.sh logstash-ship.sh  supervisord_monitor.sh /home/easydeploy/bin
+sudo mv -f run.sh  serf-agent.sh consul-agent.sh update.sh gitpoll.sh build.sh discovery.sh notify.sh check_for_restart.sh intrusion.sh backup.sh health_check.sh postmortem.sh restart-component.sh clean.sh logstash-ship.sh  supervisord_monitor.sh /home/easydeploy/bin
 mv -f bashrc_profile ~/.bashrc_profile
-[ -d user-scripts ] && sudo cp -rf user-scripts/*  /home/easydeploy/usr/bin/
+[ -d ~/user-scripts ] && sudo cp -rf ~/user-scripts/*  /home/easydeploy/usr/bin/
 sudo chmod 755 /home/easydeploy/bin/*
 sudo chmod 755 /home/easydeploy/usr/bin/* ||:
 
 
 echo "Setting up deployment project"
 sudo su - easydeploy <<EOF
-set -eux
+set -eu
 cd /home/easydeploy
 chmod 600 ~/.ssh/*
 chmod 700 ~/.ssh
@@ -132,9 +132,9 @@ sudo chown easydeploy:easydeploy /var/easydeploy/share
 
 #Install additional host packages, try to avoid that and keep them in
 #the Dockerfile where possible.
-if [ ! -z ${EASYDEPLOY_PACKAGES} ]
+if [ ! -z "${EASYDEPLOY_PACKAGES}" ]
 then
-    echo "Installing custom packages"
+    echo "Installing custom packages ${EASYDEPLOY_PACKAGES}"
     sudo apt-get install -y ${EASYDEPLOY_PACKAGES}
 fi
 
@@ -145,7 +145,7 @@ if [ ! -f /var/easydeploy/.install/btsync ]
 then
 sudo apt-get install -y  rhash
 sudo add-apt-repository -y ppa:tuxpoldo/btsync
-sudo apt-get update
+sudo apt-get -qq update
 echo "n" | sudo apt-get install -y btsync
 export EASYDEPLOY_GLOBAL_SYNC_SECRET="$(cat /home/easydeploy/.ssh/id_rsa | sed -e 's/0/1/g' | rhash --sha512 - | cut -c1-64 )"
 export EASYDEPLOY_COMPONENT_SYNC_SECRET="$(cat /home/easydeploy/.ssh/id_rsa /var/easydeploy/share/.config/component /var/easydeploy/share/.config/project  /var/easydeploy/share/.config/deploy_env | rhash --sha512 - | cut -c1-64)"
@@ -232,7 +232,7 @@ if [ ! -f /var/easydeploy/.install/serf ]
 then
     echo "Installing serf for node discovery and communication"
     sudo apt-get install -y unzip
-    [ -f 0.5.0_linux_amd64.zip ] || wget https://dl.bintray.com/mitchellh/serf/0.5.0_linux_amd64.zip
+    [ -f 0.5.0_linux_amd64.zip ] || wget -q https://dl.bintray.com/mitchellh/serf/0.5.0_linux_amd64.zip
     unzip 0.5.0_linux_amd64.zip
     sudo mv -f serf /usr/local/bin
     [ -d /etc/serf ] || sudo mkdir /etc/serf
@@ -297,10 +297,18 @@ if [ ! -f /var/easydeploy/.install/consul ]
 then
     echo "Installing consul for service discovery and communication"
     sudo apt-get install -y unzip
-    [ -f 0.2.0_linux_amd64.zip ] || wget https://dl.bintray.com/mitchellh/consul/0.1.0_linux_amd64.zip
-    [ -f 0.2.0_web_ui.zip ] || wget https://dl.bintray.com/mitchellh/consul/0.2.0_web_ui.zip
+
+    [ -f 0.2.0_linux_amd64.zip ] || wget -q https://dl.bintray.com/mitchellh/consul/0.2.0_linux_amd64.zip
     unzip 0.2.0_linux_amd64.zip
     sudo mv -f consul /usr/local/bin
+    sudo chmod 755 /usr/local/bin/consul
+    [ -d  /usr/local/consul_ui ] || mkdir  /usr/local/consul_ui
+    cd /usr/local/consul_ui
+    rm -rf /usr/local/consul_ui/* || :
+    [ -f 0.2.0_web_ui.zip ] || wget -q https://dl.bintray.com/mitchellh/consul/0.2.0_web_ui.zip
+    unzip 0.2.0_web_ui.zip
+    cd -
+
     touch /var/easydeploy/.install/consul
 fi
 
@@ -319,7 +327,7 @@ cat > /etc/consul.d/component.json <<EOF
         "port": ${primary_port},
         "check": {
             "script": "/home/easydeploy/bin/health_check.sh",
-            "interval": "30s"
+            "interval": "${EASYDEPLOY_SERVICE_CHECK_INTERVAL}"
         }
     }
 }
@@ -334,7 +342,7 @@ if [ ! -f /var/easydeploy/.install/logstash ]
 then
     if [ ! -d /usr/local/logstash ]
     then
-        wget https://download.elasticsearch.org/logstash/logstash/logstash-1.4.0.tar.gz
+        wget -q https://download.elasticsearch.org/logstash/logstash/logstash-1.4.0.tar.gz
         tar -zxvf logstash-1.4.0.tar.gz
         mv logstash-1.4.0 /usr/local/logstash
     fi
@@ -358,7 +366,7 @@ pathline="PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:"
 echo $pathline > /etc/cron.d/restart
 echo "*/15 * * * * root /bin/bash -l -c '/home/easydeploy/bin/check_for_restart.sh &>  /var/log/easydeploy/restart.log'" >> /etc/cron.d/restart
 echo $pathline > /etc/cron.d/backup
-echo "*/5 * * * * easydeploy /bin/bash -l -c '/home/easydeploy/bin/backup.sh &>  /var/log/easydeploy/backup.log'" >> /etc/cron.d/backup
+echo "7 * * * * easydeploy /bin/bash -l -c '/home/easydeploy/bin/backup.sh &>  /var/log/easydeploy/backup.log'" >> /etc/cron.d/backup
 
 if [[ ! -z "${EASYDEPLOY_UPDATE_CRON}" ]]
 then
@@ -366,8 +374,8 @@ echo $pathline > /etc/cron.d/update
 echo "${EASYDEPLOY_UPDATE_CRON} root /bin/bash -l -c '/home/easydeploy/bin/update.sh $[ ( $RANDOM % 3600 )  + 1 ]s &> /var/log/easydeploy/update.log'" >> /etc/cron.d/update
 fi
 
-echo $pathline > /etc/cron.d/suprestart
-echo "15 * * * * root /bin/bash -l -c '/home/easydeploy/bin/supervisord_monitor.sh &>  /var/log/easydeploy/suprestart.log'" >> /etc/cron.d/suprestart
+echo $pathline > /etc/cron.d/clean
+echo "*/13 * * * * root /bin/bash -l -c '/home/easydeploy/bin/clean.sh &>  /var/log/easydeploy/clean.log'" >> /etc/cron.d/clean
 
 chmod 755 /etc/cron.d/*
 
@@ -382,18 +390,14 @@ cd
 if [ ! -f /var/easydeploy/.install/docker ]
 then
     echo "Installing Docker"
-    sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 36A1D7869245C8950F966E92D8576A8BA88D21E9
-    sudo apt-get update  -y
-    sudo apt-get -y install linux-image-extra-`uname -r`
-    sudo sh -c "echo deb http://get.docker.io/ubuntu docker main > /etc/apt/sources.list.d/docker.list"
-    sudo apt-get -y update
-    sudo apt-get install -y lxc-docker
+    sudo apt-get install -y docker.io
+    sudo ln -sf /usr/bin/docker.io /usr/local/bin/docker
     #sudo addgroup worker docker
     sudo addgroup easydeploy docker
     sudo chmod a+rwx /var/run/docker.sock
     sudo chown -R easydeploy:easydeploy /home/easydeploy/
     cd /home/easydeploy/deployment
-    sudo service docker start || true
+    sudo service docker.io start || true
     touch /var/easydeploy/.install/docker
 fi
 
@@ -425,6 +429,12 @@ sudo ufw allow 8301  #consul
 sudo ufw allow 8302  #consul
 sudo ufw allow 9595  #btsync
 sudo ufw allow from 172.16.0.0/12 to any port 53 #dns from containers
+if [ ! -z "$EASYDEPLOY_REMOTE_IP_RANGE" ]
+then
+    ufw allow from $EASYDEPLOY_REMOTE_IP_RANGE to any port 8500
+    ufw allow from $EASYDEPLOY_REMOTE_IP_RANGE to any port 8400
+    ufw allow from $EASYDEPLOY_REMOTE_IP_RANGE to any port 8600
+fi
 
 for port in ${EASYDEPLOY_PORTS} ${EASYDEPLOY_EXTERNAL_PORTS}
 do
@@ -444,7 +454,7 @@ sudo cp template-run.conf /home/easydeploy/template/
 if [ ! -f /var/easydeploy/.install/supervisord ]
 then
     echo "Installing supervisor for process monitoring"
-    sudo apt-get install -y supervisor timelimit
+    sudo apt-get install -q -y supervisor timelimit
 
     touch /var/easydeploy/.install/supervisord
 fi
@@ -462,12 +472,12 @@ EOF
 echo "Starting/Restarting services"
 sudo service supervisor stop || true
 sudo docker kill $(docker ps -q) || true
-sudo timelimit -t 30 -T 5 service docker stop
+sudo timelimit -t 30 -T 5 service docker.io stop
 [ -e  /tmp/supervisor.sock ] && sudo unlink /tmp/supervisor.sock
 [ -e  /var/run/supervisor.sock  ] && sudo unlink /var/run/supervisor.sock
 sleep 10
 sudo killall docker || true
-sudo service docker start
+sudo service docker.io start
 sudo service supervisor restart || true
 sudo supervisorctl restart all
 
@@ -481,7 +491,7 @@ if [ !  -f /var/easydeploy/.install/hardened ]
 then
 echo "Hardening"
 #sudo apt-get install -y denyhosts
-sudo apt-get install -y fail2ban denyhosts
+sudo apt-get install -y fail2ban
 touch /var/easydeploy/.install/hardened
 fi
 

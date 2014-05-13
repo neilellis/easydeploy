@@ -1,6 +1,16 @@
 #!/bin/bash -eu
 export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/easydeploy/bin:/root/bin
 
+error() {
+    echo "**** EASYDEPLOY-COMPONENT-INSTALL-FAILED ****"
+   sourcefile=$1
+   lineno=$2
+   code=$3
+   echo "$1:$2" $3
+   set +e
+   exit $3
+}
+
 function dockerfileExtensions() {
     while read line
     do
@@ -13,6 +23,10 @@ function dockerfileExtensions() {
 
 }
 cd /home/easydeploy/deployment
+git clean -df
+git checkout -- .
+cp -f ~/.ssh/id_rsa  id_rsa
+cp -f ~/.ssh/id_rsa.pub  id_rsa.pub
 cat Dockerfile | dockerfileExtensions > Dockerfile.processed
 mv -f  Dockerfile Dockerfile.orig
 mv -f  Dockerfile.processed Dockerfile

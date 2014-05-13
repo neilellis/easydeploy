@@ -9,7 +9,7 @@ function joinConsul() {
 
 supervisorctl stop $(cat /var/easydeploy/share/.config/component):
 docker stop $(docker ps -q)
-service docker stop
+service docker.io stop
 killall docker
 supervisorctl stop consul
 rm -rf /var/consul/*
@@ -17,5 +17,19 @@ supervisorctl start consul
 sleep 30
 cat /var/easydeploy/share/.config/discovery/all.txt | joinConsul
 sleep 30
-service docker start
+service docker.io start
 supervisorctl start $(cat /var/easydeploy/share/.config/component):
+
+count=0
+while supervisorctl status | grep -v "Running"
+do
+    echo "Waiting for supervisor to restart"
+    count=$(( $count + 1 ))
+    if (( $count > 30 ))
+    then
+        exit 1
+    else
+        sleep 10
+    fi
+done
+exit 0

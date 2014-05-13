@@ -34,10 +34,13 @@ export MACHINE_NAME=$1
 shift
 export TARGET_COMPONENT=$1
 shift
+export EASYDEPLOY_REMOTE_IP_RANGE=$1
+shift
+
 export OTHER_ARGS="$@"
 cd
 
-
+export DEBIAN_FRONTEND=noninteractive
 
 if [ ! -f .bootstrapped ]
 then
@@ -87,15 +90,17 @@ sudo chown easydeploy:easydeploy /var/run/easydeploy
 
 
 echo "Installing basic pre-requisites"
-sudo apt-get update
-sudo apt-get install -y git software-properties-common unattended-upgrades incron fileschanged
+sudo apt-get -qq update
+sudo apt-get -qq -y upgrade
+
+sudo apt-get install -q -y git software-properties-common unattended-upgrades incron fileschanged dialog zip sharutils
 sudo add-apt-repository ppa:chris-lea/zeromq
 sudo add-apt-repository ppa:webupd8team/java
-sudo apt-get update
+sudo apt-get -qq update
 echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | sudo /usr/bin/debconf-set-selections
 yes | sudo apt-get install -y oracle-java8-installer
-sudo apt-get install -y oracle-java8-set-default
-sudo apt-get install -y libzmq3-dbg libzmq3-dev libzmq3
+sudo apt-get -q install -y oracle-java8-set-default
+sudo apt-get -q install -y libzmq3-dbg libzmq3-dev libzmq3
 
 sudo chown -R easydeploy:easydeploy  /home/easydeploy/
 
@@ -103,7 +108,7 @@ touch .bootstrapped
 fi
 
 echo "Installing ${COMPONENT} on ${DEPLOY_ENV}"
-bash ./install-component.sh ${COMPONENT} ${DEPLOY_ENV} ${GIT_BRANCH} ${PROJECT} ${BACKUP_HOST} ${MACHINE_NAME} ${TARGET_COMPONENT} ${OTHER_ARGS}
+bash ./install-component.sh ${COMPONENT} ${DEPLOY_ENV} ${GIT_BRANCH} ${PROJECT} ${BACKUP_HOST} ${MACHINE_NAME} ${TARGET_COMPONENT} ${EASYDEPLOY_REMOTE_IP_RANGE} ${OTHER_ARGS}
 rm -f /tmp/.install-in-progress
 echo "**** SUCCESS ****"
 exit 0

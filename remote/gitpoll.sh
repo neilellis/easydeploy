@@ -16,7 +16,7 @@ do
        then
            /home/easydeploy/bin/restart-component.sh && echo "Component restarted"
        else
-            /home/easydeploy/bin/notify.sh "Build of $(cat /var/easydeploy/share/.config/component) failed on ${EASYDEPLOY_HOST_IP} " < /tmp/build.out
+            /home/easydeploy/bin/notify.sh ":thumbsdown:" "Build of $(cat /var/easydeploy/share/.config/component) failed: $(cat /tmp/build.out | tail -10)"
             echo "Docker build failed, no redeploy attempted."
        fi
     else

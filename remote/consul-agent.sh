@@ -5,10 +5,19 @@ export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/e
 
 killall consul || :
 
+. /home/easydeploy/deployment/ed.sh
+
 export EASYDEPLOY_HOST_IP=$(/sbin/ifconfig eth0 | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p')
 export PROJECT=$(cat /var/easydeploy/share/.config/project)
 export COMPONENT=$(cat /var/easydeploy/share/.config/component)
 export DEPLOY_ENV=$(cat /var/easydeploy/share/.config/deploy_env)
 [ -d /var/consul ] || mkdir /var/consul
+
+client_flag=-client=127.0.0.1
+if [ ! -z "$EASYDEPLOY_PRIMARY_ADMIN_SERVER" ]
+then
+    client_flag=-client=${EASYDEPLOY_HOST_IP}
+fi
+
 #Assign a node name, bind to the public ip, add relevant tags and the event handlers.
-/usr/local/bin/consul agent $1 -server -config-dir=/etc/consul.d -node=$(cat /var/easydeploy/share/.config/hostname)-$(/sbin/ifconfig eth0 | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p'| tr '.' '-') -bind=${EASYDEPLOY_HOST_IP} || (sleep 20 && exit -1)
+/usr/local/bin/consul agent $1 -server -ui-dir  /usr/local/consul_ui  -config-dir=/etc/consul.d -node=$(cat /var/easydeploy/share/.config/hostname)-$(/sbin/ifconfig eth0 | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p'| tr '.' '-') -bind=${EASYDEPLOY_HOST_IP} ${client_flag} || (sleep 20 && exit -1)

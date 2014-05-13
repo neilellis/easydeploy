@@ -1,0 +1,47 @@
+#!/bin/bash
+
+function section() {
+    echo
+    echo "$1"
+    echo "$1" | sed s/./=/g
+    echo
+    $2
+
+}
+
+function postmortem() {
+    section "Uname"  "uname -a"
+    section "Network Interfaces"  "ifconfig -a"
+    section "Memory"  "cat /proc/meminfo"
+    section "CPU"  "cat /proc/cpuinfo"
+    section "Disks"  "df -h"
+    section "Limits"  "ulimit -a"
+    section "Services" "service --status-all"
+    section "Processes" "ps aux"
+    section "Netstat" "netstat -tulpn"
+    section "Who"  "who"
+    section "W"  "w"
+    section "Uptime"  "uptime"
+    section "Disk Usage"  "du -sh /*"
+#    section "Top Network Bandwidth" "sysdig -n 10 -c topprocs_net"
+#    section "Top Disk Access" "sysdig -n 10 -c topprocs_file"
+#    section "Top Files Open Processes" "sysdig -n 10  -c fdcount_by proc.name 'fd.type=file'"
+}
+
+
+ip=$(/sbin/ifconfig eth0 | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p')
+
+dir=postmortem-$(cat /var/easydeploy/share/.config/hostname)-${ip}-$(date +%s)
+cd /ezsync/global/
+mkdir -p $dir
+cp /ezlog/* ${dir}
+postmortem > ${dir}/postmortem.log
+cp /var/log/syslog ${dir}
+tar -zcvf /tmp/postmortem.tgz ${dir}
+
+if [ -f /ezubin/send-file.sh ]
+then
+    /ezubin/send-file.sh /tmp/postmortem.tgz $(cat /var/easydeploy/share/.config/hostname)-${ip}-$(date "+%Y-%m-%d-%H-%M").tgz
+fi
+
+cd -

@@ -14,11 +14,11 @@ else
 fi
 echo "Sleeping for $duration to stagger updates"
 sleep $duration
-echo "Disabling supervisor and killing run.sh"
+echo "Disabling supervisor and killing run-docker.sh"
 touch /tmp/easydeploy-run-disable
 touch /var/easydeploy/share/.config/easydeploy-run-disable
 service supervisor stop
-killall run.sh  || echo "No run.sh killed"
+killall run-docker.sh  || echo "No run-docker.sh killed"
 export EASYDEPLOY_HOST_IP=$(/sbin/ifconfig eth0 | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p')
 . /home/easydeploy/deployment/ed.sh
 sudo su - easydeploy -c "/home/easydeploy/bin/build.sh"

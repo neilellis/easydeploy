@@ -45,66 +45,74 @@ export DEBIAN_FRONTEND=noninteractive
 if [ ! -f .bootstrapped ]
 then
 
-if !  grep "nameserver 8.8.8.8" /etc/resolv.conf
-then
-    echo "Fixing resolv.conf"
-    echo "nameserver 8.8.8.8" >> /etc/resolv.conf
-    echo "nameserver 8.8.4.4" >> /etc/resolv.conf
-fi
+    if !  grep "nameserver 8.8.8.8" /etc/resolv.conf
+    then
+        echo "Fixing resolv.conf"
+        echo "nameserver 8.8.8.8" >> /etc/resolv.conf
+        echo "nameserver 8.8.4.4" >> /etc/resolv.conf
+    fi
 
-
-
-#sudo locale-gen en_GB.UTF-8
-#sudo bash <<EOF
-#echo 'LANG="en_GB.UTF-8"' > /etc/default/locale
-#EOF
-
-function addNewUser() {
-    echo "Building $1 user"
-    export password="$(echo $(date) "$@" | md5sum)"
-    [ -d /home/$1 ] || sudo adduser $1 <<EOF
-    ${password}
-    ${password}
+    cat > /etc/security/limits.conf <<EOF
+*   soft    nofile      65536
+*   hard    nofile      65536
+*   soft    nproc       500
+*   hard    nproc       5000
 EOF
-    echo "Cleaning out /home/$1"
-    sudo rm -rf /home/$1/*
-    [ -d ./home/$1/.ssh ] || sudo cp -r .ssh /home/$1/
-    sudo cp -f ~/.ssh/easydeploy_id_rsa  /home/$1/.ssh/id_rsa
-    sudo cp -f ~/.ssh/easydeploy_id_rsa.pub  /home/$1/.ssh/id_rsa.pub
-    sudo cat ~/keys/*.pub >  /home/$1/.ssh/authorized_keys
-    chmod 700  /home/$1/.ssh/
-    chmod 600  /home/$1/.ssh/*
-    chown -R $1:$1 /home/$1/.ssh/
-}
 
 
-addNewUser easydeploy
-addNewUser easyadmin
 
-echo "easyadmin	ALL=(ALL:ALL) NOPASSWD: /usr/bin/supervisorctl, /bin/su easydeploy, /bin/kill, /sbin/shutdown, /sbin/reboot, /bin/ls" > /etc/sudoers.d/easyadmin
+    #sudo locale-gen en_GB.UTF-8
+    #sudo bash <<EOF
+    #echo 'LANG="en_GB.UTF-8"' > /etc/default/locale
+    #EOF
 
-chmod 0440 /etc/sudoers.d/easyadmin
+    function addNewUser() {
+        echo "Building $1 user"
+        export password="$(echo $(date) "$@" | md5sum)"
+        [ -d /home/$1 ] || sudo adduser $1 <<EOF
+        ${password}
+        ${password}
+EOF
+        echo "Cleaning out /home/$1"
+        sudo rm -rf /home/$1/*
+        [ -d ./home/$1/.ssh ] || sudo cp -r .ssh /home/$1/
+        sudo cp -f ~/.ssh/easydeploy_id_rsa  /home/$1/.ssh/id_rsa
+        sudo cp -f ~/.ssh/easydeploy_id_rsa.pub  /home/$1/.ssh/id_rsa.pub
+        sudo cat ~/keys/*.pub >  /home/$1/.ssh/authorized_keys
+        chmod 700  /home/$1/.ssh/
+        chmod 600  /home/$1/.ssh/*
+        chown -R $1:$1 /home/$1/.ssh/
+    }
 
-sudo mkdir -p /var/run/easydeploy
-sudo chown easydeploy:easydeploy /var/run/easydeploy
+
+    addNewUser easydeploy
+    addNewUser easyadmin
+
+    echo "easyadmin	ALL=(ALL:ALL) NOPASSWD: /usr/bin/supervisorctl, /bin/su easydeploy, /bin/kill, /sbin/shutdown, /sbin/reboot, /bin/ls" > /etc/sudoers.d/easyadmin
+
+    chmod 0440 /etc/sudoers.d/easyadmin
+
+    sudo mkdir -p /var/run/easydeploy
+    sudo chown easydeploy:easydeploy /var/run/easydeploy
 
 
-echo "Installing basic pre-requisites"
-sudo apt-get -qq update
-sudo apt-get -qq -y upgrade
+    echo "Installing basic pre-requisites"
+    sudo apt-get -qq update
+    sudo apt-get -qq -y upgrade
 
-sudo apt-get install -q -y git software-properties-common unattended-upgrades incron fileschanged dialog zip sharutils
-sudo add-apt-repository ppa:chris-lea/zeromq
-sudo add-apt-repository ppa:webupd8team/java
-sudo apt-get -qq update
-echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | sudo /usr/bin/debconf-set-selections
-yes | sudo apt-get install -y oracle-java8-installer
-sudo apt-get -q install -y oracle-java8-set-default
-sudo apt-get -q install -y libzmq3-dbg libzmq3-dev libzmq3
+    sudo apt-get install -q -y git software-properties-common unattended-upgrades incron fileschanged dialog zip sharutils apparmor monit
+    sudo add-apt-repository ppa:chris-lea/zeromq
+    sudo add-apt-repository ppa:webupd8team/java
+    sudo apt-get -qq update
+    echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | sudo /usr/bin/debconf-set-selections
+    yes | sudo apt-get install -y oracle-java8-installer
+    sudo apt-get -q install -y oracle-java8-set-default
+    sudo apt-get -q install -y libzmq3-dbg libzmq3-dev libzmq3
 
-sudo chown -R easydeploy:easydeploy  /home/easydeploy/
+    sudo chown -R easydeploy:easydeploy  /home/easydeploy/
+    [ -f ~/user-scripts/bootstrap.sh ] && bash ~/user-scripts/bootstrap.sh
 
-touch .bootstrapped
+    touch .bootstrapped
 fi
 
 echo "Installing ${COMPONENT} on ${DEPLOY_ENV}"

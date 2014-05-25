@@ -1,9 +1,7 @@
 #!/bin/bash -eux
 export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/easydeploy/bin:/root/bin
-
-mkdir -p /var/easydeploy/share/.config/sync/discovery/ || :
-mkdir -p /var/easydeploy/share/.config/discovery/ || :
 ip=$(/sbin/ifconfig eth0 | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p')
+
 
 function joinSerf() {
     while read i
@@ -20,6 +18,24 @@ function joinConsul() {
        timelimit -t 2 -T 1 -s 2 consul join $i || :
     done
 }
+
+function buildComponentDnsEntry() {
+    while read line
+    do
+        bash -c "export host_ip=$line; echo \"\${component}.\${project}.\${deploy_env}.comp   IN A   \${host_ip}\""
+    done
+}
+
+function buildDns() {
+    serf members | grep alive | tr -s ' ' | cut -d' ' -f2- | sed 's/:[0-9]*//g' | sed 's/alive //g' | sed 's/,/; export /g' | buildComponentDnsEntry
+}
+
+function main() {
+
+mkdir -p /var/easydeploy/share/.config/sync/discovery/ || :
+mkdir -p /var/easydeploy/share/.config/discovery/ || :
+touch /tmp/.initializing-in-progress
+
 
 if  ! serf members &> /dev/null
 then
@@ -52,9 +68,6 @@ then
 fi
 
 
-while true
-do
-
     #The name of the deployment env, e.g. dev,prod,test
     deploy_env=$(cat /var/easydeploy/share/.config/deploy_env)
     #A list of all the difference components in the env, like db,api,redis etc.
@@ -68,51 +81,29 @@ do
         serf members -tag deploy_env=${deploy_env} -tag component=${c}   | tr -s ' ' | cut -d' ' -f2 | cut -d: -f1 | sort -u  > /var/easydeploy/share/.config/discovery/${c}.txt
         serf members -tag deploy_env=${deploy_env} -tag component=${c}   |  tr -s ',' ';' | tr -s ' ' |  tr ' ' ',' | sort -u > /var/easydeploy/share/.config/discovery/${c}.csv
 
-        if [ $c == "logstash" ]
-        then
-            logstash=$(cat /var/easydeploy/share/.config/discovery/${c}.txt| tail -1)
 
-            cat > /etc/logstash.conf  <<EOF
-input {
-  file {
-  add_field => {
-    component => "$(cat /var/easydeploy/share/.config/component)"
-    env =>  "$(cat /var/easydeploy/share/.config/deploy_env)"
-    hostname => "$(cat /var/easydeploy/share/.config/hostname)"
-    severity => ""
-    }
-
-    type => "syslog"
-    path => [ "/var/log/messages", "/var/log/syslog" ]
-  }
-  file {
-  add_field => {
-    component => "$(cat /var/easydeploy/share/.config/component)"
-    env =>  "$(cat /var/easydeploy/share/.config/deploy_env)"
-    hostname => "$(cat /var/easydeploy/share/.config/hostname)"
-    severity => ""
-    }
-
-    type => "ezd"
-    path => [ "/var/log/easydeploy/run*.log" ]
-  }
-}
-
-output {
-    tcp     { type => "linux"
-              port => "7007"
-              mode => client
-              codec => json
-              host => "$(cat /var/easydeploy/share/.config/deploy_env)-$(cat /var/easydeploy/share/.config/project)-logstash.service.easydeploy"
-    }
-
-}
-
-EOF
-        chown easydeploy:easydeploy /etc/logstash.conf
-        supervisorctl restart logstash-ship
-        fi
     done
+
+    cat > /etc/bind/ezd.zone <<'EOF'
+$ORIGIN ezd.
+$TTL 5
+ezd. IN	SOA	ns.ezd. support.cazcade.com. (
+		2001062501 ; serial
+		5      ; refresh after 5 secs
+		5       ; retry after 5 secs
+		5     ; expire after 5 secs
+		5 )    ; minimum TTL of 5 secs
+;
+;
+
+ezd.     IN      NS	    ns
+ns.ezd.  IN      NS	    127.0.0.1
+EOF
+
+
+    buildDns >> /etc/bind/ezd.zone
+
+    service bind9 reload
 
     #Create a txt and csv file containing all the machines in the env
     serf members -tag deploy_env=${deploy_env}  | tr -s ' ' | cut -d' ' -f2  | cut -d: -f1 > /var/easydeploy/share/.config/discovery/all.txt
@@ -122,9 +113,21 @@ EOF
 
     cat  /var/easydeploy/share/.config/discovery/all.txt /var/easydeploy/share/.config/sync/discovery/all.txt  | sort -u > /var/easydeploy/share/.config/sync/discovery/all.txt
 
-    supervisorctl start gitpoll || :
-    supervisorctl start logstash-ship || :
-    supervisorctl start "$(cat /var/easydeploy/share/.config/component):" || :
+    if [ ! -f /tmp/.discovery-first-run ]
+    then
+        supervisorctl start gitpoll || :
+        supervisorctl start logstash-ship || :
+        supervisorctl start "$(cat /var/easydeploy/share/.config/component):" || :
+        rm -f /tmp/.initializing-in-progress
+        touch /tmp/.discovery-first-run
+    fi
+    sleep 61
 
-    sleep 3600
-done
+}
+
+
+(
+    flock -n -e 200 || ( /ezbin/notify.sh ":interrobang:" "Discovery is already running, flock failed." && exit 1)
+    main
+) 200> /tmp/.discovery.lock
+

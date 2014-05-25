@@ -47,7 +47,7 @@ export EASYDEPLOY_PACKAGES=
 export EASYDEPLOY_STATE="stateful"
 export EASYDEPLOY_PROCESS_NUMBER=1
 export EASYDEPLOY_EXTERNAL_PORTS=
-export EASYDEPLOY_SERVICE_CHECK_INTERVAL=10s
+export EASYDEPLOY_SERVICE_CHECK_INTERVAL=300s
 export EASYDEPLOY_UPDATE_CRON=none
 export EASYDEPLOY_HOST_IP=$(/sbin/ifconfig eth0 | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p')
 export DEBIAN_FRONTEND=noninteractive
@@ -55,6 +55,7 @@ export DEBIAN_FRONTEND=noninteractive
 echo "Creating directories"
 sudo [ -d /home/easydeploy/bin ] || mkdir /home/easydeploy/bin
 sudo [ -d /home/easydeploy/usr/bin ] || mkdir -p /home/easydeploy/usr/bin
+sudo [ -d /home/easydeploy/usr/etc ] || mkdir -p /home/easydeploy/usr/etc
 sudo [ -d /var/log/easydeploy ] || mkdir /var/log/easydeploy
 sudo [ -d /var/easydeploy ] || mkdir /var/easydeploy
 sudo [ -d /var/easydeploy/.install ] || mkdir /var/easydeploy/.install
@@ -76,6 +77,7 @@ sudo [ -d /var/easydeploy/share/.config/sync/discovery ] || mkdir -p /var/easyde
 [ -d /ez ] || sudo ln -s  /var/easydeploy /ez
 [ -d /ezbin ] || sudo ln -s  /home/easydeploy/bin /ezbin
 [ -d /ezubin ] || sudo ln -s  /home/easydeploy/usr/bin /ezubin
+[ -d /ezuetc ] || sudo ln -s  /home/easydeploy/usr/etc /ezuetc
 [ -d /ezsync ] || sudo ln -s  /var/easydeploy/share/sync /ezsync
 [ -d /ezbackup ] || sudo ln -s  /var/easydeploy/share/backup /ezbackup
 [ -d /eztmp ] || sudo ln -s  /var/easydeploy/share/tmp /eztmp
@@ -83,9 +85,10 @@ sudo [ -d /var/easydeploy/share/.config/sync/discovery ] || mkdir -p /var/easyde
 
 
 
-sudo mv -f run.sh  serf-agent.sh consul-agent.sh update.sh gitpoll.sh build.sh discovery.sh notify.sh check_for_restart.sh intrusion.sh backup.sh health_check.sh postmortem.sh restart-component.sh clean.sh logstash-ship.sh  supervisord_monitor.sh /home/easydeploy/bin
+sudo mv -f run-docker.sh  serf-agent.sh consul-agent.sh update.sh gitpoll.sh build.sh discovery.sh notify.sh check_for_restart.sh intrusion.sh backup.sh health_check.sh consul_health_check.sh postmortem.sh restart-component.sh killtree.sh clean.sh logstash-ship.sh  supervisord_monitor.sh /home/easydeploy/bin
 mv -f bashrc_profile ~/.bashrc_profile
 [ -d ~/user-scripts ] && sudo cp -rf ~/user-scripts/*  /home/easydeploy/usr/bin/
+[ -d ~/user-config ] && sudo cp -rf ~/user-config/*  /home/easydeploy/usr/etc/
 sudo chmod 755 /home/easydeploy/bin/*
 sudo chmod 755 /home/easydeploy/usr/bin/* ||:
 
@@ -255,6 +258,30 @@ zone "easydeploy" IN {
 };
 EOF
 
+cat > /etc/bind/ezd.conf <<EOF
+zone "ezd" IN {
+    type master;
+    file "/etc/bind/ezd.zone";
+};
+EOF
+
+
+    cat > /etc/bind/ezd.zone <<'EOF'
+$ORIGIN ezd.
+$TTL 5
+ezd. IN	SOA	localhost. support.cazcade.com. (
+		2001062501 ; serial
+		5      ; refresh after 5 secs
+		5       ; retry after 5 secs
+		5     ; expire after 5 secs
+		5 )    ; minimum TTL of 5 secs
+;
+;
+
+ezd.     IN      NS	    127.0.0.1
+EOF
+
+
 cat > /etc/bind/named.conf.options <<EOF
 options {
     listen-on port 53 { any;};
@@ -267,6 +294,7 @@ options {
     version "none of your business";
 };
 	include "/etc/bind/consul.conf";
+	include "/etc/bind/ezd.conf";
 EOF
 
 consul_server=false
@@ -326,7 +354,7 @@ cat > /etc/consul.d/component.json <<EOF
         "name": "${MACHINE_NAME}",
         "port": ${primary_port},
         "check": {
-            "script": "/home/easydeploy/bin/health_check.sh",
+            "script": "/home/easydeploy/bin/consul_health_check.sh",
             "interval": "${EASYDEPLOY_SERVICE_CHECK_INTERVAL}"
         }
     }
@@ -348,6 +376,44 @@ then
     fi
 
 
+            cat > /etc/logstash.conf  <<EOF
+input {
+  file {
+  add_field => {
+    component => "$(cat /var/easydeploy/share/.config/component)"
+    env =>  "$(cat /var/easydeploy/share/.config/deploy_env)"
+    hostname => "$(cat /var/easydeploy/share/.config/hostname)"
+    severity => ""
+    }
+
+    type => "syslog"
+    path => [ "/var/log/messages", "/var/log/syslog" ]
+  }
+  file {
+  add_field => {
+    component => "$(cat /var/easydeploy/share/.config/component)"
+    env =>  "$(cat /var/easydeploy/share/.config/deploy_env)"
+    hostname => "$(cat /var/easydeploy/share/.config/hostname)"
+    severity => ""
+    }
+
+    type => "ezd"
+    path => [ "/var/log/easydeploy/run*.log" ]
+  }
+}
+
+output {
+    tcp     { type => "linux"
+              port => "7007"
+              mode => client
+              codec => json
+              host => "logstash.$(cat /var/easydeploy/share/.config/project).$(cat /var/easydeploy/share/.config/deploy_env).comp.ezd"
+    }
+
+}
+
+EOF
+    chown easydeploy:easydeploy /etc/logstash.conf
     touch /var/easydeploy/.install/logstash
 fi
 
@@ -486,6 +552,17 @@ sudo cp rc.local /etc
 sudo chmod 755 /etc/rc.local
 sudo /etc/rc.local
 
+#Monitoring
+if [ -f /home/easydeploy/usr/etc/newrelic-license-key.txt ]
+then
+    echo deb http://apt.newrelic.com/debian/ newrelic non-free >> /etc/apt/sources.list.d/newrelic.list
+    wget -O- https://download.newrelic.com/548C16BF.gpg | apt-key add -
+    apt-get update
+    apt-get install newrelic-sysmond
+    nrsysmond-config --set license_key=$(cat /home/easydeploy/usr/etc/newrelic-license-key.txt)
+    /etc/init.d/newrelic-sysmond start
+fi
+
 #Security (always the last thing hey!)
 if [ !  -f /var/easydeploy/.install/hardened ]
 then
@@ -495,6 +572,7 @@ sudo apt-get install -y fail2ban
 touch /var/easydeploy/.install/hardened
 fi
 
+[ -f  /home/easydeploy/usr/bin/post-install.sh ] && sudo bash /home/easydeploy/usr/bin/post-install.sh
 [ -f  /home/easydeploy/deployment/post-install.sh ] && sudo bash /home/easydeploy/deployment/post-install.sh
 [ -f  /home/easydeploy/deployment/post-install-userland.sh ] && sudo su  easydeploy "cd; bash  /home/easydeploy/deployment/post-install.sh"
 

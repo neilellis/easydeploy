@@ -10,19 +10,22 @@ function section() {
 }
 
 function postmortem() {
-    section "Uname"  "uname -a"
+    section "Uptime"  "uptime"
+    section "Disks"  "df -h"
+    section "Disk Usage"  "du -sh /*"
+    section "Netstat" "netstat -tulpn"
+    section "Processes" "ps aux"
+    section "Process Tree" "pstree"
+    section "Docker Processes" "docker ps"
+    section "Services" "service --status-all"
+    section "Supervisord" "supervisorctl status"
     section "Network Interfaces"  "ifconfig -a"
+    section "Uname"  "uname -a"
     section "Memory"  "cat /proc/meminfo"
     section "CPU"  "cat /proc/cpuinfo"
-    section "Disks"  "df -h"
     section "Limits"  "ulimit -a"
-    section "Services" "service --status-all"
-    section "Processes" "ps aux"
-    section "Netstat" "netstat -tulpn"
     section "Who"  "who"
     section "W"  "w"
-    section "Uptime"  "uptime"
-    section "Disk Usage"  "du -sh /*"
 #    section "Top Network Bandwidth" "sysdig -n 10 -c topprocs_net"
 #    section "Top Disk Access" "sysdig -n 10 -c topprocs_file"
 #    section "Top Files Open Processes" "sysdig -n 10  -c fdcount_by proc.name 'fd.type=file'"
@@ -37,6 +40,8 @@ mkdir -p $dir
 cp /ezlog/* ${dir}
 postmortem > ${dir}/postmortem.log
 cp /var/log/syslog ${dir}
+cp /var/log/upstart/docker.io.log  ${dir}
+cp /var/log/supervisor/supervisord.log ${dir}
 tar -zcvf /tmp/postmortem.tgz ${dir}
 
 if [ -f /ezubin/send-file.sh ]

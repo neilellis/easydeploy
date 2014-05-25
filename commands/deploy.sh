@@ -16,6 +16,7 @@ ssh  -qo "StrictHostKeyChecking no" ${USERNAME}@${IP_ADDRESS} "[ -d ~/.ssh ] || 
 sync ../remote/  ${USERNAME}@${IP_ADDRESS}:~/
 [ -d ~/.ezd/modules/  ] && sync ~/.ezd/modules/  ${USERNAME}@${IP_ADDRESS}:~/modules/
 [ -d ~/.ezd/user-scripts/  ] && sync ~/.ezd/user-scripts/  ${USERNAME}@${IP_ADDRESS}:~/user-scripts/
+[ -d ~/.ezd/user-config/  ] && sync ~/.ezd/user-config/  ${USERNAME}@${IP_ADDRESS}:~/user-config/
 scp  -qo "StrictHostKeyChecking no" ~/.ssh/easydeploy_* ${USERNAME}@${IP_ADDRESS}:~/.ssh/
 scp  -qo "StrictHostKeyChecking no" ~/.ssh/id*.pub ${USERNAME}@${IP_ADDRESS}:~/keys
 if [ ! -z "$PROVIDER" ]

@@ -23,7 +23,7 @@ if [ ! -z "$EASYDEPLOY_WAIT_FOR" ]
 then
     for service in ${EASYDEPLOY_WAIT_FOR}
     do
-        while ! dig +short "${DEPLOY_ENV}-${PROJECT}-${service}.service.easydeploy"
+        while ! dig +short "${service}.${PROJECT}.${DEPLOY_ENV}.comp.ezd"
         do
             echo "Awaiting $service resolution"
             sleep 10

@@ -9,3 +9,4 @@ then
     serf members -tag deploy_env=${SERF_TAG_DEPLOY_ENV} |  tr -s ',' ';' | tr -s ' ' |  tr ' ' ',' > /var/easydeploy/share/.config/discovery/all.csv
 fi
 EOF
+exit 0

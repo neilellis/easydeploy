@@ -1,2 +1,2 @@
 #!/bin/bash -u
-/home/easydeploy/bin/health_check.sh  tail -2
+/home/easydeploy/bin/consul_health_check.sh | tail -1

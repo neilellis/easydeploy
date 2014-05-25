@@ -1,5 +1,6 @@
 #!/bin/bash
-docker rmi $(docker images | grep "^<none>" | awk "{print $3}")
+docker rm $(docker ps -a -q)
+docker rmi $(docker images -a | grep "^<none>" | awk '{print $3}')
 
 if [ -f /home/easydeploy/deployment/clean.sh ]
 then

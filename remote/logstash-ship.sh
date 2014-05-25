@@ -29,10 +29,10 @@ output {
     tcp     { type => "linux"
               port => "7007"
               mode => client
-              host => "$(cat /var/easydeploy/share/.config/deploy_env)-$(cat /var/easydeploy/share/.config/project)-logstash.service.easydeploy"
+              host => "logstash.$(cat /var/easydeploy/share/.config/project).$(cat /var/easydeploy/share/.config/deploy_env).comp.ezd"
     }
 
 }
 
 EOF
-/usr/local/logstash/bin/logstash agent -f /etc/logstash.conf
+exec /usr/local/logstash/bin/logstash agent -f /etc/logstash.conf

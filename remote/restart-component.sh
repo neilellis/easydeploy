@@ -38,7 +38,7 @@ service docker.io start
 supervisorctl start $(cat /var/easydeploy/share/.config/component):
 
 count=0
-while supervisorctl status | grep -v "Running"
+while supervisorctl status | grep -v "RUNNING"
 do
     echo "Waiting for supervisor processes to restart"
     count=$(( $count + 1 ))

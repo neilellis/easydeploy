@@ -1,0 +1,192 @@
+// NOTE: after making changes to this file, you may need to restart the agent to pick up the changes, using
+// one of the following commands (depending on how you installed the agent):
+//
+// service scalyr-agent restart
+// sudo scalyr-agent restart
+// ~/scalyrAgent/agent.sh restart
+
+{
+
+    "agent.run_as_script_owner": true,
+    // Edit this file to configure the Scalyr Agent. In most cases you won't need to touch anything
+    // after the "ADVANCED SETTINGS" marker. Note that most settings are commented out; if you customize
+    // a setting, you should also remove the comment marker.
+
+    // The API key (authorization token) used when sending logs to the Scalyr server. Normally this will
+    // be assigned by the setup script when you first install the agent. If you need to set the value
+    // by hand, go to https://www.scalyr.com/keys and look for a "Write Logs" key. (If no "Write Logs"
+    // key is listed, click "Create Log Key" to create one.)
+    "scalyr_client.write_logs_key": "0t2N_Xb1rW9WcdBgVXeovPfmLsdJ27xLN3A9rYOf7vNU-",
+
+    // Attributes that describe this server. You can specify any number of attributes, and use them to
+    // narrow down searches to a particular set of servers. See https://www.scalyr.com/solutions/manage-server-groups
+    // for more information.
+    "scalyr_client.global_attributes": {
+        // Example:
+        //
+        // server_group: "production",
+        // region:       "us-east-1"
+    },
+
+    // Log files that should be streamed to Scalyr Logs.
+    //
+    // The "directories" list should have one entry for each type and location of log file(s).
+    // Each entry has two fields: "path" (location of the log file[s]), and "file_attributes"
+    // (attributes describing this log). You should always specify a file attribute named
+    // "source", identifying the type/format of data in that log. Scalyr uses the source attribute
+    // to determine which parsing rules apply to this log. The path uses standard glob syntax:
+    // a * matches any text within a file or directory name, ** matches a chain of one or more
+    // directories, and ? matches a single character.
+    //
+    // You may have multiple clauses for the same directory, but ensure that they don't match the
+    // same files. If a file is matched by multiple clauses, messages in that file may be uploaded
+    // twice or may be scattered across two different log streams.
+    //
+    // For log filename patterns that can't be matched with standard glob syntax, you can add a
+    // "filename_patterns" field (see example below). This is an array listing one or more regular
+    // expressions which must match the names of your log files. When filename_patterns is specified,
+    // the "path" field should specify the log directory (not the log files), and must not use glob syntax.
+    //
+    // A "sample" list can be used to prevent certain log messages from being uploaded, or to upload
+    // only a random smaple of logs. A "replace" list can be used to rewrite or delete portions of a message.
+    // An example of each is given here; see https://www.scalyr.com/help/scalyr-agent#filter for further details.
+    "logcopier_config": {
+        directories: [
+            {
+                path: "/var/log/messages",
+                file_attributes: {
+                    parser: "system-messages"
+                }
+            },
+            {
+                path: "/var/log/easydeploy/*.log",
+                file_attributes: {
+                    parser: "app-debug"
+                }
+            },
+            {
+                path: "/var/easydeploy/share/log/*.log",
+                file_attributes: {
+                    parser: "app-debug"
+                }
+            }
+        ]
+    },
+
+    // To gather CPU, memory, and other metrics for individual processes, un-comment this section
+    // and edit the applications list to reflect the processes you'd like to monitor. See
+    // https://www.scalyr.com/appDashboard for instructions.
+    // "appmonitor_config": {<br>
+    //   "applications": [<br>
+    //     {
+    //       "id": "scalyr-relay",
+    //       "commandline_pattern": "java.*scalyrRelay.jar"
+    //     },
+    //     {
+    //       "id": "tomcat",
+    //       "commandline_pattern": "org.apache.commons.dbcp.BasicDataSourceFactory"
+    //     }
+    //   ]
+    // }
+
+
+    // ================= //
+    // ADVANCED SETTINGS //
+    // ================= //
+
+    // If true, the agent will only accept Graphite and OpenTSDB data from localhost. Otherwise, it will accept
+    // data from any host able to reach the relevant port on this server, and relay that data to Scalyr Logs.
+    // See https://www.scalyr.com/help/data-sources#graphite.
+    //
+    // "relayers.localhost_only": false,
+
+    // If true, the agent will launch "tcollector" (http://opentsdb.net/tcollector.html) to gather system metrics
+    // such as CPU and RAM usage.
+    //
+    // (NOTE: this directive is parsed by a shell script, so please do not use comments on the line defining
+    // the directive.)
+    //
+    // "tcollector.run": true,
+
+    // If true, the Scalyr agent will run as the user that owns the agent.sh script file. Otherwise it
+    // will run as the user that executes agent.sh. Set this flag if you execute agent.sh as root but
+    // wish the agent to run as some other, less privileged user.
+    //
+    // (NOTE: this directive is parsed by a shell script, so please do not use comments on the line defining
+    // the directive.)
+    //
+    // "agent.run_as_script_owner": true,
+
+    // Size of the agent's Java heap.
+    //
+    // (NOTE: this directive is parsed by a shell script, so please do not use comments on the line defining
+    // the directive.)
+    //
+    // "agent.heap_size": 40m,
+
+    // Maximum amount of RAM the agent will use to buffer events it is sending to the Scalyr servers.  This buffer is
+    // allocated at startup, so it can be th dominant source of memory usage. It comes out of the Java heap.
+    //
+    // "scalyr_client.max_buffer_size": 10485760,
+
+    // Size of the buffer used to read log files. The agent will upload at most this much data, per file,
+    // per logcopier.scanIntervalMillis.  This buffer is allocated once and re-used for all files. Should
+    // never exceed logcopier.maxCatchupBytes.
+    //
+    "logcopier.bufferSize": 2000000,
+
+    // The regular expression to use to decide which metrics (from TSDB/Graphite) to upload to the Scalyr servers.
+    // Leave this empty (the default) to transfer all metrics.
+    //
+    // relayers.metric_filter: "*thread-states.*|.*gc.*"
+
+    // The agent creates small "checkpoint" files to track which log files and bytes have been sent to Scalyr.
+    // This prevents messages from being re-sent after the agent restarts. The logcopier.stateFileDirectory
+    // parameter specifies the location where these checkpoint files will be stored. You may wish to customize
+    // it (probably with an absolute pathname) to store the checkpoint files in a location other than the
+    // agent installation directory.
+    //
+    "logcopier.stateFileDirectory": "checkpoints"
+
+    // Interval (in milliseconds) at which the agent checks each log file to see whether new data has been written to it.
+    //
+    // "logcopier.scanIntervalMillis": 5000,
+
+    // Maximum backlog size (in bytes) per log file. If the amount of new text in a log file exceeds this length, the
+    // agent discards the older text in order to catch up quickly. Should always be at least as large as logcopier.bufferSize.
+    //
+    // "logcopier.maxCatchupBytes": 10000000,
+
+    // If the last line in a file does not end with a line break, the agent will wait this many milliseconds
+    // before uploading it. This is to avoid uploading an incomplete line.
+    //
+    // "logcopier.implicitLineEndThresholdMillis": 5000,
+
+    // Normally, when a new directory is added to the agent configuration, it ignores any existing log messages
+    // and begins uploading only new messages. To override this behavior, set logcopier.skipLogsOnNewDirectory
+    // to false. Note that even with logcopier.skipLogsOnNewDirectory set to false, at most
+    // logcopier.maxCatchupBytes of old data per file will be uploaded.
+    //
+    // "logcopier.skipLogsOnNewDirectory": true
+
+    // The ports on which the agent listens for OpenTSDB and Graphite data.
+    //
+    // "relayers.opentsdb.port": 4242
+    // "relayers.graphite_plaintext.port": 2003
+    // "relayers.graphite_pickle.port": 2004
+
+    // At this interval (specified in milliseconds), the agent will log status information about how many events have
+    // been uploaded. Set to -1 to -1 to disable this status logging.
+    //
+    // "scalyr_client.stats_output.interval_ms": 60000
+
+    // Controls internal (diagnostic) logging by the relay agent. At the default value of 3, only INFO messages or
+    // higher are written to the agent's log file. Ranges from 0 to 6. You might sometimes want to lower this value
+    // when debugging agent problems.
+    //
+    // "scalyr_client.log_threshold": 3
+
+    // Set to true to enable more verbose diagnostic logging.
+    //
+    // "scalyr_client.stats_output.verbose": false
+}

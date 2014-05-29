@@ -553,15 +553,27 @@ sudo chmod 755 /etc/rc.local
 sudo /etc/rc.local
 
 #Monitoring
+echo "Adding Monitoring"
 if [ -f /home/easydeploy/usr/etc/newrelic-license-key.txt ]
 then
-    echo deb http://apt.newrelic.com/debian/ newrelic non-free >> /etc/apt/sources.list.d/newrelic.list
+    sudo echo deb http://apt.newrelic.com/debian/ newrelic non-free >> /etc/apt/sources.list.d/newrelic.list
     wget -O- https://download.newrelic.com/548C16BF.gpg | apt-key add -
-    apt-get update
-    apt-get install newrelic-sysmond
-    nrsysmond-config --set license_key=$(cat /home/easydeploy/usr/etc/newrelic-license-key.txt)
+    sudo apt-get update
+    sudo apt-get install newrelic-sysmond
+    sudo nrsysmond-config --set license_key=$(cat /home/easydeploy/usr/etc/newrelic-license-key.txt)
     /etc/init.d/newrelic-sysmond start
 fi
+
+if [ -f /home/easydeploy/usr/etc/scalyr-license-key.txt ]
+then
+    wget https://www.scalyr.com/scalyr-repo/stable/latest/installScalyrRepo.sh
+    sudo bash ./installScalyrRepo.sh
+    sudo apt-get install scalyr-agent
+    sudo scalyr-agent-config --run_as root --write_logs_key -   < /home/easydeploy/usr/etc/scalyr-license-key.txt
+    cp ~/agentConfig.json  /etc/scalyrAgent/agentConfig.json
+    sudo scalyr-agent start
+fi
+
 
 #Security (always the last thing hey!)
 if [ !  -f /var/easydeploy/.install/hardened ]

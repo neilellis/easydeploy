@@ -32,38 +32,6 @@ then
 fi
 
 
-if [ ! -f ~/.ezd/client_install/.consulx ]
-then
-    echo "Installing consul for service discovery and communication"
-    [ -d ~/.ezd/client_install/ ] || mkdir -p ~/.ezd/client_install/
-    cd ~/.ezd/client_install/
-    [ -f 0.2.0_darwin_amd64.zip ] || wget https://dl.bintray.com/mitchellh/consul/0.2.0_darwin_amd64.zip
-    unzip 0.2.0_darwin_amd64.zip
-    sudo mv -f consul /usr/local/bin
-    sudo chmod 755 /usr/local/bin/consul
-    cd -
-    [ -d  ~/.ezd/client_install/consul_ui ] || mkdir ~/.ezd/client_install/consul_ui
-    cd ~/.ezd/client_install/consul_ui
-    rm -rf ~/.ezd/client_install/consul_ui/* || :
-    [ -f 0.2.0_web_ui.zip ] ||  wget https://dl.bintray.com/mitchellh/consul/0.2.0_web_ui.zip
-    unzip 0.2.0_web_ui.zip
-    cd -
-
-cat > ~/.ezd/client_install/consul.json <<EOF
-
-{
-  "datacenter": "dc1",
-  "data_dir": "/tmp",
-  "log_level": "INFO",
-  "server": false,
-  "domain" : "easydeploy.",
-  "encrypt" :"$(cat ~/.ezd/serf_key)",
-  "leave_on_terminate" : true
-}
-EOF
-
-    touch  ~/.ezd/client_install/.consulx
-fi
 
 if ! which parallel  &> /dev/null
 then

@@ -35,9 +35,7 @@ function serf_check() {
     serf members || serf members -rpc-addr=${ip}:8400
 }
 
-function consul_check() {
-    consul members || consul members -rpc-addr=${ip}:8400
-}
+
 
 if [ ! -S /var/run/supervisor.sock ]
 then
@@ -73,15 +71,6 @@ then
     serf_check || ( /home/easydeploy/bin/notify.sh ":fire:" "Failed to restart serf, will reboot" && reboot )
 fi
 
-if ! consul_check
-then
-    echo  "FAIL: Consul process not working."
-    /home/easydeploy/bin/notify.sh ":ghost:" "Consul is dead"
-    supervisorctl restart consul
-    sleep 60
-    consul_check || restart_sd
-    consul_check || ( /home/easydeploy/bin/notify.sh ":fire:" "Failed to restart consul, will reboot" && reboot )
-fi
 
 if ! service docker.io status | grep running &> /dev/null
 then

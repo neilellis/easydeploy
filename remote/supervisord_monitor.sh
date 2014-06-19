@@ -7,7 +7,7 @@ then
     exit 0
 fi
 
-ip=$(/sbin/ifconfig eth0 | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p')
+ip=$(</var/easydeploy/share/.config/ip)
 
 function send_log() {
     [ -f /ezubin/send-file.sh ] && /ezubin/send-file.sh /var/log/supervisor/supervisord.log  supervisord-$(cat /var/easydeploy/share/.config/hostname)-${ip}.log

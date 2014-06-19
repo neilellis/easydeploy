@@ -1,6 +1,6 @@
 #!/bin/sh
 
-function templateName()  {
+function template_name()  {
  if [[ ! -z "$LB_TARGET_COMPONENT" ]]
     then
         if [[ ! -z "$COMPONENT_MODIFIER" ]]
@@ -19,7 +19,7 @@ function templateName()  {
     fi
 }
 
-function machineName() {
+function mc_name() {
     if [[ ! -z "$LB_TARGET_COMPONENT" ]]
     then
         if [[ ! -z "$COMPONENT_MODIFIER" ]]
@@ -38,12 +38,31 @@ function machineName() {
     fi
 }
 
+function mc_name_for_env() {
+    if [[ ! -z "$LB_TARGET_COMPONENT" ]]
+    then
+        if [[ ! -z "$COMPONENT_MODIFIER" ]]
+        then
+            echo "${1}-${PROJECT}-${LB_TARGET_COMPONENT}-${COMPONENT_MODIFIER}-lb"
+        else
+            echo "${1}-${PROJECT}-${LB_TARGET_COMPONENT}-lb"
+        fi
+    else
+        if [[ ! -z "$COMPONENT_MODIFIER" ]]
+        then
+            echo "${1}-${PROJECT}-${COMPONENT}-${COMPONENT_MODIFIER}"
+        else
+            echo "${1}-${PROJECT}-${COMPONENT}"
+        fi
+    fi
+}
+
 function projectMachinePrefix() {
     echo "${DEPLOY_ENV}-${PROJECT}-"
 }
 
 
-function targetMachineName() {
+function targetmc_name() {
         if [[ ! -z "$COMPONENT_MODIFIER" ]]
         then
             echo "${DEPLOY_ENV}-${PROJECT}-${LB_TARGET_COMPONENT}-${COMPONENT_MODIFIER}"
@@ -57,4 +76,13 @@ function sync() {
      --recursive --times --perms --links \
      --exclude ".Sync*"  \
      "$@"
+}
+
+function branch_for_env() {
+ if [ ${1} == "prod" ] ||  [ ${1} == "alt-prod" ]
+    then
+         echo master
+    else
+         echo ${1}
+    fi
 }

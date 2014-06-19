@@ -23,6 +23,29 @@ input {
     type => "ezd"
     path => [ "/var/log/easydeploy/run*.log" ]
   }
+  file {
+  add_field => {
+    component => "$(cat /var/easydeploy/share/.config/component)"
+    env =>  "$(cat /var/easydeploy/share/.config/deploy_env)"
+    hostname => "$(cat /var/easydeploy/share/.config/hostname)"
+    severity => ""
+    }
+
+    type => "app-json"
+    codec => "json"
+    path => [ "/var/easydeploy/share/log/*.logstash.json.log" ]
+  }
+  file {
+  add_field => {
+    component => "$(cat /var/easydeploy/share/.config/component)"
+    env =>  "$(cat /var/easydeploy/share/.config/deploy_env)"
+    hostname => "$(cat /var/easydeploy/share/.config/hostname)"
+    severity => ""
+    }
+
+    type => "app"
+    path => [ "/var/easydeploy/share/log/*.logstash.txt.log" ]
+  }
 }
 
 output {

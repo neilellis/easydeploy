@@ -3,7 +3,7 @@
 #this behaviour may change in the future, but for now it makes life easier
 export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/easydeploy/bin:/root/bin
 killall serf || :
-export EASYDEPLOY_HOST_IP=$(/sbin/ifconfig eth0 | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p')
+export EASYDEPLOY_HOST_IP=$(</var/easydeploy/share/.config/ip)
 export PROJECT=$(cat /var/easydeploy/share/.config/project)
 export COMPONENT=$(cat /var/easydeploy/share/.config/component)
 if [ "$COMPONENT" == "lb" ]

@@ -7,7 +7,7 @@ fi
 trap 'echo FAILED' ERR
 cd $(dirname $0) &> /dev/null
 . common.sh
-machines=$(../providers/${PROVIDER}/list-machines-by-ip.sh $(machineName) | tr '\n' ' ')
+machines=$(../providers/${PROVIDER}/list-machines-by-ip.sh $(mc_name) | tr '\n' ' ')
 cmd="multitail "
 for machine in $machines
 do

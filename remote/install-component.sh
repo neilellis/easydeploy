@@ -49,7 +49,7 @@ export EASYDEPLOY_PROCESS_NUMBER=1
 export EASYDEPLOY_EXTERNAL_PORTS=
 export EASYDEPLOY_SERVICE_CHECK_INTERVAL=300s
 export EASYDEPLOY_UPDATE_CRON=none
-export EASYDEPLOY_HOST_IP=$(/sbin/ifconfig eth0 | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p')
+export EASYDEPLOY_HOST_IP=$(</var/easydeploy/share/.config/ip)
 export DEBIAN_FRONTEND=noninteractive
 
 echo "Creating directories"
@@ -85,7 +85,7 @@ sudo [ -d /var/easydeploy/share/.config/sync/discovery ] || mkdir -p /var/easyde
 
 
 
-sudo mv -f run-docker.sh  serf-agent.sh consul-agent.sh update.sh gitpoll.sh build.sh discovery.sh notify.sh check_for_restart.sh intrusion.sh backup.sh health_check.sh consul_health_check.sh postmortem.sh restart-component.sh killtree.sh clean.sh logstash-ship.sh  supervisord_monitor.sh /home/easydeploy/bin
+sudo mv -f run-docker.sh  serf-agent.sh update.sh gitpoll.sh build.sh update_dns.sh discovery.sh notify.sh check_for_restart.sh intrusion.sh backup.sh health_check.sh squid.sh consul_health_check.sh postmortem.sh restart-component.sh killtree.sh clean.sh logstash-ship.sh  supervisord_monitor.sh /home/easydeploy/bin
 mv -f bashrc_profile ~/.bashrc_profile
 [ -d ~/user-scripts ] && sudo cp -rf ~/user-scripts/*  /home/easydeploy/usr/bin/
 [ -d ~/user-config ] && sudo cp -rf ~/user-config/*  /home/easydeploy/usr/etc/
@@ -250,14 +250,6 @@ fi
 
 sudo apt-get install -y dnsutils bind9
 
-cat > /etc/bind/consul.conf <<EOF
-zone "easydeploy" IN {
-    type forward;
-    forward only;
-    forwarders { 127.0.0.1 port 8600; };
-};
-EOF
-
 cat > /etc/bind/ezd.conf <<EOF
 zone "ezd" IN {
     type master;
@@ -293,52 +285,10 @@ options {
     dnssec-validation no;
     version "none of your business";
 };
-	include "/etc/bind/consul.conf";
 	include "/etc/bind/ezd.conf";
 EOF
 
-consul_server=false
-consul_primary_server=false
-if [ ! -z "$EASYDEPLOY_PRIMARY_ADMIN_SERVER" ]
-then
-    consul_primary_server=true
-    consul_server=true
-else
-    [ ! -z "$EASYDEPLOY_SECONDARY_ADMIN_SERVER" ] && consul_server=true
-fi
-[ -d /etc/consul.d ] || sudo mkdir /etc/consul.d
-cat > /etc/consul.d/server.json <<EOF
 
-{
-  "bootstrap":${consul_primary_server},
-  "datacenter": "dc1",
-  "data_dir": "/var/consul",
-  "log_level": "INFO",
-  "server": ${consul_server},
-  "domain" : "easydeploy.",
-  "encrypt" :"$(cat /var/easydeploy/share/.config/serf_key)",
-  "leave_on_terminate" : false
-}
-EOF
-
-if [ ! -f /var/easydeploy/.install/consul ]
-then
-    echo "Installing consul for service discovery and communication"
-    sudo apt-get install -y unzip
-
-    [ -f 0.2.0_linux_amd64.zip ] || wget -q https://dl.bintray.com/mitchellh/consul/0.2.0_linux_amd64.zip
-    unzip 0.2.0_linux_amd64.zip
-    sudo mv -f consul /usr/local/bin
-    sudo chmod 755 /usr/local/bin/consul
-    [ -d  /usr/local/consul_ui ] || mkdir  /usr/local/consul_ui
-    cd /usr/local/consul_ui
-    rm -rf /usr/local/consul_ui/* || :
-    [ -f 0.2.0_web_ui.zip ] || wget -q https://dl.bintray.com/mitchellh/consul/0.2.0_web_ui.zip
-    unzip 0.2.0_web_ui.zip
-    cd -
-
-    touch /var/easydeploy/.install/consul
-fi
 
 echo "nameserver 127.0.0.1" > /etc/resolvconf/resolv.conf.d/head
 service bind9 restart
@@ -348,18 +298,6 @@ ports=( ${EASYDEPLOY_PRIMARY_PORT} ${EASYDEPLOY_PORTS} ${EASYDEPLOY_EXTERNAL_POR
 if [ ! -z "$ports" ]
 then
 primary_port=${ports[0]}
-cat > /etc/consul.d/component.json <<EOF
-{
-    "service": {
-        "name": "${MACHINE_NAME}",
-        "port": ${primary_port},
-        "check": {
-            "script": "/home/easydeploy/bin/consul_health_check.sh",
-            "interval": "${EASYDEPLOY_SERVICE_CHECK_INTERVAL}"
-        }
-    }
-}
-EOF
 
 fi
 
@@ -463,9 +401,12 @@ then
     sudo chmod a+rwx /var/run/docker.sock
     sudo chown -R easydeploy:easydeploy /home/easydeploy/
     cd /home/easydeploy/deployment
+    grep "limit nofile 65536 65536" /etc/init/docker.io.conf || echo "limit nofile 65536 65536" >> /etc/init/docker.io.conf
     sudo service docker.io start || true
     touch /var/easydeploy/.install/docker
 fi
+
+docker pull neilellis/squid
 
 sudo chown -R easydeploy:easydeploy /var/easydeploy
 
@@ -490,9 +431,6 @@ cd
 echo "Configuring firewall"
 sudo ufw allow 22    #ssh
 sudo ufw allow 7946  #serf
-sudo ufw allow 8300  #consul
-sudo ufw allow 8301  #consul
-sudo ufw allow 8302  #consul
 sudo ufw allow 9595  #btsync
 sudo ufw allow from 172.16.0.0/12 to any port 53 #dns from containers
 if [ ! -z "$EASYDEPLOY_REMOTE_IP_RANGE" ]

@@ -2,13 +2,13 @@
 cd $(dirname $0)
 . ../../commands/common.sh
 
-MACHINE_NAME=$(machineName)
+MACHINE_NAME=$(mc_name)
 
 function droplets() {
     tugboat droplets | grep "^${MACHINE_NAME} " |  cut -d":" -f5| tr -d ')' | tr -d ' '
 }
 
-export image=$(tugboat image | grep "^$(templateName) " |  cut -d":" -f2| tr -d ')' | cut -d, -f1 | tr -d ' ' | tail -1)
+export image=$(tugboat image | grep "^$(template_name) " |  cut -d":" -f2| tr -d ')' | cut -d, -f1 | tr -d ' ' | tail -1)
 
 
 function rebuild() {

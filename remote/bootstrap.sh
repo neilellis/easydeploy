@@ -2,6 +2,14 @@
 
 touch /tmp/.install-in-progress
 
+if /sbin/ifconfig | grep eth0
+then
+    $(/sbin/ifconfig eth0 | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p') > /var/easydeploy/share/.config/ip
+elsif /sbin/ifconfig | grep p1p1
+    $(/sbin/ifconfig p1p1 | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p') > /var/easydeploy/share/.config/ip
+else
+    echo 127.0.0.1 > /var/easydeploy/share/.config/ip
+fi
 error() {
    echo "**** FAIL ****"
    sourcefile=$1
@@ -41,6 +49,8 @@ export OTHER_ARGS="$@"
 cd
 
 export DEBIAN_FRONTEND=noninteractive
+
+sudo apt-get install -q -y ntp
 
 if [ ! -f .bootstrapped ]
 then
@@ -88,7 +98,7 @@ EOF
     addNewUser easydeploy
     addNewUser easyadmin
 
-    echo "easyadmin	ALL=(ALL:ALL) NOPASSWD: /usr/bin/supervisorctl, /bin/su easydeploy, /bin/kill, /sbin/shutdown, /sbin/reboot, /bin/ls" > /etc/sudoers.d/easyadmin
+    echo "easyadmin	ALL=(ALL:ALL) NOPASSWD: /usr/bin/supervisorctl, /bin/su easydeploy, /bin/kill, /sbin/shutdown, /sbin/reboot, /bin/ls, /ezbin/*, /ezubin/*" > /etc/sudoers.d/easyadmin
 
     chmod 0440 /etc/sudoers.d/easyadmin
 
@@ -100,7 +110,7 @@ EOF
     sudo apt-get -qq update
     sudo apt-get -qq -y upgrade
 
-    sudo apt-get install -q -y git software-properties-common unattended-upgrades incron fileschanged dialog zip sharutils apparmor monit
+    sudo apt-get install -q -y git software-properties-common unattended-upgrades incron fileschanged dialog zip sharutils apparmor monit ntp
     sudo add-apt-repository ppa:chris-lea/zeromq
     sudo add-apt-repository ppa:webupd8team/java
     sudo apt-get -qq update

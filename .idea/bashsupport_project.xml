@@ -3,6 +3,7 @@
   <component name="BashSupportProjectSettings">
     <option name="globalVariables">
       <set>
+        <option value="COMPONENT" />
         <option value="PROJECT" />
       </set>
     </option>

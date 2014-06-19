@@ -14,7 +14,6 @@ then
     exit 0
 fi
 
-
 if test $(find "/tmp/.restart-in-progress" -mmin -30)
 then
     echo "Restart in progress"

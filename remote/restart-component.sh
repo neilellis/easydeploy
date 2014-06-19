@@ -1,6 +1,6 @@
 #!/bin/bash -x
 
-function killTree() {
+function kill_tree() {
     gpid=$(pgrep -o $1)
     if [[ ! -z $gpid ]]
     then
@@ -19,11 +19,8 @@ supervisorctl stop $(cat /var/easydeploy/share/.config/component):
 docker stop $(docker ps -q)
 service docker.io stop
 sleep 10
-killTree run-docker.sh
+kill_tree run-docker.sh
 
-supervisorctl stop consul
-rm -rf /var/consul/*
-supervisorctl start consul
 sleep 30
 cat /var/easydeploy/share/.config/discovery/all.txt
 sleep 30

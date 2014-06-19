@@ -2,10 +2,18 @@
 export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/easydeploy/bin:/root/bin
 
 cd /home/easydeploy/deployment
-export EASYDEPLOY_HOST_IP=$(/sbin/ifconfig eth0 | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p')
+export EASYDEPLOY_HOST_IP=$(</var/easydeploy/share/.config/ip)
 
 . ./ed.sh
 component=$(cat /var/easydeploy/share/.config/component)
+deploy_env=$(cat /var/easydeploy/share/.config/deploy_env)
+if [[  "$deploy_env" == "prod" ]] ||  [[  "$deploy_env" == "alt" ]]
+then
+    echo "Not polling in a prod environment"
+    sleep 36000
+    exit 0
+fi
+
 function  build() {
     if su easydeploy -c "/home/easydeploy/bin/build.sh 2>&1 | tee /tmp/build.out"
     then

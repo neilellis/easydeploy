@@ -32,6 +32,7 @@ then
     error_text=$(cat /tmp/.health_check_restart_tmp_value.txt | tr '\n' ' ' | tr '"' ' ')
     if (( $result == 1 ))
     then
+        serf tags -set health=warning
         cat /tmp/.health_check_restart_tmp_value.txt
         /ezbin/postmortem.sh
         sleep $[ ( $RANDOM % 180 )  + 1 ]s
@@ -41,6 +42,8 @@ then
         /ezbin/notify.sh ":recycle:" "Restarted component $(cat /ezshare/.config/component) due to health check failure: $error_text"  || :
         if ! timelimit -t300 -T10 bash /home/easydeploy/deployment/health_check.sh > /tmp/.health_check_restart_tmp_value.txt
         then
+            serf tags -set health=failed
+            serf leave
             error_text=$(cat /tmp/.health_check_restart_tmp_value.txt | tr '\n' ' ' | tr '"' ' ')
             cat /tmp/.health_check_restart_tmp_value.txt
             /ezbin/notify.sh ":skull:" "Rebooting server due to health check failure: $error_text" || :
@@ -49,6 +52,9 @@ then
         fi
     elif (( $result == 3 ))
     then
+        serf tags -set health=warning
        /ezbin/notify.sh ":electric_plug:" "Service dependency failed for component $(cat /ezshare/.config/component): $error_text" || :
+    else
+        serf tags -set health=ok
     fi
 fi

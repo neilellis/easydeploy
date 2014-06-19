@@ -3,7 +3,7 @@ set -ex
 echo $DEPLOY_ENV
 cd $(dirname $0) &> /dev/null
 . common.sh
-export MACHINE_NAME=$(machineName)
+export MACHINE_NAME=$(mc_name)
 export IP_ADDRESS=$(../providers/${PROVIDER}/provision.sh ${MACHINE_NAME} | tail -1)
 if [ $IP_ADDRESS == "FAILED" ]
 then

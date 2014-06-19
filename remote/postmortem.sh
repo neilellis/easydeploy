@@ -32,10 +32,10 @@ function postmortem() {
 }
 
 
-ip=$(/sbin/ifconfig eth0 | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p')
+ip=$(</var/easydeploy/share/.config/ip)
 
 dir=postmortem-$(cat /var/easydeploy/share/.config/hostname)-${ip}-$(date +%s)
-cd /ezsync/global/
+cd /eztmp/monthly
 mkdir -p $dir
 cp /ezlog/* ${dir}
 postmortem > ${dir}/postmortem.log

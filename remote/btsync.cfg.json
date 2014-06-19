@@ -11,12 +11,12 @@
     "shared_folders": [
         {
             "secret": "$EASYDEPLOY_GLOBAL_SYNC_SECRET",
-            "dir": "/var/easydeploy/share/sync/global",
+            "dir": "/var/easydeploy/share/sync/global.disabled",
             "use_relay_server": true,
             "use_tracker": true,
             "use_dht": false,
             "search_lan": true,
-            "use_sync_trash": true,
+            "use_sync_trash": false,
             "known_hosts": [
             ]
         },
@@ -27,7 +27,7 @@
             "use_tracker": true,
             "use_dht": false,
             "search_lan": true,
-            "use_sync_trash": true,
+            "use_sync_trash": false,
             "known_hosts": [
             ]
         },
@@ -38,7 +38,7 @@
             "use_tracker": true,
             "use_dht": false,
             "search_lan": true,
-            "use_sync_trash": true,
+            "use_sync_trash": false,
             "known_hosts": [
             ]
         },
@@ -49,7 +49,7 @@
             "use_tracker": true,
             "use_dht": false,
             "search_lan": true,
-            "use_sync_trash": true,
+            "use_sync_trash": false,
             "known_hosts": [
             ]
         }

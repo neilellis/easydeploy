@@ -12,7 +12,7 @@ then
 
 elif [ $current -lt $1 ]
 then
-    image=$(tugboat info_image -n $(templateName) | grep ID: | cut -d: -f2  | tr -d ' ' | tail -1)
+    image=$(tugboat info_image -n $(template_name) | grep ID: | cut -d: -f2  | tr -d ' ' | tail -1)
     for i in $(seq $current $(($1 - 1)) )
     do
         echo "Creating new ${MACHINE_NAME}"

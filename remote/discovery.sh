@@ -1,6 +1,18 @@
 #!/bin/bash -eux
 export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/easydeploy/bin:/root/bin
-ip=$(/sbin/ifconfig eth0 | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p')
+ip=$(</var/easydeploy/share/.config/ip)
+
+error() {
+   sourcefile=$1
+   lineno=$2
+   code=$3
+   echo "$1:$2" $3
+   set +e
+   [ -f /tmp/.initializing-in-progress ] && rm /tmp/.initializing-in-progress
+   exit $3
+}
+
+trap 'error "${BASH_SOURCE}" "${LINENO}" "$?"' ERR
 
 
 function joinSerf() {
@@ -11,24 +23,6 @@ function joinSerf() {
     done
 }
 
-function joinConsul() {
-    while read i
-    do
-       #If the machine is not available don't hang around, move on quickly
-       timelimit -t 2 -T 1 -s 2 consul join $i || :
-    done
-}
-
-function buildComponentDnsEntry() {
-    while read line
-    do
-        bash -c "export host_ip=$line; echo \"\${component}.\${project}.\${deploy_env}.comp   IN A   \${host_ip}\""
-    done
-}
-
-function buildDns() {
-    serf members | grep alive | tr -s ' ' | cut -d' ' -f2- | sed 's/:[0-9]*//g' | sed 's/alive //g' | sed 's/,/; export /g' | buildComponentDnsEntry
-}
 
 function main() {
 
@@ -84,32 +78,14 @@ fi
 
     done
 
-    cat > /etc/bind/ezd.zone <<'EOF'
-$ORIGIN ezd.
-$TTL 5
-ezd. IN	SOA	ns.ezd. support.cazcade.com. (
-		2001062501 ; serial
-		5      ; refresh after 5 secs
-		5       ; retry after 5 secs
-		5     ; expire after 5 secs
-		5 )    ; minimum TTL of 5 secs
-;
-;
-
-ezd.     IN      NS	    ns
-ns.ezd.  IN      NS	    127.0.0.1
-EOF
 
 
-    buildDns >> /etc/bind/ezd.zone
 
-    service bind9 reload
 
     #Create a txt and csv file containing all the machines in the env
     serf members -tag deploy_env=${deploy_env}  | tr -s ' ' | cut -d' ' -f2  | cut -d: -f1 > /var/easydeploy/share/.config/discovery/all.txt
     serf members -tag deploy_env=${deploy_env} |  tr -s ',' ';' | tr -s ' ' |  tr ' ' ',' > /var/easydeploy/share/.config/discovery/all.csv
 
-    cat /var/easydeploy/share/.config/discovery/all.txt | joinConsul
 
     cat  /var/easydeploy/share/.config/discovery/all.txt /var/easydeploy/share/.config/sync/discovery/all.txt  | sort -u > /var/easydeploy/share/.config/sync/discovery/all.txt
 
@@ -118,10 +94,10 @@ EOF
         supervisorctl start gitpoll || :
         supervisorctl start logstash-ship || :
         supervisorctl start "$(cat /var/easydeploy/share/.config/component):" || :
-        rm -f /tmp/.initializing-in-progress
         touch /tmp/.discovery-first-run
     fi
-    sleep 61
+    rm -f /tmp/.initializing-in-progress
+    sleep 183
 
 }
 

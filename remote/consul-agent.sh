@@ -7,7 +7,7 @@ killall consul || :
 
 . /home/easydeploy/deployment/ed.sh
 
-export EASYDEPLOY_HOST_IP=$(/sbin/ifconfig eth0 | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p')
+export EASYDEPLOY_HOST_IP=$(</var/easydeploy/share/.config/ip)
 export PROJECT=$(cat /var/easydeploy/share/.config/project)
 export COMPONENT=$(cat /var/easydeploy/share/.config/component)
 export DEPLOY_ENV=$(cat /var/easydeploy/share/.config/deploy_env)

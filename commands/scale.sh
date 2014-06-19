@@ -7,7 +7,7 @@ cd $(dirname $0) &> /dev/null
 
 cd $(dirname $0)
 . common.sh
-export MACHINE_NAME=$(machineName)
+export MACHINE_NAME=$(mc_name)
 set -eu
 
 

@@ -177,6 +177,12 @@ case $command in
      rebuild)
          ../commands/rebuild-machines.sh $@
          ;;
+     rebuild-app)
+         ../commands/rebuild-app.sh $@
+         ;;
+     release)
+         ../commands/release.sh $@
+         ;;
      upgrade)
          ../commands/upgrade-machines.sh $@
          ;;

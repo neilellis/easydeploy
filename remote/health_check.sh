@@ -26,11 +26,6 @@ then
     exit 1
 fi
 
-if ! consul members
-then
-    echo  "FAIL: Consul process not working."
-    exit 1
-fi
 
 
 if (( $(df -h / | tail -1 | tr -s ' ' | cut -d' ' -f5 | tr -d '%') > 90 ))

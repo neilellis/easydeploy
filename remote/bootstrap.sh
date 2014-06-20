@@ -2,14 +2,13 @@
 
 touch /tmp/.install-in-progress
 
-if /sbin/ifconfig | grep eth0
+if /sbin/ifconfig | grep "eth0 "
 then
-    $(/sbin/ifconfig eth0 | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p') > /var/easydeploy/share/.config/ip
-elsif /sbin/ifconfig | grep p1p1
-    $(/sbin/ifconfig p1p1 | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p') > /var/easydeploy/share/.config/ip
+    /sbin/ifconfig eth0 | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p' > /var/easydeploy/share/.config/ip
 else
-    echo 127.0.0.1 > /var/easydeploy/share/.config/ip
+    /sbin/ifconfig p1p1 | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p' > /var/easydeploy/share/.config/ip
 fi
+
 error() {
    echo "**** FAIL ****"
    sourcefile=$1

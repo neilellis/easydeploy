@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash -eux
 set -eu
 cd $(dirname $0) &> /dev/null
 [ -z "${MIN_INSTANCES}" ] && export MIN_INSTANCES=0

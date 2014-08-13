@@ -24,8 +24,6 @@ export COMPONENT=$1
 shift
 export DEPLOY_ENV=$1
 shift
-export GIT_BRANCH=$1
-shift
 export PROJECT=$1
 shift
 export BACKUP_HOST=$1
@@ -49,7 +47,6 @@ export EASYDEPLOY_PROCESS_NUMBER=1
 export EASYDEPLOY_EXTERNAL_PORTS=
 export EASYDEPLOY_SERVICE_CHECK_INTERVAL=300s
 export EASYDEPLOY_UPDATE_CRON=none
-export EASYDEPLOY_HOST_IP=$(</var/easydeploy/share/.config/ip)
 export DEBIAN_FRONTEND=noninteractive
 
 echo "Creating directories"
@@ -83,9 +80,17 @@ sudo [ -d /var/easydeploy/share/.config/sync/discovery ] || mkdir -p /var/easyde
 [ -d /eztmp ] || sudo ln -s  /var/easydeploy/share/tmp /eztmp
 
 
+if /sbin/ifconfig | grep "eth0 "
+then
+    /sbin/ifconfig eth0 | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p' > /var/easydeploy/share/.config/ip
+else
+    /sbin/ifconfig p1p1 | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p' > /var/easydeploy/share/.config/ip
+fi
+
+export EASYDEPLOY_HOST_IP=$(</var/easydeploy/share/.config/ip)
 
 
-sudo mv -f run-docker.sh  serf-agent.sh update.sh gitpoll.sh build.sh update_dns.sh discovery.sh notify.sh check_for_restart.sh intrusion.sh backup.sh health_check.sh squid.sh consul_health_check.sh postmortem.sh restart-component.sh killtree.sh clean.sh logstash-ship.sh  supervisord_monitor.sh /home/easydeploy/bin
+sudo mv -f run-docker.sh  serf-agent.sh update.sh update_dns.sh discovery.sh notify.sh check_for_restart.sh intrusion.sh backup.sh health_check.sh squid.sh consul_health_check.sh postmortem.sh restart-component.sh killtree.sh clean.sh logstash-ship.sh  supervisord_monitor.sh /home/easydeploy/bin
 mv -f bashrc_profile ~/.bashrc_profile
 [ -d ~/user-scripts ] && sudo cp -rf ~/user-scripts/*  /home/easydeploy/usr/bin/
 [ -d ~/user-config ] && sudo cp -rf ~/user-config/*  /home/easydeploy/usr/etc/
@@ -99,21 +104,12 @@ set -eu
 cd /home/easydeploy
 chmod 600 ~/.ssh/*
 chmod 700 ~/.ssh
-ssh -o StrictHostKeyChecking=no git@${GIT_URL_HOST}  /bin/bash  &> /dev/null</dev/null  || true
-[ -d easydeploy-${COMPONENT} ] || git clone git@${GIT_URL_HOST}:${GIT_URL_USER}/easydeploy-${COMPONENT}.git
-cd easydeploy-${COMPONENT}
-git checkout ${GIT_BRANCH}
-git pull
-cd -
-[ -e /home/easydeploy/deployment ] || ln -s /home/easydeploy/easydeploy-${COMPONENT}/ /home/easydeploy/deployment
-cp -f ~/.ssh/id_rsa  /home/easydeploy/deployment/id_rsa
-cp -f ~/.ssh/id_rsa.pub  /home/easydeploy/deployment/id_rsa.pub
 EOF
 
 echo ${EASYDEPLOY_HOST_IP} > /var/easydeploy/share/.config/ip
 
 echo "Reading config"
-. /home/easydeploy/deployment/ed.sh
+. /home/easydeploy/usr/etc/ezd.sh
 
 
 #store useful info for scripts
@@ -121,7 +117,6 @@ echo "Saving config"
 echo ${EASYDEPLOY_STATE} > /var/easydeploy/share/.config/edstate
 echo ${APP_ARGS} > /var/easydeploy/share/.config/app_args
 echo ${COMPONENT} > /var/easydeploy/share/.config/component
-echo ${GIT_BRANCH} > /var/easydeploy/share/.config/branch
 echo ${DEPLOY_ENV} > /var/easydeploy/share/.config/deploy_env
 echo ${PROJECT} > /var/easydeploy/share/.config/project
 echo ${BACKUP_HOST} > /var/easydeploy/share/.config/backup_host
@@ -356,13 +351,13 @@ EOF
 fi
 
 
-if [ ! -f /var/easydeploy/.install/sysdig ]
-then
-    echo "Adding sysdig for diagnostics"
-    curl -s https://s3.amazonaws.com/download.draios.com/stable/install-sysdig | sudo bash
-
-    touch /var/easydeploy/.install/sysdig
-fi
+#if [ ! -f /var/easydeploy/.install/sysdig ]
+#then
+#    echo "Adding sysdig for diagnostics"
+#    curl -s https://s3.amazonaws.com/download.draios.com/stable/install-sysdig | sudo bash
+#
+#    touch /var/easydeploy/.install/sysdig
+#fi
 
 echo "Adding cron tasks"
 sudo apt-get install -y duplicity
@@ -391,7 +386,7 @@ EOF2
 
 cd
 
-if [ ! -f /var/easydeploy/.install/docker ]
+if [ ! -f /usr/bin/docker.io ]
 then
     echo "Installing Docker"
     sudo apt-get install -y docker.io
@@ -400,13 +395,10 @@ then
     sudo addgroup easydeploy docker
     sudo chmod a+rwx /var/run/docker.sock
     sudo chown -R easydeploy:easydeploy /home/easydeploy/
-    cd /home/easydeploy/deployment
     grep "limit nofile 65536 65536" /etc/init/docker.io.conf || echo "limit nofile 65536 65536" >> /etc/init/docker.io.conf
     sudo service docker.io start || true
     touch /var/easydeploy/.install/docker
 fi
-
-docker pull neilellis/squid
 
 sudo chown -R easydeploy:easydeploy /var/easydeploy
 
@@ -417,16 +409,9 @@ sudo chown easydeploy:easydeploy /var/easydeploy
 
 
  #Pre installation custom tasks
-[ -f /home/easydeploy/deployment/pre-install.sh ] && sudo bash /home/easydeploy/deployment/pre-install.sh
+[ -f /home/easydeploy/usr/bin/pre-install.sh ] && sudo bash /home/easydeploy/usr/bin/pre-install.sh
 
-
-
-
-echo "Building docker container"
-sudo su easydeploy -c "/home/easydeploy/bin/build.sh"
 sudo chmod a+rwx /var/run/docker.sock
-cd
-
 
 echo "Configuring firewall"
 sudo ufw allow 22    #ssh
@@ -447,6 +432,25 @@ done
 
 yes | sudo ufw enable
 
+#Squid
+sudo apt-get install -y squid3
+cat > /etc/squid3/squid.conf <<EOF
+acl all src all
+http_port 3128
+http_access allow all
+
+# We recommend you to use at least the following line.
+hierarchy_stoplist cgi-bin ?
+
+# Uncomment and adjust the following to add a disk cache directory.
+cache_dir ufs /var/spool/squid3 10000 16 256
+
+# Leave coredumps in the first cache dir
+coredump_dir /var/spool/squid3
+EOF
+[ -d /var/spool/squid3 ] || mkdir /var/spool/squid3
+squid3 -z
+chown -R proxy:proxy  /var/spool/squid3
 
 
 sudo [ -d /home/easydeploy/template ] || mkdir /home/easydeploy/template
@@ -523,8 +527,7 @@ touch /var/easydeploy/.install/hardened
 fi
 
 [ -f  /home/easydeploy/usr/bin/post-install.sh ] && sudo bash /home/easydeploy/usr/bin/post-install.sh
-[ -f  /home/easydeploy/deployment/post-install.sh ] && sudo bash /home/easydeploy/deployment/post-install.sh
-[ -f  /home/easydeploy/deployment/post-install-userland.sh ] && sudo su  easydeploy "cd; bash  /home/easydeploy/deployment/post-install.sh"
+[ -f  /home/easydeploy/usr/bin/post-install-userland.sh ] && sudo su  easydeploy "cd; bash  /home/easydeploy/usr/bin/post-install-userland.sh"
 
 echo "Done"
 

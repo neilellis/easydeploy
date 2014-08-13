@@ -10,7 +10,7 @@ export EASYDEPLOY_STATE=stateful
 export EASYDEPLOY_HOST_IP=$(</var/easydeploy/share/.config/ip)
 set -eu
 
-. /home/easydeploy/deployment/ed.sh
+. /home/easydeploy/usr/etc/ezd.sh
 DEPLOY_ENV=$(cat /var/easydeploy/share/.config/deploy_env)
 PROJECT=$(cat /var/easydeploy/share/.config/project)
 for port in ${EASYDEPLOY_PORTS}
@@ -33,5 +33,5 @@ then
 fi
 
 serf tags -set health=ok
-docker run --rm=true  --sig-proxy=true -t -i $DOCKER_ARGS -v /var/easydeploy/container/$1:/var/local -v /var/easydeploy/share:/var/share -v /var/easydeploy/share:/var/easydeploy/share -e EASYDEPLOY_HOST_IP=${EASYDEPLOY_HOST_IP} --dns ${EASYDEPLOY_HOST_IP} $(cat /var/easydeploy/share/.config/component) $DOCKER_COMMANDS
+docker run --rm=true  --sig-proxy=true -t -i $DOCKER_ARGS -v /var/easydeploy/container/$1:/var/local -v /var/easydeploy/share:/var/share -v /var/easydeploy/share:/var/easydeploy/share -e EASYDEPLOY_HOST_IP=${EASYDEPLOY_HOST_IP} --dns ${EASYDEPLOY_HOST_IP} ${DOCKER_IMAGE}:${DEPLOY_ENV} ${DOCKER_COMMANDS}
 serf tags -set health=failed

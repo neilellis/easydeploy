@@ -17,16 +17,6 @@ sleep $duration
 echo "Disabling supervisor and killing run-docker.sh"
 touch /tmp/easydeploy-run-disable
 touch /var/easydeploy/share/.config/easydeploy-run-disable
-service supervisor stop
-killall run-docker.sh  || echo "No run-docker.sh killed"
-export EASYDEPLOY_HOST_IP=$(</var/easydeploy/share/.config/ip)
-. /home/easydeploy/deployment/ed.sh
-sudo su - easydeploy -c "/home/easydeploy/bin/build.sh"
-
-
-[ $(docker ps -q -a|wc -l) -gt 0 ] && docker stop $(docker ps -q) && docker rm $(docker ps -q -a)
-docker images -a|grep '^<none>'|tr -s ' '|cut -d' ' -f 3|xargs docker rmi  || :
-
 sudo apt-get -q update
 sudo unattended-upgrades
 #sudo apt-get -y upgrade

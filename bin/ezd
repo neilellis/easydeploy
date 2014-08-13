@@ -55,7 +55,7 @@ fi
 [ -f ~/.ssh/easydeploy_id_rsa ] || (ssh-keygen -q -t rsa -N "" -f ~/.ssh/easydeploy_id_rsa && echo "FIRST RUN!! Make sure the following key has access to your git repository, you'll have problems if not. Run this script again now that we've generated your key." && cat  ~/.ssh/easydeploy_id_rsa.pub && exit 0)
 
 
-DIR=$(pwd)
+export DIR=$(pwd)
 cd $(dirname $0) &> /dev/null
 . ../commands/common.sh
 usage()
@@ -67,7 +67,6 @@ Main easy deploy command
 
 OPTIONS:
    -h      Show this message
-   -b      Git branch to use (overrides GIT_BRANCH in a profile file)
    -e      Environment to deploy to (overrides DEPLOY_ENV in a profile file)
    -p      Deployment profile file
 
@@ -85,9 +84,8 @@ EOF
 }
 
 
-
+profile=deploy.profile
 e=
-branch=
 export USE_PARALLEL=
 while getopts "he:p:b:P" OPTION
 do
@@ -99,17 +97,11 @@ do
          e)
              e=$OPTARG
              ;;
-         b)
-             branch=$OPTARG
-             ;;
          P)
              export USE_PARALLEL=1
              ;;
          p)
              profile="$OPTARG"
-             cd $DIR > /dev/null
-             source ${profile}
-             cd - > /dev/null
              ;;
          ?)
              usage
@@ -117,6 +109,11 @@ do
              ;;
      esac
 done
+
+ cd $DIR > /dev/null
+ source ${profile}
+ cd - > /dev/null
+
 
 if [ ! -z "$e" ]
 then
@@ -130,19 +127,6 @@ then
      exit 1
 fi
 
-if [ -z "$GIT_BRANCH" ]
-then
-    if [ ! -z "$branch" ]
-    then
-        export GIT_BRANCH=${branch}
-    elif [ ${DEPLOY_ENV} == "prod" ] ||  [ ${DEPLOY_ENV} == "alt-prod" ]
-    then
-         export GIT_BRANCH=master
-    else
-         echo "Using ${DEPLOY_ENV} branch"
-         export GIT_BRANCH=${DEPLOY_ENV}
-    fi
-fi
 
 shift $((OPTIND-1))
 command=$1

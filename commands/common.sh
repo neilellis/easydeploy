@@ -78,11 +78,3 @@ function sync() {
      "$@"
 }
 
-function branch_for_env() {
- if [ ${1} == "prod" ] ||  [ ${1} == "alt-prod" ]
-    then
-         echo master
-    else
-         echo ${1}
-    fi
-}

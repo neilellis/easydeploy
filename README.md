@@ -45,7 +45,7 @@ Convention over configuration.
 
 At present easydeploy only supports Ubuntu/git/Docker combination. So we start by creating a git project - on GitLab, GitHub or anywhere which allows for SSH based git access.
 
-### The Configuration file ed.sh
+### The Configuration file ezd.sh
 
 This file should contain the following:
 
@@ -230,7 +230,7 @@ This command should not need to be run regularly as serf will self-heal itself. 
 
 ## 5. Continuous Deployment
 
-Continuous deployment is integral to easydeploy, it will assume that you're trying to do this if you're app has `export EASYDEPLOY_STATE="stateless"` set in the `ed.sh`file. If it doesn't have this value set then we treat it as stateful and do not attempt to rebuild it automatically. Stateless apps are always preferable as gradually accrued unwanted or unexpected state can be deleted at any time.
+Continuous deployment is integral to easydeploy, it will assume that you're trying to do this if you're app has `export EASYDEPLOY_STATE="stateless"` set in the `ezd.sh`file. If it doesn't have this value set then we treat it as stateful and do not attempt to rebuild it automatically. Stateless apps are always preferable as gradually accrued unwanted or unexpected state can be deleted at any time.
 
 **TRY TO MAKE ALL YOUR APPS STATELESS, EXCEPT YOUR ACTUAL DATABASE**
 

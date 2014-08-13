@@ -100,7 +100,6 @@ fi
 
     if [ ! -f /tmp/.discovery-first-run ]
     then
-        supervisorctl start gitpoll || :
         supervisorctl start logstash-ship || :
         supervisorctl start "$(cat /var/easydeploy/share/.config/component):" || :
         touch /tmp/.discovery-first-run

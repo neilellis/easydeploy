@@ -2,9 +2,9 @@
 export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/easydeploy/bin:/root/bin
 
 
-if [ -f /home/easydeploy/deployment/health_check.sh ]
+if [ -f /home/easydeploy/usr/bin/health_check.sh ]
 then
-    if ! sudo su - easydeploy -c "timelimit -t300 -T5 bash /home/easydeploy/deployment/health_check.sh &> /tmp/.health.txt"
+    if ! sudo su - easydeploy -c "timelimit -t300 -T5 bash /home/easydeploy/usr/bin/health_check.sh &> /tmp/.health.txt"
     then
         cat /tmp/.health.txt | tail -2
         exit 2

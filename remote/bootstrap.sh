@@ -23,15 +23,9 @@ trap 'error "${BASH_SOURCE}" "${LINENO}" "$?"' ERR
 
 set -eu
 
-export GIT_URL_HOST=$1
-shift
-export GIT_URL_USER=$1
-shift
 export COMPONENT=$1
 shift
 export DEPLOY_ENV=$1
-shift
-export GIT_BRANCH=$1
 shift
 export PROJECT=$1
 shift
@@ -125,7 +119,7 @@ EOF
 fi
 
 echo "Installing ${COMPONENT} on ${DEPLOY_ENV}"
-bash ./install-component.sh ${COMPONENT} ${DEPLOY_ENV} ${GIT_BRANCH} ${PROJECT} ${BACKUP_HOST} ${MACHINE_NAME} ${TARGET_COMPONENT} ${EASYDEPLOY_REMOTE_IP_RANGE} ${OTHER_ARGS}
+bash ./install-component.sh ${COMPONENT} ${DEPLOY_ENV} ${PROJECT} ${BACKUP_HOST} ${MACHINE_NAME} ${TARGET_COMPONENT} ${EASYDEPLOY_REMOTE_IP_RANGE} ${OTHER_ARGS}
 rm -f /tmp/.install-in-progress
 echo "**** SUCCESS ****"
 exit 0

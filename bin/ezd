@@ -143,9 +143,6 @@ case $command in
      clean)
          ../commands/clean.sh $@
          ;;
-     consul-gui)
-         ../commands/consul-gui.sh $@
-         ;;
      image)
          ../commands/image.sh $@
          ;;
@@ -157,6 +154,9 @@ case $command in
          ;;
      create)
          ../commands/deploy-and-provision.sh $@
+         ;;
+     cycle)
+         ../commands/cycle.sh $@
          ;;
      rebuild)
          ../commands/rebuild-machines.sh $@

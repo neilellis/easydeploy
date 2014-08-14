@@ -85,7 +85,7 @@ EOF
 }
 
 
-profile=deploy.conf.sh
+profile=ezd/deploy/conf.sh
 e=
 export USE_PARALLEL=
 while getopts "he:p:b:P" OPTION
@@ -121,11 +121,11 @@ fi
 
 if [ -f $profile ]
 then
-    echo "Please specify the deployment profile to use, this is normally a file ending in .conf, default is deploy.conf"
+    echo "Please specify the deployment profile to use, this is normally a file called conf.sh, default is ezd/deploy/conf.sh"
     exit 1
 fi
 
-env_profile=deploy-${DEPLOY_ENV}.conf.sh
+env_profile=ezd/deploy/${DEPLOY_ENV}/conf.sh
 cd $DIR > /dev/null
 source ${profile}
 [ -f ${env_profile} ] &&  source ${env_profile} || :

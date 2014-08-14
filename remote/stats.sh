@@ -23,6 +23,11 @@ function reportLoad() {
     sendVal "load"  `uptime | awk '{ print $10}' | cut -f1 -d,`
 }
 
+function reportDiskUsage() {
+    usage=$(df -m / | tail -1 | awk '{$1=$1}1' OFS=',' | cut -d, -f 5 | tr -d '%')
+    sendVal "disk-usage-slash" ${usage}
+}
+
 function reportMemory() {
     memtotal=`free -m | grep 'Mem' | tr -s ' ' | cut -d ' ' -f 2`
     memfree=`free -m | grep 'buffers/cache' | tr -s ' ' | cut -d ' ' -f 4`
@@ -34,9 +39,16 @@ function reportMemory() {
     sendVal "memusedper" memusedper
 }
 
+function reportProcesses() {
+    procs=$(ps aux | wc -l)
+    sendVal "procs" ${procs}
+}
+
 function report() {
     reportLoad
     reportMemory
+    reportDiskUsage
+    reportProcesses
 }
 
 while :

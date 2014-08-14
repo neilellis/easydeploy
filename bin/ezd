@@ -85,7 +85,7 @@ EOF
 }
 
 
-profile=deploy.profile
+profile=deploy.conf.sh
 e=
 export USE_PARALLEL=
 while getopts "he:p:b:P" OPTION
@@ -111,9 +111,6 @@ do
      esac
 done
 
- cd $DIR > /dev/null
- source ${profile}
- cd - > /dev/null
 
 
 if [ ! -z "$e" ]
@@ -122,11 +119,17 @@ then
 fi
 
 
-if [ -z "$profile" ]
+if [ -f $profile ]
 then
-    echo "Please specify the deployment profile to use, this is normally a file ending in .profile"
-     exit 1
+    echo "Please specify the deployment profile to use, this is normally a file ending in .conf, default is deploy.conf"
+    exit 1
 fi
+
+env_profile=deploy-${DEPLOY_ENV}.conf.sh
+cd $DIR > /dev/null
+source ${profile}
+[ -f ${env_profile} ] &&  source ${env_profile} || :
+cd - > /dev/null
 
 
 shift $((OPTIND-1))

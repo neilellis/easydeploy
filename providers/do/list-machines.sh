@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash -eu
 set -e
 cd $(dirname $0)
 . ../../commands/common.sh

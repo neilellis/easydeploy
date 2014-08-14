@@ -21,15 +21,15 @@ then
     echo " $ brew  install wget"
 fi
 
-if ! which serf  &> /dev/null
-then
-    echo "Please download and install 'serf' before continuing."
-    echo "See http://www.serfdom.io/intro/getting-started/install.html "
-    echo "If you're on a Mac then try: "
-#    echo 'ruby -e "$(curl -fsSL https://raw.github.com/Homebrew/homebrew/go/install)" \#If you don\'t have Homebrew'
-#    echo " $ brew install phinze/cask/brew-cask \# If you don't have cask"
-    echo " $ brew cask install serf"
-fi
+#if ! which serf  &> /dev/null
+#then
+#    echo "Please download and install 'serf' before continuing."
+#    echo "See http://www.serfdom.io/intro/getting-started/install.html "
+#    echo "If you're on a Mac then try: "
+##    echo 'ruby -e "$(curl -fsSL https://raw.github.com/Homebrew/homebrew/go/install)" \#If you don\'t have Homebrew'
+##    echo " $ brew install phinze/cask/brew-cask \# If you don't have cask"
+#    echo " $ brew cask install serf"
+#fi
 
 
 
@@ -43,6 +43,7 @@ fi
 if ! which tugboat &> /dev/null
 then
     echo "Please download and install 'tugboat' before continuing, if you have Ruby installed then 'sudo gem install tugboat' should do the job."
+    exit -1
 fi
 
 if [ ! -f ~/.ezd/serf_key ]

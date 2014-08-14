@@ -7,8 +7,6 @@ export IP_ADDRESS=$1
 echo "IP = $1"
 set -eux
 
-[ -f ${DIR}/ezd.sh ]
-
 echo "************************** Public Key ****************************"
 cat  ~/.ssh/easydeploy_id_rsa.pub
 echo "******************************************************************"

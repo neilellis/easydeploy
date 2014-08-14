@@ -414,6 +414,14 @@ sudo chown easydeploy:easydeploy /var/easydeploy
  #Pre installation custom tasks
 [ -f /home/easydeploy/usr/bin/pre-install.sh ] && sudo bash /home/easydeploy/usr/bin/pre-install.sh
 
+if [ -f /home/easydeploy/usr/bin/pre-install-user.sh ]
+then
+    sudo su - easydeploy <<EOF
+set -eu
+bash /home/easydeploy/usr/bin/pre-install-user.sh
+EOF
+fi
+
 sudo chmod a+rwx /var/run/docker.sock
 
 echo "Configuring firewall"
@@ -523,10 +531,10 @@ fi
 #Security (always the last thing hey!)
 if [ !  -f /var/easydeploy/.install/hardened ]
 then
-echo "Hardening"
-#sudo apt-get install -y denyhosts
-sudo apt-get install -y fail2ban
-touch /var/easydeploy/.install/hardened
+    echo "Hardening"
+    #sudo apt-get install -y denyhosts
+    sudo apt-get install -y fail2ban
+    touch /var/easydeploy/.install/hardened
 fi
 
 [ -f  /home/easydeploy/usr/bin/post-install.sh ] && sudo bash /home/easydeploy/usr/bin/post-install.sh

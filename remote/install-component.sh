@@ -90,7 +90,7 @@ fi
 export EASYDEPLOY_HOST_IP=$(</var/easydeploy/share/.config/ip)
 
 
-sudo mv -f run-docker.sh  serf-agent.sh update.sh update_dns.sh discovery.sh notify.sh check_for_restart.sh intrusion.sh backup.sh health_check.sh squid.sh consul_health_check.sh postmortem.sh restart-component.sh killtree.sh clean.sh logstash-ship.sh  supervisord_monitor.sh /home/easydeploy/bin
+sudo mv -f run-docker.sh stats.h serf-agent.sh update.sh update_dns.sh discovery.sh notify.sh check_for_restart.sh intrusion.sh backup.sh health_check.sh squid.sh consul_health_check.sh postmortem.sh restart-component.sh killtree.sh clean.sh logstash-ship.sh  supervisord_monitor.sh /home/easydeploy/bin
 mv -f bashrc_profile ~/.bashrc_profile
 sudo mv .dockercfg /home/easydeploy/
 [ -d ~/user-scripts ] && sudo cp -rf ~/user-scripts/*  /home/easydeploy/usr/bin/

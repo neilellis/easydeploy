@@ -512,11 +512,12 @@ then
     sudo echo deb http://apt.newrelic.com/debian/ newrelic non-free >> /etc/apt/sources.list.d/newrelic.list
     wget -O- https://download.newrelic.com/548C16BF.gpg | apt-key add -
     sudo apt-get update
-    sudo apt-get install newrelic-sysmond
+    sudo apt-get install -y newrelic-sysmond
     sudo nrsysmond-config --set license_key=$(cat /home/easydeploy/usr/etc/newrelic-license-key.txt)
     /etc/init.d/newrelic-sysmond start
 fi
 
+sudo apt-get install -y dstat
 #if [ -f /home/easydeploy/usr/etc/scalyr-license-key.txt ]
 #then
 #    wget https://www.scalyr.com/scalyr-repo/stable/latest/installScalyrRepo.sh

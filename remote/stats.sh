@@ -3,7 +3,7 @@ DEPLOY_ENV=$(cat /var/easydeploy/share/.config/deploy_env)
 PROJECT=$(cat /var/easydeploy/share/.config/project)
 COMPONENT=$(cat /var/easydeploy/share/.config/component)
 IP=$(cat /var/easydeploy/share/.config/ip)
-if [[ -f /home/easydeploy/usr/etc/stathat-user.txt ]]
+if [[ -f /home/easy${memtotal}r/etc/stathat-user.txt ]]
 then
     STATHAT=$(cat /home/easydeploy/usr/etc/stathat-user.txt)
 else
@@ -25,7 +25,7 @@ function reportLoad() {
 
 function reportDiskUsage() {
     usage=$(df -m / | tail -1 | awk '{$1=$1}1' OFS=',' | cut -d, -f 5 | tr -d '%')
-    sendVal "disk-usage-slash" ${usage}
+    sendVal "disk_usage_slash" ${usage}
 }
 
 function reportMemory() {
@@ -33,10 +33,10 @@ function reportMemory() {
     memfree=`free -m | grep 'buffers/cache' | tr -s ' ' | cut -d ' ' -f 4`
     let "memused=memtotal-memfree"
     let "memusedper=100-memfree*100/memtotal"
-    sendVal "memtotal" memtotal
-    sendVal "memfree" memfree
-    sendVal "memused" $memused
-    sendVal "memusedper" memusedper
+    sendVal "memtotal" $memtotal
+    sendVal "memfree" ${memfree}
+    sendVal "memused" ${memused}
+    sendVal "memusedper" ${memusedper}
 }
 
 function reportProcesses() {
@@ -44,15 +44,27 @@ function reportProcesses() {
     sendVal "procs" ${procs}
 }
 
+function reportDstat() {
+    csvLine=$(tail -1 < /tmp/dstat.csv)
+    echo csvLine | IFS=, read cpu_usr cpu_sys cpu_idl cpu_wait hiq siq disk_read disk_write net_recv net_send page_in page_out sysint syscsw
+    sendVal "cpu_usr" ${cpu_usr}
+    sendVal "cpu_sys" ${cpu_sys}
+    sendVal "cpu_idl" ${cpu_idl}
+    sendVal "cpu_wait" ${cpu_wait}
+    sendVal "disk_read" ${disk_write}
+    sendVal "net_recv" ${net_send}
+    sendVal "page_in" ${page_out}
+}
 function report() {
     reportLoad
     reportMemory
     reportDiskUsage
     reportProcesses
+    reportDstat
 }
 
 while :
 do
+    dstat --output /tmp/dstat.csv 60 1
     report
-    sleep 60
 done

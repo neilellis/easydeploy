@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 branch=$(cat /var/easydeploy/share/.config/git_branch)
 cat <<EOF
 RUN git clone $2

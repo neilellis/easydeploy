@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash -eu
 
 function template_name()  {
  if [[ ! -z "$LB_TARGET_COMPONENT" ]]

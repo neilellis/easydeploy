@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 cat <<'EOF'
 ADD ./id_rsa $HOME/.ssh/id_rsa
 ADD ./id_rsa.pub $HOME/.ssh/id_rsa.pub

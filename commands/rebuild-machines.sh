@@ -1,6 +1,5 @@
-#!/bin/sh
+#!/bin/bash -eu
 
-set -eu
 cd $(dirname $0) &> /dev/null
 ../providers/${PROVIDER}/rebuild-machines.sh
 

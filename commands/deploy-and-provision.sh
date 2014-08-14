@@ -1,5 +1,4 @@
-#!/bin/sh
-set -ex
+#!/bin/bash -eu
 echo $DEPLOY_ENV
 cd $(dirname $0) &> /dev/null
 . common.sh

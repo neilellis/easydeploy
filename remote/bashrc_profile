@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash -eu
 alias kj='killall java'
 alias dk='docker kill $(docker ps -q)'
 export PROMPT_COMMAND="history -a; history -c; history -r; $PROMPT_COMMAND"

@@ -46,7 +46,7 @@ function reportProcesses() {
 
 function reportDstat() {
     csvLine=$(tail -1 < /tmp/dstat.csv)
-    echo csvLine | IFS=, read cpu_usr cpu_sys cpu_idl cpu_wait hiq siq disk_read disk_write net_recv net_send page_in page_out sysint syscsw
+    echo $csvLine | IFS=, read cpu_usr cpu_sys cpu_idl cpu_wait hiq siq disk_read disk_write net_recv net_send page_in page_out sysint syscsw
     sendVal "cpu_usr" ${cpu_usr}
     sendVal "cpu_sys" ${cpu_sys}
     sendVal "cpu_idl" ${cpu_idl}

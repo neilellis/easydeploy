@@ -391,7 +391,8 @@ cd
 if [ ! -f /usr/bin/docker.io ]
 then
     echo "Installing Docker"
-    sudo apt-get install -y docker.io
+#    sudo apt-get install -y docker.io
+    curl -sSL https://get.docker.io/ubuntu/ | sudo sh
     sudo ln -sf /usr/bin/docker.io /usr/local/bin/docker
     #sudo addgroup worker docker
     sudo addgroup easydeploy docker

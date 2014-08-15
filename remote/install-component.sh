@@ -426,7 +426,7 @@ then
 
     # Leave coredumps in the first cache dir
     coredump_dir /var/spool/squid3
-    EOF
+EOF
     [ -d /var/spool/squid3 ] || mkdir /var/spool/squid3
     squid3 -z
     chown -R proxy:proxy  /var/spool/squid3

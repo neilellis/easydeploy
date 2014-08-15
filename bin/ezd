@@ -21,11 +21,6 @@ then
     echo " $ brew  install wget"
 fi
 
-if ! which bc   &> /dev/null
-then
-    echo "Please ensure you have 'bc' installed before continuing"
-fi
-
 #if ! which serf  &> /dev/null
 #then
 #    echo "Please download and install 'serf' before continuing."

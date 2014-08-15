@@ -44,6 +44,8 @@ cd
 
 export DEBIAN_FRONTEND=noninteractive
 
+#Optional installation components, to install them set the flag in ~/.ezd/bin/pre-bootstrap.sh or ./ezd/bin/pre-bootstrap.sh
+
 INSTALL_ZERO_MQ_FLAG=
 INSTALL_JAVA_FLAG=
 INSTALL_LOGSTASH_FORWARDER_FLAG=
@@ -110,7 +112,7 @@ EOF
     sudo apt-get -qq update
     sudo apt-get -qq -y upgrade
 
-    sudo apt-get -q install  -y git software-properties-common unattended-upgrades incron fileschanged dialog zip sharutils apparmor monit ntp bc
+    sudo apt-get -q install  -y git software-properties-common unattended-upgrades incron fileschanged dialog zip sharutils apparmor monit ntp
 
     if [[ -n "$INSTALL_JAVA_FLAG" ]]
     then
@@ -139,8 +141,7 @@ EOF
     echo 'PATH=$PATH:$HOME/bin:$HOME/usr/bin:/ezbin:/ezusrbin' >> /home/easydeploy/.bash_profile
     echo 'PATH=$PATH:$HOME/bin:$HOME/usr/bin:/ezbin:/ezusrbin' >> /home/easyadmin/.bash_profile
 
-    [ -f ~/user-scripts/bootstrap.sh ] && bash ~/user-scripts/bootstrap.sh
-
+    [ -f ~/user-scripts/post-bootstrap.sh ] && bash ~/user-scripts/post-bootstrap.sh
 
     touch .bootstrapped
 

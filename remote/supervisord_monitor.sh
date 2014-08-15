@@ -1,11 +1,24 @@
 #!/bin/bash -x
 export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/easydeploy/bin:/root/bin
 
+if [  -f /tmp/.install-in-progress ]
+then
+    echo "Install in progress."
+    exit 0
+fi
+
 if [ -f /tmp/.initializing-in-progress ]
 then
     echo "Still initialzing component"
     exit 0
 fi
+
+if test $(find "/tmp/.restart-in-progress" -mmin -30)
+then
+    echo "Restart in progress"
+    exit 0
+fi
+
 
 ip=$(</var/easydeploy/share/.config/ip)
 
@@ -57,9 +70,11 @@ then
         echo "Supervisord running but FATAL statuses found."
         /home/easydeploy/bin/notify.sh ":ghost:" "FATALs found $(supervisorctl status)"
         restart_sd
+        exit 0
     fi
 else
     restart_sd
+    exit 0
 fi
 
 

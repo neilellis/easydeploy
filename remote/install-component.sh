@@ -459,7 +459,7 @@ EOF
 echo "Starting/Restarting services"
 sudo service supervisor stop || true
 sudo docker kill $(docker ps -q) || true
-sudo timelimit -t 30 -T 5 service docker.io stop
+sudo timelimit -t 30 -T 5 service docker.io stop || :
 [ -e  /tmp/supervisor.sock ] && sudo unlink /tmp/supervisor.sock
 [ -e  /var/run/supervisor.sock  ] && sudo unlink /var/run/supervisor.sock
 sleep 10

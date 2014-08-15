@@ -33,7 +33,7 @@ fi
 
 if [[ -f /etc/dd-agent/datadog.conf ]]
 then
-    if ! grep "${HOST}" < /etc/dd-agent/datadog.conf
+    if ! grep "${HOST}-${IP}" < /etc/dd-agent/datadog.conf
     then
         echo "tags: environment:${DEPLOY_ENV}, component:${COMPONENT}, project:${PROJECT}" >> /etc/dd-agent/datadog.conf
         echo "hostname: ${HOST}-${IP}" >> /etc/dd-agent/datadog.conf

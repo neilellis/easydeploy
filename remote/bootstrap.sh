@@ -137,9 +137,9 @@ EOF
         mv logstash-forwarder /usr/local/
     fi
     sudo chown -R easydeploy:easydeploy  /home/easydeploy/
-    echo 'PATH=$PATH:$HOME/bin:/ezbin:/ezusrbin' >> ~/.bash_profile
-    echo 'PATH=$PATH:$HOME/bin:$HOME/usr/bin:/ezbin:/ezusrbin' >> /home/easydeploy/.bash_profile
-    echo 'PATH=$PATH:$HOME/bin:$HOME/usr/bin:/ezbin:/ezusrbin' >> /home/easyadmin/.bash_profile
+    echo 'PATH=$PATH:$HOME/bin:/ezbin:/ezubin' >> ~/.bash_profile
+    echo 'PATH=$PATH:$HOME/bin:$HOME/usr/bin:/ezbin:/ezubin' >> /home/easydeploy/.bash_profile
+    echo 'PATH=$PATH:$HOME/bin:$HOME/usr/bin:/ezbin:/ezubin' >> /home/easyadmin/.bash_profile
 
     [ -f ~/user-scripts/post-bootstrap.sh ] && bash ~/user-scripts/post-bootstrap.sh
 

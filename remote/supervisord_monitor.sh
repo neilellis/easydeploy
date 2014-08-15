@@ -1,6 +1,13 @@
 #!/bin/bash -x
 export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/easydeploy/bin:/root/bin
 
+if [  -f /tmp/.started ]
+then
+    echo "Install in progress."
+    exit 0
+fi
+
+
 if [  -f /tmp/.install-in-progress ]
 then
     echo "Install in progress."

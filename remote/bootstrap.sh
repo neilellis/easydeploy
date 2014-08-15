@@ -2,6 +2,7 @@
 
 touch /tmp/.install-in-progress
 
+
 if /sbin/ifconfig | grep "eth0 "
 then
     /sbin/ifconfig eth0 | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p' > /var/easydeploy/share/.config/ip
@@ -43,7 +44,8 @@ cd
 
 export DEBIAN_FRONTEND=noninteractive
 
-sudo apt-get install -q -y ntp
+
+[[ -f ~/user-scripts/pre-bootstrap.sh ]] &&  . ~/user-scripts/pre-bootstrap.sh || :
 
 if [ ! -f .bootstrapped ]
 then
@@ -103,20 +105,30 @@ EOF
     sudo apt-get -qq update
     sudo apt-get -qq -y upgrade
 
-    sudo apt-get install -q -y git software-properties-common unattended-upgrades incron fileschanged dialog zip sharutils apparmor monit ntp bc
-    sudo add-apt-repository ppa:chris-lea/zeromq
-    sudo add-apt-repository ppa:webupd8team/java
-    sudo apt-get -qq update
-    echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | sudo /usr/bin/debconf-set-selections
-    yes | sudo apt-get install -y oracle-java8-installer
-    sudo apt-get -q install -y oracle-java8-set-default
-    sudo apt-get -q install -y libzmq3-dbg libzmq3-dev libzmq3
-    sudo apt-get install -y gccgo-go
-    git clone git://github.com/elasticsearch/logstash-forwarder.git
-    cd logstash-forwarder
-    go build
-    cd -
-    mv logstash-forwarder /usr/local/
+    sudo apt-get -q install  -y git software-properties-common unattended-upgrades incron fileschanged dialog zip sharutils apparmor monit ntp bc
+
+    if [[ -n "$INSTALL_JAVA_FLAG" ]]
+    then
+        sudo add-apt-repository ppa:chris-lea/zeromq
+        sudo add-apt-repository ppa:webupd8team/java
+        sudo apt-get -qq update
+        echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | sudo /usr/bin/debconf-set-selections
+        yes | sudo apt-get install -y oracle-java8-installer
+        sudo apt-get -q install -y oracle-java8-set-default
+    fi
+    if [[ -n "$INSTALL_ZERO_MQ_FLAG" ]]
+    then
+        sudo apt-get -q install -y libzmq3-dbg libzmq3-dev libzmq3
+    fi
+    if [[ -n "$INSTALL_LOGSTASH_FORWARDER_FLAG" ]]
+    then
+        sudo apt-get -q install -y gccgo-go
+        git clone git://github.com/elasticsearch/logstash-forwarder.git
+        cd logstash-forwarder
+        go build
+        cd -
+        mv logstash-forwarder /usr/local/
+    fi
     sudo chown -R easydeploy:easydeploy  /home/easydeploy/
     echo 'PATH=$PATH:$HOME/bin:/ezbin:/ezusrbin' >> ~/.bash_profile
     echo 'PATH=$PATH:$HOME/bin:$HOME/usr/bin:/ezbin:/ezusrbin' >> /home/easydeploy/.bash_profile

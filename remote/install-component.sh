@@ -301,7 +301,7 @@ fi
 
 
 #Logstash is used for log aggregation
-if [ ! -f /var/easydeploy/.install/logstash ]
+if [ ! -f /var/easydeploy/.install/logstash ] && [[ -n "$INSTALL_LOGSTASH_FLAG" ]]
 then
     if [ ! -d /usr/local/logstash ]
     then
@@ -311,45 +311,10 @@ then
     fi
 
 
-            cat > /etc/logstash.conf  <<EOF
-input {
-  file {
-  add_field => {
-    component => "$(cat /var/easydeploy/share/.config/component)"
-    env =>  "$(cat /var/easydeploy/share/.config/deploy_env)"
-    hostname => "$(cat /var/easydeploy/share/.config/hostname)"
-    severity => ""
-    }
-
-    type => "syslog"
-    path => [ "/var/log/messages", "/var/log/syslog" ]
-  }
-  file {
-  add_field => {
-    component => "$(cat /var/easydeploy/share/.config/component)"
-    env =>  "$(cat /var/easydeploy/share/.config/deploy_env)"
-    hostname => "$(cat /var/easydeploy/share/.config/hostname)"
-    severity => ""
-    }
-
-    type => "ezd"
-    path => [ "/var/log/easydeploy/run*.log" ]
-  }
-}
-
-output {
-    tcp     { type => "linux"
-              port => "7007"
-              mode => client
-              codec => json
-              host => "logstash.$(cat /var/easydeploy/share/.config/project).$(cat /var/easydeploy/share/.config/deploy_env).comp.ezd"
-    }
-
-}
-
-EOF
+    touch /etc/logstash.conf
     chown easydeploy:easydeploy /etc/logstash.conf
     touch /var/easydeploy/.install/logstash
+
 fi
 
 
@@ -443,26 +408,29 @@ done
 
 yes | sudo ufw enable
 
-#Squid
-sudo apt-get install -y squid3
-cat > /etc/squid3/squid.conf <<EOF
-acl all src all
-http_port 3128
-http_access allow all
 
-# We recommend you to use at least the following line.
-hierarchy_stoplist cgi-bin ?
+if [[ -n "$INSTALL_SQUID_FLAG" ]]
+then
+    #Squid
+    sudo apt-get install -y squid3
+    cat > /etc/squid3/squid.conf <<EOF
+    acl all src all
+    http_port 3128
+    http_access allow all
 
-# Uncomment and adjust the following to add a disk cache directory.
-cache_dir ufs /var/spool/squid3 10000 16 256
+    # We recommend you to use at least the following line.
+    hierarchy_stoplist cgi-bin ?
 
-# Leave coredumps in the first cache dir
-coredump_dir /var/spool/squid3
-EOF
-[ -d /var/spool/squid3 ] || mkdir /var/spool/squid3
-squid3 -z
-chown -R proxy:proxy  /var/spool/squid3
+    # Uncomment and adjust the following to add a disk cache directory.
+    cache_dir ufs /var/spool/squid3 10000 16 256
 
+    # Leave coredumps in the first cache dir
+    coredump_dir /var/spool/squid3
+    EOF
+    [ -d /var/spool/squid3 ] || mkdir /var/spool/squid3
+    squid3 -z
+    chown -R proxy:proxy  /var/spool/squid3
+fi
 
 sudo [ -d /home/easydeploy/template ] || mkdir /home/easydeploy/template
 sudo cp template-run.conf /home/easydeploy/template/

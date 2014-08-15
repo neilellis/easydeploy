@@ -65,4 +65,10 @@ cat > /etc/logstash-forwarder/config.json <<EOF
 EOF
 
 
-/usr/local/logstash-forwarder/logstash-forwarder -config /etc/logstash-forwarder/config.json
+if [[ -f /usr/local/logstash-forwarder/logstash-forwarder ]]
+then
+    /usr/local/logstash-forwarder/logstash-forwarder -config /etc/logstash-forwarder/config.json
+else
+    echo "No forwarder so not forwarding logs."
+    sleep 3600
+fi

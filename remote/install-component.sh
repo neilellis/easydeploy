@@ -353,7 +353,7 @@ EOF2
 
 cd
 
-if [ ! -f /usr/bin/docker.io ]
+if [[ ! -f /var/easydeploy/.install/docker ]]
 then
     echo "Installing Docker"
 #    sudo apt-get install -y docker.io
@@ -477,6 +477,7 @@ sudo /etc/rc.local
 echo "Adding Monitoring"
 if [ -f /home/easydeploy/usr/etc/newrelic-license-key.txt ]
 then
+    echo "Adding New Relic support"
     sudo echo deb http://apt.newrelic.com/debian/ newrelic non-free >> /etc/apt/sources.list.d/newrelic.list
     wget -O- https://download.newrelic.com/548C16BF.gpg | apt-key add -
     sudo apt-get update
@@ -485,10 +486,16 @@ then
     /etc/init.d/newrelic-sysmond start
 fi
 
-
 if [[ $DEPLOY_ENV == "prod" ]]  && [[ -f  /home/easydeploy/usr/etc/datadog-api-key.txt ]]
 then
+    echo "Adding DataDog support"
     DD_API_KEY=$(< /home/easydeploy/usr/etc/datadog-api-key.txt) bash -c "$(curl -L https://raw.githubusercontent.com/DataDog/dd-agent/master/packaging/datadog-agent/source/install_agent.sh)"
+fi
+
+if [[ $DEPLOY_ENV == "prod" ]]  && [[ -f  /home/easydeploy/usr/etc/boundary-token.txt ]]
+then
+    echo "Adding Boundary support"
+    curl -s -d "{\"token\":\"$(cat /home/easydeploy/usr/etc/boundary-token.txt)\"}" -H 'Content-Type: application/json' https://premium.boundary.com/agent/install | sh
 fi
 
 sudo apt-get install -y dstat

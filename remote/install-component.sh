@@ -318,13 +318,13 @@ then
 fi
 
 
-#if [ ! -f /var/easydeploy/.install/sysdig ]
-#then
-#    echo "Adding sysdig for diagnostics"
-#    curl -s https://s3.amazonaws.com/download.draios.com/stable/install-sysdig | sudo bash
-#
-#    touch /var/easydeploy/.install/sysdig
-#fi
+if [ ! -f /var/easydeploy/.install/sysdig ] && [[ -n "$INSTALL_SYSDIG_FLAG" ]]
+then
+    echo "Adding sysdig for diagnostics"
+    curl -s https://s3.amazonaws.com/download.draios.com/stable/install-sysdig | sudo bash
+
+    touch /var/easydeploy/.install/sysdig
+fi
 
 echo "Adding cron tasks"
 sudo apt-get install -y duplicity

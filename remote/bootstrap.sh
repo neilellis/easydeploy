@@ -44,6 +44,11 @@ cd
 
 export DEBIAN_FRONTEND=noninteractive
 
+INSTALL_ZERO_MQ_FLAG=
+INSTALL_JAVA_FLAG=
+INSTALL_LOGSTASH_FORWARDER_FLAG=
+INSTALL_SQUID_FLAG=
+INSTALL_SYSDIG_FLAG=
 
 [[ -f ~/user-scripts/pre-bootstrap.sh ]] &&  . ~/user-scripts/pre-bootstrap.sh || :
 

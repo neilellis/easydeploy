@@ -3,7 +3,7 @@ export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/e
 
 if [  -f /tmp/.started ]
 then
-    echo "Install in progress."
+    echo "Server hasn't finished starting up yet"
     exit 0
 fi
 

@@ -1,7 +1,6 @@
 #!/bin/bash -x
 export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/easydeploy/bin:/root/bin
 
-touch /tmp/.started
 OFFSET=$1
 export EASYDEPLOY_WAIT_FOR=
 export DOCKER_COMMANDS=

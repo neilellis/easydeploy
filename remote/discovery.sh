@@ -101,6 +101,7 @@ fi
     if [ ! -f /tmp/.discovery-first-run ]
     then
         supervisorctl start logstash-ship || :
+        touch /tmp/.started
         supervisorctl start "$(cat /var/easydeploy/share/.config/component):" || :
         touch /tmp/.discovery-first-run
     fi

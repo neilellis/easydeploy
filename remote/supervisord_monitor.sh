@@ -18,15 +18,16 @@ function restart_sd() {
     send_log
     service supervisor restart
     sleep 90
-    if service supervisor status | grep running
+    if service supervisor status | grep running &> /dev/null
     then
         echo "Restarted supervisord"
         /home/easydeploy/bin/notify.sh ":recycle:" "Restarted supervisord"
     else
-        echo "Failed to restart supervisord"
+        echo "FAIL: Failed to restart supervisord"
         /home/easydeploy/bin/notify.sh ":fire:" "Failed to restart supervisord, will reboot"
         send_log
         reboot
+        exit 0
     fi
 }
 
@@ -42,12 +43,13 @@ then
     echo  "FAIL: Supervisord socket not present."
         /home/easydeploy/bin/notify.sh ":ghost:" "Supervisord was dead, no socket"
         restart_sd
+        exit 0
 fi
 
 
 
 
-if service supervisor status
+if service supervisor status | grep "running" &> /dev/null
 then
     echo "Supervisord running fine"
     if supervisorctl status | grep FATAL &> /dev/null
@@ -61,7 +63,7 @@ else
 fi
 
 
-if ! serf_check
+if ! serf_check &> /dev/null
 then
     echo  "FAIL: Serf process not working."
     /home/easydeploy/bin/notify.sh ":ghost:" "Serf is dead"
@@ -69,11 +71,14 @@ then
     sleep 60
     serf_check || restart_sd
     serf_check || ( /home/easydeploy/bin/notify.sh ":fire:" "Failed to restart serf, will reboot" && reboot )
+    exit 0
 fi
 
 
-if ! service docker.io status | grep running &> /dev/null
+if  service docker.io status | grep running &> /dev/null
 then
+    :
+else
     echo  "FAIL: Docker process not running."
     /home/easydeploy/bin/notify.sh ":ghost:" "Docker is dead"
     /var/log/upstart/docker.io.log
@@ -81,8 +86,6 @@ then
     service docker.io restart
     sleep 120
     ( service docker.io status | grep running &> /dev/null ) || ( /home/easydeploy/bin/notify.sh ":fire:" "Failed to restart docker.io, will reboot" && reboot )
+    exit 0
+
 fi
-
-
-
-

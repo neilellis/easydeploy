@@ -115,6 +115,8 @@ EOF
     git clone git://github.com/elasticsearch/logstash-forwarder.git
     cd logstash-forwarder
     go build
+    cd -
+    mv logstash-forwarder /usr/local/
     sudo chown -R easydeploy:easydeploy  /home/easydeploy/
     echo 'PATH=$PATH:$HOME/bin:/ezbin:/ezusrbin' >> ~/.bash_profile
     echo 'PATH=$PATH:$HOME/bin:$HOME/usr/bin:/ezbin:/ezusrbin' >> /home/easydeploy/.bash_profile

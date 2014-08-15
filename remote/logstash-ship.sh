@@ -1,8 +1,8 @@
 #!/bin/bash
 
-cd /root/logstash-forwarder
+mkdir -p  /etc/logstash-forwarder
 
-cat > config.json <<EOF
+cat > /etc/logstash-forwarder/config.json <<EOF
 {
   # The network section covers network configuration :)
   "network": {
@@ -65,4 +65,4 @@ cat > config.json <<EOF
 EOF
 
 
-./logstash-forwarder -config config.json
+/usr/local/logstash-forwarder/logstash-forwarder -config /etc/logstash-forwarder/config.json

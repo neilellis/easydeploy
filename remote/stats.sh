@@ -18,19 +18,42 @@ else
     LIBRATO=
 fi
 
+if [[ -f /home/easydeploy/usr/etc/hg-key.txt ]]
+then
+    HG=$(cat /home/easydeploy/usr/etc/hg-key.txt)
+else
+    HG=
+fi
+
+if [[ -f /etc/dd-agent/datadog.conf ]]
+then
+    if ! grep "${HOST}" < /etc/dd-agent/datadog.conf
+    then
+        echo "tags: environment:${DEPLOY_ENV}, component:${COMPONENT}, project:${PROJECT}" >> /etc/dd-agent/datadog.conf
+        echo "hostname: ${HOST}-${IP}" >> /etc/dd-agent/datadog.conf
+    fi
+fi
+
+
 function sendVal() {
+    [[ -z HG ]] || echo "${HG}.${1}.${HOST} $2" | nc carbon.hostedgraphite.com 2003
+    [[ -z HG ]] ||  echo "${HG}.${1}.${IP} $2" | nc carbon.hostedgraphite.com 2003
 
     [[ -z $LIBRATO ]] || curl -u ${LIBRATO} -d "measure_time=$(date +%s)&source=${HOST}&gauges[0][name]=${1}-agg&gauges[0][value]=${2}&gauges[1][name]=${1}&gauges[1][value]=${2}&gauges[1][source]=${IP}" -X POST https://metrics-api.librato.com/v1/metrics
 
-    [[ -z $STATHAT ]] || curl -d "stat=${1} ${PROJECT} ${DEPLOY_ENV} ${COMPONENT} ${IP}&email=${STATHAT}&value=${2}" http://api.stathat.com/ez
+    [[ -z $STATHAT ]] || curl -d "stat=${1}~${HOST},${IP}&email=${STATHAT}&value=${2}" http://api.stathat.com/ez
+    
+    curl  -X POST -H "Content-type: application/json" -d "{ \"series\" : [{\"metric\":\"$1\", \"points\":[[$(date +%s), $2]], \"type\":\"gauge\", \"host\":\"${HOST}-${IP}\", \"tags\":[\"environment:${DEPLOY_ENV}\",\"component:${COMPONENT}\", \"project:${PROJECT}\"]} ] }" 'https://app.datadoghq.com/api/v1/series?api_key=739504634df8c0bc4ab0b136f493e13b'
 
 }
 
 function sendCount() {
+    [[ -z HG ]] || echo "${HG}.${1}.${HOST} $2" | nc carbon.hostedgraphite.com 2003
+    [[ -z HG ]] || echo "${HG}.${1}.${IP} $2" | nc carbon.hostedgraphite.com 2003
 
     [[ -z $LIBRATO ]] || curl -u ${LIBRATO} -d "measure_time=$(date +%s)&source=${HOST}&counters[0][name]=${1}-agg&counters[0][value]=${2}&counters[1][name]=${1}&counters[1][value]=${2}&counters[1][source]=${IP}" -X POST https://metrics-api.librato.com/v1/metrics
 
-    [[ -z $STATHAT ]] || curl -d "stat=${1} ${PROJECT} ${DEPLOY_ENV} ${COMPONENT} ${IP}&email=${STATHAT}&value=${2}" http://api.stathat.com/ez
+    [[ -z $STATHAT ]] || curl -d "stat=${1}~${HOST},${IP}&email=${STATHAT}&value=${2}" http://api.stathat.com/ez
 
 }
 
@@ -60,14 +83,17 @@ function reportProcesses() {
 }
 
 function reportDstat() {
-    tail -1 < /tmp/dstat.csv | IFS=, read cpu_usr cpu_sys cpu_idl cpu_wait hiq siq disk_read disk_write net_recv net_send page_in page_out sysint syscsw
+    IFS=,
+    read -r cpu_usr cpu_sys cpu_idl cpu_wait hiq siq disk_read disk_write net_recv net_send page_in page_out sysint syscsw
     sendVal "cpu_usr" ${cpu_usr}
     sendVal "cpu_sys" ${cpu_sys}
     sendVal "cpu_idl" ${cpu_idl}
     sendVal "cpu_wait" ${cpu_wait}
     sendVal "disk_read" ${disk_write}
-    sendVal "net_recv" ${net_send}
-    sendVal "page_in" ${page_out}
+    sendVal "net_recv" ${net_recv}
+    sendVal "net_send" ${net_send}
+    sendVal "page_out" ${page_out}
+    sendVal "page_in" ${page_in}
 }
 
 function report() {
@@ -75,7 +101,7 @@ function report() {
     reportMemory
     reportDiskUsage
     reportProcesses
-    reportDstat
+    tail -1 < /tmp/dstat.csv | reportDstat
 }
 
 while :

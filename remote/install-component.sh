@@ -517,7 +517,14 @@ then
     /etc/init.d/newrelic-sysmond start
 fi
 
+
+DD_API_KEY=739504634df8c0bc4ab0b136f493e13b bash -c "$(curl -L https://raw.githubusercontent.com/DataDog/dd-agent/master/packaging/datadog-agent/source/install_agent.sh)"
+
+
 sudo apt-get install -y dstat
+
+
+
 #if [ -f /home/easydeploy/usr/etc/scalyr-license-key.txt ]
 #then
 #    wget https://www.scalyr.com/scalyr-repo/stable/latest/installScalyrRepo.sh

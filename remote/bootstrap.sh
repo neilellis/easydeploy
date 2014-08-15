@@ -103,7 +103,7 @@ EOF
     sudo apt-get -qq update
     sudo apt-get -qq -y upgrade
 
-    sudo apt-get install -q -y git software-properties-common unattended-upgrades incron fileschanged dialog zip sharutils apparmor monit ntp
+    sudo apt-get install -q -y git software-properties-common unattended-upgrades incron fileschanged dialog zip sharutils apparmor monit ntp bc
     sudo add-apt-repository ppa:chris-lea/zeromq
     sudo add-apt-repository ppa:webupd8team/java
     sudo apt-get -qq update
@@ -111,11 +111,20 @@ EOF
     yes | sudo apt-get install -y oracle-java8-installer
     sudo apt-get -q install -y oracle-java8-set-default
     sudo apt-get -q install -y libzmq3-dbg libzmq3-dev libzmq3
-
+    sudo apt-get install -y gccgo-go
+    git clone git://github.com/elasticsearch/logstash-forwarder.git
+    cd logstash-forwarder
+    go build
     sudo chown -R easydeploy:easydeploy  /home/easydeploy/
+    echo 'PATH=$PATH:$HOME/bin:/ezbin:/ezusrbin' >> ~/.bash_profile
+    echo 'PATH=$PATH:$HOME/bin:$HOME/usr/bin:/ezbin:/ezusrbin' >> /home/easydeploy/.bash_profile
+    echo 'PATH=$PATH:$HOME/bin:$HOME/usr/bin:/ezbin:/ezusrbin' >> /home/easyadmin/.bash_profile
+
     [ -f ~/user-scripts/bootstrap.sh ] && bash ~/user-scripts/bootstrap.sh
 
+
     touch .bootstrapped
+
 fi
 
 echo "Installing ${COMPONENT} on ${DEPLOY_ENV}"

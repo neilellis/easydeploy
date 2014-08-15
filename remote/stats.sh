@@ -4,23 +4,29 @@ PROJECT=$(cat /var/easydeploy/share/.config/project)
 COMPONENT=$(cat /var/easydeploy/share/.config/component)
 HOST=$(cat /var/easydeploy/share/.config/hostname)
 IP=$(cat /var/easydeploy/share/.config/ip)
+if [[ -f /home/easydeploy/usr/etc/datadog-api-key.txt ]]
+then
+    DDOG=$(</home/easydeploy/usr/etc/datadog-api-key.txt)
+else
+    DDOG=
+fi
 if [[ -f /home/easydeploy/usr/etc/stathat-user.txt ]]
 then
-    STATHAT=$(cat /home/easydeploy/usr/etc/stathat-user.txt)
+    STATHAT=$(< /home/easydeploy/usr/etc/stathat-user.txt)
 else
     STATHAT=
 fi
 
 if [[ -f /home/easydeploy/usr/etc/librato-cred.txt ]]
 then
-    LIBRATO=$(cat /home/easydeploy/usr/etc/librato-cred.txt)
+    LIBRATO=$(< /home/easydeploy/usr/etc/librato-cred.txt)
 else
     LIBRATO=
 fi
 
 if [[ -f /home/easydeploy/usr/etc/hg-key.txt ]]
 then
-    HG=$(cat /home/easydeploy/usr/etc/hg-key.txt)
+    HG=$(< /home/easydeploy/usr/etc/hg-key.txt)
 else
     HG=
 fi
@@ -43,7 +49,7 @@ function sendVal() {
 
     [[ -z $STATHAT ]] || curl -d "stat=${1}~${HOST},${IP}&email=${STATHAT}&value=${2}" http://api.stathat.com/ez
     
-    curl  -X POST -H "Content-type: application/json" -d "{ \"series\" : [{\"metric\":\"$1\", \"points\":[[$(date +%s), $2]], \"type\":\"gauge\", \"host\":\"${HOST}-${IP}\", \"tags\":[\"environment:${DEPLOY_ENV}\",\"component:${COMPONENT}\", \"project:${PROJECT}\"]} ] }" 'https://app.datadoghq.com/api/v1/series?api_key=739504634df8c0bc4ab0b136f493e13b'
+    [[ -z $DDOG ]] || curl  -X POST -H "Content-type: application/json" -d "{ \"series\" : [{\"metric\":\"ezd.$1\", \"points\":[[$(date +%s), $2]], \"type\":\"gauge\", \"host\":\"${HOST}-${IP}\", \"tags\":[\"environment:${DEPLOY_ENV}\",\"component:${COMPONENT}\", \"project:${PROJECT}\"]} ] }" 'https://app.datadoghq.com/api/v1/series?api_key=${DDOG}'
 
 }
 

@@ -518,8 +518,10 @@ then
 fi
 
 
-DD_API_KEY=739504634df8c0bc4ab0b136f493e13b bash -c "$(curl -L https://raw.githubusercontent.com/DataDog/dd-agent/master/packaging/datadog-agent/source/install_agent.sh)"
-
+if [[ $DEPLOY_ENV == "prod" ]]  && [[ -f  /home/easydeploy/usr/etc/datadog-api-key.txt ]]
+then
+    DD_API_KEY=$(< /home/easydeploy/usr/etc/datadog-api-key.txt) bash -c "$(curl -L https://raw.githubusercontent.com/DataDog/dd-agent/master/packaging/datadog-agent/source/install_agent.sh)"
+fi
 
 sudo apt-get install -y dstat
 

@@ -90,11 +90,12 @@ fi
 export EASYDEPLOY_HOST_IP=$(</var/easydeploy/share/.config/ip)
 
 
-sudo mv -f run-docker.sh stats.sh serf-agent.sh update.sh update_dns.sh discovery.sh notify.sh check_for_restart.sh intrusion.sh backup.sh health_check.sh squid.sh consul_health_check.sh postmortem.sh restart-component.sh killtree.sh clean.sh logstash-ship.sh  supervisord_monitor.sh /home/easydeploy/bin
+sudo cp -f *.sh /home/easydeploy/bin
 mv -f bashrc_profile ~/.bashrc_profile
 sudo mv .dockercfg /home/easydeploy/
 [ -d ~/user-scripts ] && sudo cp -rf ~/user-scripts/*  /home/easydeploy/usr/bin/
 [ -d ~/user-config ] && sudo cp -rf ~/user-config/*  /home/easydeploy/usr/etc/
+sudo chown easydeploy:easydeploy /home/easydeploy/.dockercfg
 sudo chmod 700 /home/easydeploy/.dockercfg
 sudo chmod 755 /home/easydeploy/bin/*
 sudo chmod 755 /home/easydeploy/usr/bin/* ||:
@@ -392,8 +393,10 @@ sudo chmod a+rwx /var/run/docker.sock
 echo "Configuring firewall"
 sudo ufw allow 22    #ssh
 sudo ufw allow 7946  #serf
+sudo ufw allow 17123
 sudo ufw allow 9595  #btsync
 sudo ufw allow from 172.16.0.0/12 to any port 53 #dns from containers
+sudo ufw allow from 172.16.0.0/12 to any port 8125 #dogstatsd from containers
 if [ ! -z "$EASYDEPLOY_REMOTE_IP_RANGE" ]
 then
     ufw allow from $EASYDEPLOY_REMOTE_IP_RANGE to any port 8500
@@ -484,12 +487,6 @@ then
     sudo apt-get install -y newrelic-sysmond
     sudo nrsysmond-config --set license_key=$(cat /home/easydeploy/usr/etc/newrelic-license-key.txt)
     /etc/init.d/newrelic-sysmond start
-fi
-
-if [[ $DEPLOY_ENV == "prod" ]]  && [[ -f  /home/easydeploy/usr/etc/datadog-api-key.txt ]]
-then
-    echo "Adding DataDog support"
-    DD_API_KEY=$(< /home/easydeploy/usr/etc/datadog-api-key.txt) bash -c "$(curl -L https://raw.githubusercontent.com/DataDog/dd-agent/master/packaging/datadog-agent/source/install_agent.sh)"
 fi
 
 if [[ $DEPLOY_ENV == "prod" ]]  && [[ -f  /home/easydeploy/usr/etc/boundary-token.txt ]]

@@ -31,14 +31,7 @@ else
     HG=
 fi
 
-if [[ -f /etc/dd-agent/datadog.conf ]]
-then
-    if ! grep "${HOST}-${IP}" < /etc/dd-agent/datadog.conf
-    then
-        echo "tags: environment:${DEPLOY_ENV}, component:${COMPONENT}, project:${PROJECT}" >> /etc/dd-agent/datadog.conf
-        echo "hostname: ${HOST}-${IP}" >> /etc/dd-agent/datadog.conf
-    fi
-fi
+
 
 
 function sendVal() {
@@ -49,7 +42,7 @@ function sendVal() {
 
     [[ -z $STATHAT ]] || curl -d "stat=${1}~${HOST},${IP}&email=${STATHAT}&value=${2}" http://api.stathat.com/ez
     
-    [[ -z $DDOG ]] || curl  -X POST -H "Content-type: application/json" -d "{ \"series\" : [{\"metric\":\"ezd.$1\", \"points\":[[$(date +%s), $2]], \"type\":\"gauge\", \"host\":\"${HOST}-${IP}\", \"tags\":[\"environment:${DEPLOY_ENV}\",\"component:${COMPONENT}\", \"project:${PROJECT}\"]} ] }" 'https://app.datadoghq.com/api/v1/series?api_key=${DDOG}'
+    [[ -z $DDOG ]] || curl  -X POST -H "Content-type: application/json" -d "{ \"series\" : [{\"metric\":\"ezd.${1}\", \"points\":[[$(date +%s), $2]], \"type\":\"gauge\", \"host\":\"${HOST}-${IP}\", \"tags\":[\"environment:${DEPLOY_ENV}\",\"component:${COMPONENT}\", \"project:${PROJECT}\"]} ] }" "https://app.datadoghq.com/api/v1/series?api_key=${DDOG}"
 
 }
 

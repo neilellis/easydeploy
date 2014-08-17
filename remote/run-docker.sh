@@ -34,6 +34,12 @@ fi
 
 serf tags -set health=ok
 
+dockerLinks=
+if [[ -f  /home/easydeploy/usr/etc/datadog-api-key.txt ]]
+then
+    dockerLinks="${dockerLinks} --link datadog:component-${1}"
+fi
+
 docker pull ${DOCKER_IMAGE}:${DEPLOY_ENV}
-docker run --rm=true  --sig-proxy=true -t -i $DOCKER_ARGS -v /var/easydeploy/container/$1:/var/local -v /var/easydeploy/share:/var/share -v /var/easydeploy/share:/var/easydeploy/share -e EASYDEPLOY_HOST_IP=${EASYDEPLOY_HOST_IP} --dns ${EASYDEPLOY_HOST_IP} ${DOCKER_IMAGE}:${DEPLOY_ENV} ${DOCKER_COMMANDS}
+docker run --name component-${1} --rm=true  --sig-proxy=true -t -i $DOCKER_ARGS -v /var/easydeploy/container/$1:/var/local -v /var/easydeploy/share:/var/share -v /var/easydeploy/share:/var/easydeploy/share -e EASYDEPLOY_HOST_IP=${EASYDEPLOY_HOST_IP} --dns ${EASYDEPLOY_HOST_IP} ${dockerLinks} ${DOCKER_IMAGE}:${DEPLOY_ENV} ${DOCKER_COMMANDS}
 serf tags -set health=failed

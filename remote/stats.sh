@@ -1,9 +1,7 @@
 #!/bin/bash -eux
-DEPLOY_ENV=$(cat /var/easydeploy/share/.config/deploy_env)
-PROJECT=$(cat /var/easydeploy/share/.config/project)
-COMPONENT=$(cat /var/easydeploy/share/.config/component)
-HOST=$(cat /var/easydeploy/share/.config/hostname)
-IP=$(cat /var/easydeploy/share/.config/ip)
+
+. /home/easydeploy/bin/env.sh
+
 if [[ -f /home/easydeploy/usr/etc/datadog-api-key.txt ]]
 then
     DDOG=$(</home/easydeploy/usr/etc/datadog-api-key.txt)

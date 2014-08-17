@@ -1,5 +1,7 @@
 #!/bin/bash
 
+. /home/easydeploy/bin/env.sh
+
 function section() {
     echo
     echo "$1"

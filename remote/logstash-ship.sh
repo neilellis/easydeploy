@@ -1,5 +1,7 @@
 #!/bin/bash
 
+. /home/easydeploy/bin/env.sh
+
 mkdir -p  /etc/logstash-forwarder
 
 cat > /etc/logstash-forwarder/config.json <<EOF

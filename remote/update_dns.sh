@@ -1,5 +1,7 @@
 #!/bin/bash -eux
 
+. /home/easydeploy/bin/env.sh
+
 function buildComponentDnsEntry() {
     while read line
     do

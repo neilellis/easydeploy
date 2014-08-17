@@ -1,5 +1,7 @@
 #!/bin/bash -x
 
+. /home/easydeploy/bin/env.sh
+
 function kill_tree() {
     gpid=$(pgrep -o $1)
     if [[ ! -z $gpid ]]

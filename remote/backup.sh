@@ -1,4 +1,6 @@
 #!/bin/bash
+. /home/easydeploy/bin/env.sh
+
 export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/easydeploy/bin:/root/bin
 
  backup=$(cat /var/easydeploy/share/.config/backup_host)

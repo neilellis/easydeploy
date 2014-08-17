@@ -1,5 +1,7 @@
 #!/bin/bash
-export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/easydeploy/bin:/root/bin
+
+
+. /home/easydeploy/bin/env.sh
 
 if supervisorctl status | grep FATAL &> /dev/null
 then

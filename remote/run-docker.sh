@@ -2,17 +2,9 @@
 export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/easydeploy/bin:/root/bin
 
 OFFSET=$1
-export EASYDEPLOY_WAIT_FOR=
-export DOCKER_COMMANDS=
-export EASYDEPLOY_PORTS=
-export DOCKER_ARGS=
-export EASYDEPLOY_STATE=stateful
-export EASYDEPLOY_HOST_IP=$(</var/easydeploy/share/.config/ip)
 set -eu
 
-. /home/easydeploy/usr/etc/ezd.sh
-DEPLOY_ENV=$(cat /var/easydeploy/share/.config/deploy_env)
-PROJECT=$(cat /var/easydeploy/share/.config/project)
+. /home/easydeploy/bin/env.sh
 for port in ${EASYDEPLOY_PORTS}
 do
     export DOCKER_ARGS="$DOCKER_ARGS  -p ${EASYDEPLOY_HOST_IP}:$(($port + $OFFSET)):$(($port + $OFFSET))"
@@ -37,9 +29,9 @@ serf tags -set health=ok
 dockerLinks=
 if [[ -f  /home/easydeploy/usr/etc/datadog-api-key.txt ]]
 then
-    dockerLinks="${dockerLinks} --link datadog:component-${1}"
+    dockerLinks="${dockerLinks} --link datadog:component-$(date +%s)-${1}"
 fi
 
 docker pull ${DOCKER_IMAGE}:${DEPLOY_ENV}
-docker run --name component-${1} --rm=true  --sig-proxy=true -t -i $DOCKER_ARGS -v /var/easydeploy/container/$1:/var/local -v /var/easydeploy/share:/var/share -v /var/easydeploy/share:/var/easydeploy/share -e EASYDEPLOY_HOST_IP=${EASYDEPLOY_HOST_IP} --dns ${EASYDEPLOY_HOST_IP} ${dockerLinks} ${DOCKER_IMAGE}:${DEPLOY_ENV} ${DOCKER_COMMANDS}
+docker run --name component-$(date +%s)-${1} --rm=true  --sig-proxy=true -t -i $DOCKER_ARGS -v /var/easydeploy/container/$1:/var/local -v /var/easydeploy/share:/var/share -v /var/easydeploy/share:/var/easydeploy/share -e EASYDEPLOY_HOST_IP=${EASYDEPLOY_HOST_IP} --dns ${EASYDEPLOY_HOST_IP} ${dockerLinks} ${DOCKER_IMAGE}:${DEPLOY_ENV} ${DOCKER_COMMANDS}
 serf tags -set health=failed

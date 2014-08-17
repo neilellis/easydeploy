@@ -1,5 +1,7 @@
 #!/bin/bash -eux
 
+. /home/easydeploy/bin/env.sh
+
 if /sbin/ifconfig | grep "eth0 "
 then
     /sbin/ifconfig eth0 | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p' > /var/easydeploy/share/.config/ip

@@ -1,5 +1,6 @@
 #!/bin/bash -x
-export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/easydeploy/bin:/root/bin
+
+. /home/easydeploy/bin/env.sh
 
 if [  -f /tmp/.started ]
 then
@@ -27,10 +28,10 @@ then
 fi
 
 
-ip=$(</var/easydeploy/share/.config/ip)
+IP=$(</var/easydeploy/share/.config/ip)
 
 function send_log() {
-    [ -f /ezubin/send-file.sh ] && /ezubin/send-file.sh /var/log/supervisor/supervisord.log  supervisord-$(cat /var/easydeploy/share/.config/hostname)-${ip}.log
+    [ -f /ezubin/send-file.sh ] && /ezubin/send-file.sh /var/log/supervisor/supervisord.log  supervisord-$(cat /var/easydeploy/share/.config/hostname)-${IP}.log
 }
 
 function restart_sd() {
@@ -53,7 +54,7 @@ function restart_sd() {
 
 
 function serf_check() {
-    serf members || serf members -rpc-addr=${ip}:8400
+    serf members || serf members -rpc-addr=${IP}:8400
 }
 
 
@@ -104,7 +105,7 @@ else
     echo  "FAIL: Docker process not running."
     /home/easydeploy/bin/notify.sh ":ghost:" "Docker is dead"
     /var/log/upstart/docker.io.log
-    [ -f /ezubin/send-file.sh ] && /ezubin/send-file.sh /var/log/upstart/docker.io.log  docker-$(cat /var/easydeploy/share/.config/hostname)-${ip}.log
+    [ -f /ezubin/send-file.sh ] && /ezubin/send-file.sh /var/log/upstart/docker.io.log  docker-$(cat /var/easydeploy/share/.config/hostname)-${IP}.log
     service docker.io restart
     sleep 120
     ( service docker.io status | grep running &> /dev/null ) || ( /home/easydeploy/bin/notify.sh ":fire:" "Failed to restart docker.io, will reboot" && reboot )

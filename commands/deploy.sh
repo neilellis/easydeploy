@@ -1,4 +1,5 @@
 #!/bin/bash
+shopt -s dotglob
 export APP_ARGS=
 #trap 'echo FAILED' ERR
 cd $(dirname $0) &> /dev/null
@@ -17,7 +18,7 @@ sync ../remote/  ${USERNAME}@${IP_ADDRESS}:~/
 [ -d ~/.ezd/modules/  ] && sync ~/.ezd/modules/  ${USERNAME}@${IP_ADDRESS}:~/modules/
 [ -f ~/.dockercfg  ] && sync ~/.dockercfg   ${USERNAME}@${IP_ADDRESS}:~/.dockercfg
 [ -d ~/.ezd/bin/  ] && sync ~/.ezd/bin/  ${USERNAME}@${IP_ADDRESS}:~/user-scripts/
-sync ${DIR}/  ${USERNAME}@${IP_ADDRESS}:~/project/
+sync ${DIR}/*  ${USERNAME}@${IP_ADDRESS}:~/project/
 [ -d ~/.ezd/etc/  ] && sync ~/.ezd/etc/  ${USERNAME}@${IP_ADDRESS}:~/user-config/
 scp  -qo "StrictHostKeyChecking no" ~/.ssh/easydeploy_* ${USERNAME}@${IP_ADDRESS}:~/.ssh/
 scp  -qo "StrictHostKeyChecking no" ~/.ssh/id*.pub ${USERNAME}@${IP_ADDRESS}:~/keys

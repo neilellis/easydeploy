@@ -1,5 +1,5 @@
 #!/bin/bash
-#docker rm $(docker ps -a -q)
+docker rm $(docker ps -a -q)
 
 
 if [  -f /tmp/.install-in-progress ]
@@ -26,4 +26,6 @@ if [ -f /home/easydeploy/usr/bin/clean.sh ]
 then
      /home/easydeploy/usr/bin/clean.sh
 fi
+
+exit 0
 

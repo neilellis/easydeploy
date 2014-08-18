@@ -18,11 +18,11 @@ A set of scripts that allow incredibly easy deployment and running of apps using
 
 #### Set up an Ubuntu host with supervisord running a Docker instance containing your app
 
-    ezd -p snapito-logstash.profile deploy   88.37.2.89
+    ezd -e dev deploy 88.37.2.89
 
 #### Re-image and upgrade multiple machines quickly
 
-    ezd -p snapito-gateway-prod.profile upgrade
+    ezd -e dev upgrade
 
 #### Built in (bit torrent) large file syncing
 
@@ -34,16 +34,16 @@ Git is polled regularly and when a change occurs the Docker container is rebuilt
 
 ### Philosophy
 
-Tools to help you, not a straight jacket to trap you.
-
-Easydeploy **IS NOT A PaaS**
+Tools to help you, not a straight jacket to trap you; that's why Easydeploy **IS NOT A PaaS** 
 
 Convention over configuration.
+
+For small deployments, there are many more people needing to do 5-100 cloud server deploys than there are people doing 10,000 server deploys. So we optimize for samller deployments.
 
 
 ## 1. Creating a Project
 
-At present easydeploy only supports Ubuntu/git/Docker combination. So we start by creating a git project - on GitLab, GitHub or anywhere which allows for SSH based git access.
+At present easydeploy only supports Ubuntu/Docker combination.
 
 ### The Configuration file ezd.sh
 
@@ -95,11 +95,8 @@ Again all variables should be exported, and here are the variables:
     export COMPONENT=logstash
 
     #Common
-    export GIT_URL_HOST=git.cazcade.com
-    export GIT_URL_USER=snapito
     export PROVIDER=do
     export USERNAME=root
-    export DEPLOY_ENV=prod
 
     #Provider specific
     export DO_BASE_IMAGE=2158507
@@ -123,23 +120,11 @@ Again all variables should be exported, and here are the variables:
     export MIN_INSTANCES=2
     export MAX_INSTANCES=2
 
-
-To understand these, let's look at where easydeploy downloads your project (from the previous section). As mentioned earlier we only support git and the git url will be built as follows
-
-
-    git@${GIT_URL_HOST}:${GIT_URL_USER}/${COMPONENT}
-
-The PROVIDER value will be used for the advanced scripts that include image creation and provisioning, let's skip that for now.
-
-The USERNAME value is the username that easydeploy should use to log into the machine. This user must be root or have password-less sudo priviledges.
-
-Finally the DEPLOY_ENV says which environment we're deploying too. This will also translate into a branch from git if the value is anything but the special values *prod* or *alt-prod*. It also is used as part of the naming system used by the provisioning scripts.
-
 ### Deploying
 
-    ezd -p <profile-file> deploy <ip-or-hostname>
+    ezd -e <environment> deploy <ip-or-hostname>
 
-The first time the script is run it will create the eeasydeploy ssh keys and tell you the public key. You will need to use this public key to grant access to your git repository - and that is why it is always listed at the beginning of a deploy.
+The first time the script is run it will create the easydeploy ssh keys and tell you the public key. 
 
 Once the keys are created this command will deploy your application to the hostname supplied - run it within a docker container and keep it running using supervisord
 
@@ -156,56 +141,56 @@ The contents of ~/.ezd/upload/bootstrap_sync/ will be pushed to the directory /v
 
 As part of the deployment process a user called 'easydeploy' will be created on the host system. In the `/home/easydeploy` directory will be a bin directory containing scripts used by the easydeploy runtime.
 
-#### run.sh
+#### run-docker.sh
 
 This is the script that is run by supervisord which then runs your docker container, this script should be run by the easydeploy user.
 
 #### update.sh
 
-This script triggers a new git pull and a complete rebuild of the docker container, then it reboots the host.
+TODO:
 
 
 ## 4. Cloud Functions
 
-If you are using a supported cloud provider (currently Digital Ocean only) then you also can do some more dvanced functions.
+If you are using a supported cloud provider (currently Digital Ocean only) then you also can do some more advanced functions.
 
 
 ### Create Image
 
-    ezd -p  <profile-file> image
+    ezd -e <environment> image
 
 Creates an image on the cloud provider specified by `${PROVIDER}` from the profile. Specifically it creates an appropriate instance, deploys to it and then snapshots it.
 
 
 ### Create Single Instance
 
-     ezd -p  <profile-file> create
+     ezd -e <environment> create
 
 Creates a single instance ignoring any scaling parameters set in the profile and deploys to it.
 
 ### Tail All Instances
 
-     ezd -p  <profile-file> tail
+     ezd -e <environment> tail
 
 To use this you *must* have `multitail` installed (try Homebrew `brew install multitail` on Macs). This command will create a multitail session split for each server. Not suitable for large numbers of instances.
 
 
 ### Scale to N Instances
 
-     ezd -p  <profile-file> scale <N>
+     ezd -e <environment>> scale <N>
 
 This will scale the number of instances to N, if the current number of instances is larger they will be destroyed if less then they will be created.
 
 
 ### List Instances
 
-     ezd -p  <profile-file> list
+     ezd -e <environment> list
 
 This will list all instances of the deployment profile, however the way the results are displayed are currently provider specific.
 
 ### Upgrade Machines
 
-    ezd -p  <profile-file> upgrade
+    ezd -e <environment> upgrade
 
 This command will create a temporary machine, deploy to it, create a machine image and then use that image to re-image all the deployed servers that match the profile (on Digital Ocean we do that by matching the droplet name of ${DEPLOY_ENV}-${GIT_URL_USER}-${COMPONENT}).
 
@@ -215,14 +200,14 @@ NB: We only support `export PROVIDER=do` at present.
 
 ### Rebuild Machines
 
-    ezd -p <profile-file> rebuild
+    ezd -e <environment> rebuild
 
 This is similar to Upgrade Machines, however instead it uses an existing machine image without creating a new one first.
 
 
 ### Wire Machines Together
 
-    ezd -p <profile-file> wire
+    ezd -e <environment> wire
 
 This tells each machine in this *profile* of all the machines in the *project/environment* of each others presence so that service discovery can then take place. This command knows nothing about your architecture and is simply telling each serf agent in this profile about the machines in this project/environment.
 
@@ -234,9 +219,7 @@ Continuous deployment is integral to easydeploy, it will assume that you're tryi
 
 **TRY TO MAKE ALL YOUR APPS STATELESS, EXCEPT YOUR ACTUAL DATABASE**
 
-Easydeploy manages CD in an incredibly simple manner, using supervisord and a simple shellscript. In the /home/easydeploy/bin directory is a script called gitpoll.sh this script will be started by supervisord - it checks for changes to the deployment git project.
-
-If the project has changed then a docker build request is also triggered to update the docker image.
+Easydeploy manages CD in an incredibly simple manner, using supervisord and a simple shellscript.
 
 HOW DO I REDEPLOY? Is probably what you're asking right now. Well it's simple, the best way to do this is to make sure the process that you run in the docker container responds to a simple Ctrl-C - because that's what easydeploy will send the app when a build has finished. Once your app exits supervisord will restart it in the new docker container. Simple.
 

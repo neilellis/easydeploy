@@ -136,7 +136,7 @@ sudo chown easydeploy:easydeploy /var/easydeploy/share
 if [ ! -z "${EASYDEPLOY_PACKAGES}" ]
 then
     echo "Installing custom packages ${EASYDEPLOY_PACKAGES}"
-    sudo apt-get install -y ${EASYDEPLOY_PACKAGES}
+    sudo apt-get -q install -y ${EASYDEPLOY_PACKAGES}
 fi
 
 
@@ -144,10 +144,10 @@ fi
 echo "Installing Bit Torrent sync"
 if [ ! -f /var/easydeploy/.install/btsync ]
 then
-sudo apt-get install -y  rhash
+sudo apt-get install -q -y  rhash
 sudo add-apt-repository -y ppa:tuxpoldo/btsync
 sudo apt-get -qq update
-echo "n" | sudo apt-get install -y btsync
+echo "n" | sudo apt-get -q install -y btsync
 export EASYDEPLOY_GLOBAL_SYNC_SECRET="$(cat /home/easydeploy/.ssh/id_rsa | sed -e 's/0/1/g' | rhash --sha512 - | cut -c1-64 )"
 export EASYDEPLOY_COMPONENT_SYNC_SECRET="$(cat /home/easydeploy/.ssh/id_rsa /var/easydeploy/share/.config/component /var/easydeploy/share/.config/project  /var/easydeploy/share/.config/deploy_env | rhash --sha512 - | cut -c1-64)"
 export EASYDEPLOY_ENV_SYNC_SECRET="$(cat /home/easydeploy/.ssh/id_rsa /var/easydeploy/share/.config/deploy_env /var/easydeploy/share/.config/project | rhash --sha512 - | cut -c1-64)"
@@ -232,7 +232,7 @@ fi
 if [ ! -f /var/easydeploy/.install/serf ]
 then
     echo "Installing serf for node discovery and communication"
-    sudo apt-get install -y unzip
+    sudo apt-get -q install -y unzip
     [ -f 0.5.0_linux_amd64.zip ] || wget -q https://dl.bintray.com/mitchellh/serf/0.5.0_linux_amd64.zip
     unzip 0.5.0_linux_amd64.zip
     sudo mv -f serf /usr/local/bin
@@ -246,7 +246,7 @@ then
     touch /var/easydeploy/.install/serf
 fi
 
-sudo apt-get install -y dnsutils bind9
+sudo apt-get -q install -y dnsutils bind9
 
 cat > /etc/bind/ezd.conf <<EOF
 zone "ezd" IN {
@@ -328,7 +328,7 @@ then
 fi
 
 echo "Adding cron tasks"
-sudo apt-get install -y duplicity
+sudo apt-get -q install -y duplicity
 pathline="PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:"
 echo $pathline > /etc/cron.d/restart
 echo "*/13 * * * * root /bin/bash -l -c '/home/easydeploy/bin/check_for_restart.sh &>  /var/log/easydeploy/restart.log'" >> /etc/cron.d/restart
@@ -415,7 +415,7 @@ yes | sudo ufw enable
 if [[ -n "$INSTALL_SQUID_FLAG" ]]
 then
     #Squid
-    sudo apt-get install -y squid3
+    sudo apt-get -q install -y squid3
     cat > /etc/squid3/squid.conf <<EOF
     acl all src all
     http_port 3128
@@ -459,18 +459,6 @@ EOF
 
 
 
-echo "Starting/Restarting services"
-sudo service supervisor stop || true
-sudo docker kill $(docker ps -q) || true
-sudo timelimit -t 30 -T 5 service docker.io stop || :
-[ -e  /tmp/supervisor.sock ] && sudo unlink /tmp/supervisor.sock
-[ -e  /var/run/supervisor.sock  ] && sudo unlink /var/run/supervisor.sock
-sleep 10
-sudo killall docker || true
-sudo service docker.io start
-sudo service supervisor restart || true
-sudo supervisorctl restart all
-
 
 sudo cp rc.local /etc
 sudo chmod 755 /etc/rc.local
@@ -483,8 +471,8 @@ then
     echo "Adding New Relic support"
     sudo echo deb http://apt.newrelic.com/debian/ newrelic non-free >> /etc/apt/sources.list.d/newrelic.list
     wget -O- https://download.newrelic.com/548C16BF.gpg | apt-key add -
-    sudo apt-get update
-    sudo apt-get install -y newrelic-sysmond
+    sudo apt-get -qq update
+    sudo apt-get -q install -y newrelic-sysmond
     sudo nrsysmond-config --set license_key=$(cat /home/easydeploy/usr/etc/newrelic-license-key.txt)
     /etc/init.d/newrelic-sysmond start
 fi
@@ -495,10 +483,12 @@ then
     curl -s -d "{\"token\":\"$(cat /home/easydeploy/usr/etc/boundary-token.txt)\"}" -H 'Content-Type: application/json' https://premium.boundary.com/agent/install | sh
 fi
 
-sudo apt-get install -y dstat
-    if [[ $DEPLOY_ENV == "prod" ]]  && [[ -f  /home/easydeploy/usr/etc/datadog-api-key.txt ]]
+sudo apt-get -q install -y dstat
+
+if [[ $DEPLOY_ENV == "prod" ]]  && [[ -f  /home/easydeploy/usr/etc/datadog-api-key.txt ]]
 then
-    DD_API_KEY=$(< /home/easydeploy/usr/etc/datadog-api-key.txt) bash -c "$(curl -L https://raw.githubusercontent.com/DataDog/dd-agent/master/packaging/datadog-agent/source/install_agent.sh)"
+echo "Installing DataDog agent"
+    DD_API_KEY=$(< /home/easydeploy/usr/etc/datadog-api-key.txt) bash -c "$(curl -L https://raw.githubusercontent.com/DataDog/dd-agent/master/packaging/datadog-agent/source/install_agent.sh)" &> /dev/null
 fi
 #if [ -f /home/easydeploy/usr/etc/scalyr-license-key.txt ]
 #then
@@ -516,12 +506,26 @@ if [ !  -f /var/easydeploy/.install/hardened ]
 then
     echo "Hardening"
     #sudo apt-get install -y denyhosts
-    sudo apt-get install -y fail2ban
+    sudo apt-get -q install -y fail2ban
     touch /var/easydeploy/.install/hardened
 fi
 
 [ -f  /home/easydeploy/usr/bin/post-install.sh ] && sudo bash /home/easydeploy/usr/bin/post-install.sh
 [ -f  /home/easydeploy/usr/bin/post-install-userland.sh ] && sudo su  easydeploy "cd; bash  /home/easydeploy/usr/bin/post-install-userland.sh"
+
+
+echo "Starting/Restarting services"
+sudo service supervisor stop || true
+sudo docker kill $(docker ps -q) || true
+sudo timelimit -t 30 -T 5 service docker.io stop || :
+[ -e  /tmp/supervisor.sock ] && sudo unlink /tmp/supervisor.sock
+[ -e  /var/run/supervisor.sock  ] && sudo unlink /var/run/supervisor.sock
+sleep 10
+sudo killall docker || true
+sudo service docker.io start
+sudo service supervisor restart || true
+sudo supervisorctl restart all
+
 
 echo "Done"
 

@@ -2,6 +2,7 @@
 
 touch /tmp/.install-in-progress
 
+mkdir -p /var/easydeploy/share/.config/
 
 if /sbin/ifconfig | grep "eth0 "
 then
@@ -42,7 +43,13 @@ shift
 export OTHER_ARGS="$@"
 cd
 
+#http://serverfault.com/questions/500764/dpkg-reconfigure-unable-to-re-open-stdin-no-file-or-directory
 export DEBIAN_FRONTEND=noninteractive
+export LANGUAGE=en_US.UTF-8
+export LANG=en_US.UTF-8
+export LC_ALL=en_US.UTF-8
+locale-gen en_US.UTF-8
+dpkg-reconfigure locales
 
 #Optional installation components, to install them set the flag in ~/.ezd/bin/pre-bootstrap.sh or ./ezd/bin/pre-bootstrap.sh
 
@@ -120,7 +127,7 @@ EOF
         sudo add-apt-repository ppa:webupd8team/java
         sudo apt-get -qq update
         echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | sudo /usr/bin/debconf-set-selections
-        yes | sudo apt-get install -y oracle-java8-installer
+        yes | sudo apt-get -q install -y oracle-java8-installer
         sudo apt-get -q install -y oracle-java8-set-default
     fi
     if [[ -n "$INSTALL_ZERO_MQ_FLAG" ]]

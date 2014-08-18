@@ -18,7 +18,7 @@ sleep $duration
 echo "Disabling supervisor and killing run-docker.sh"
 touch /tmp/easydeploy-run-disable
 touch /var/easydeploy/share/.config/easydeploy-run-disable
-sudo apt-get -q update
+sudo apt-get -qq update
 sudo unattended-upgrades
 #sudo apt-get -y upgrade
 echo "Rebooting"

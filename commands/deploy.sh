@@ -5,13 +5,14 @@ cd $(dirname $0) &> /dev/null
 . common.sh
 export IP_ADDRESS=$1
 echo "IP = $1"
-set -eux
+set -eu
 
 echo "************************** Public Key ****************************"
 cat  ~/.ssh/easydeploy_id_rsa.pub
 echo "******************************************************************"
 
-ssh  -qo "StrictHostKeyChecking no" ${USERNAME}@${IP_ADDRESS} "[ -d ~/.ssh ] || (echo | ssh-keygen -q -t rsa -N '' ) ; mkdir -p ~/modules/ ; mkdir -p /var/easydeploy/share/sync/global/; mkdir ~/keys ; mkdir -p /var/easydeploy/share/deployer/"
+[[ -f .ssh/known_hosts ]] && ssh-keygen -R ${IP_ADDRESS} || :
+ssh  -qo "StrictHostKeyChecking no" ${USERNAME}@${IP_ADDRESS} "[ -d ~/.ssh ] || (echo | ssh-keygen -q -t rsa -N '' ) ; mkdir -p ~/modules/ ; mkdir -p /var/easydeploy/share/sync/global/; [ -d ~/keys ] || mkdir ~/keys ; mkdir -p /var/easydeploy/share/deployer/"
 sync ../remote/  ${USERNAME}@${IP_ADDRESS}:~/
 [ -d ~/.ezd/modules/  ] && sync ~/.ezd/modules/  ${USERNAME}@${IP_ADDRESS}:~/modules/
 [ -f ~/.dockercfg  ] && sync ~/.dockercfg   ${USERNAME}@${IP_ADDRESS}:~/.dockercfg

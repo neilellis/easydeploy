@@ -12,12 +12,12 @@ cat  ~/.ssh/easydeploy_id_rsa.pub
 echo "******************************************************************"
 
 [[ -f .ssh/known_hosts ]] && ssh-keygen -R ${IP_ADDRESS} || :
-ssh  -qo "StrictHostKeyChecking no" ${USERNAME}@${IP_ADDRESS} "[ -d ~/.ssh ] || (echo | ssh-keygen -q -t rsa -N '' ) ; mkdir -p ~/modules/ ; mkdir -p /var/easydeploy/share/sync/global/; [ -d ~/keys ] || mkdir ~/keys ; mkdir -p /var/easydeploy/share/deployer/"
+ssh  -qo "StrictHostKeyChecking no" ${USERNAME}@${IP_ADDRESS} "[ -d ~/.ssh ] || (echo | ssh-keygen -q -t rsa -N '' ) ; mkdir -p ~/modules/ ; mkdir -p /var/easydeploy/share/sync/global/; [ -d ~/keys ] || mkdir ~/keys ;mkdir ~/project/ ; mkdir -p /var/easydeploy/share/deployer/"
 sync ../remote/  ${USERNAME}@${IP_ADDRESS}:~/
 [ -d ~/.ezd/modules/  ] && sync ~/.ezd/modules/  ${USERNAME}@${IP_ADDRESS}:~/modules/
 [ -f ~/.dockercfg  ] && sync ~/.dockercfg   ${USERNAME}@${IP_ADDRESS}:~/.dockercfg
 [ -d ~/.ezd/bin/  ] && sync ~/.ezd/bin/  ${USERNAME}@${IP_ADDRESS}:~/user-scripts/
-sync ${DIR}  ${USERNAME}@${IP_ADDRESS}:~/project/
+sync ${DIR}/  ${USERNAME}@${IP_ADDRESS}:~/project/
 [ -d ~/.ezd/etc/  ] && sync ~/.ezd/etc/  ${USERNAME}@${IP_ADDRESS}:~/user-config/
 scp  -qo "StrictHostKeyChecking no" ~/.ssh/easydeploy_* ${USERNAME}@${IP_ADDRESS}:~/.ssh/
 scp  -qo "StrictHostKeyChecking no" ~/.ssh/id*.pub ${USERNAME}@${IP_ADDRESS}:~/keys

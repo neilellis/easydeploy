@@ -15,4 +15,4 @@ export HOST=$(cat /var/easydeploy/share/.config/hostname)
 export IP=$(cat /var/easydeploy/share/.config/ip)
 export EASYDEPLOY_HOST_IP=${IP}
 
-. /home/easydeploy/usr/etc/ezd.sh
+. /home/easydeploy/project/ezd/etc/ezd.sh

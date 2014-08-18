@@ -13,10 +13,10 @@ then
 fi
 
 
-if [ -f /home/easydeploy/usr/bin/membership_handler.sh ]
+if [ -f /home/easydeploy/project/ezd/bin/membership_handler.sh ]
 then
     cd  /home/easydeploy
-    bash /home/easydeploy/usr/bin/membership_handler.sh
+    bash /home/easydeploy/project/ezd/bin/membership_handler.sh
     cd -
 fi
 exit 0

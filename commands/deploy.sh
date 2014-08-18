@@ -17,11 +17,8 @@ sync ../remote/  ${USERNAME}@${IP_ADDRESS}:~/
 [ -d ~/.ezd/modules/  ] && sync ~/.ezd/modules/  ${USERNAME}@${IP_ADDRESS}:~/modules/
 [ -f ~/.dockercfg  ] && sync ~/.dockercfg   ${USERNAME}@${IP_ADDRESS}:~/.dockercfg
 [ -d ~/.ezd/bin/  ] && sync ~/.ezd/bin/  ${USERNAME}@${IP_ADDRESS}:~/user-scripts/
-[ -f ${DIR}/health_check.sh  ] && sync ${DIR}/health_check.sh  ${USERNAME}@${IP_ADDRESS}:~/user-scripts/
-[ -d ${DIR}/ezd/bin  ] && sync ${DIR}/ezd/bin/  ${USERNAME}@${IP_ADDRESS}:~/user-scripts/
-[ -f ${DIR}/ezd.sh  ] && sync ${DIR}/ezd.sh  ${USERNAME}@${IP_ADDRESS}:~/user-config/
+sync ${DIR}  ${USERNAME}@${IP_ADDRESS}:~/project/
 [ -d ~/.ezd/etc/  ] && sync ~/.ezd/etc/  ${USERNAME}@${IP_ADDRESS}:~/user-config/
-[ -d ${DIR}/ezd/etc  ] && sync ${DIR}/ezd/etc/   ${USERNAME}@${IP_ADDRESS}:~/user-config/
 scp  -qo "StrictHostKeyChecking no" ~/.ssh/easydeploy_* ${USERNAME}@${IP_ADDRESS}:~/.ssh/
 scp  -qo "StrictHostKeyChecking no" ~/.ssh/id*.pub ${USERNAME}@${IP_ADDRESS}:~/keys
 if [ ! -z "$PROVIDER" ]

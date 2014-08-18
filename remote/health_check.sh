@@ -37,9 +37,9 @@ then
     exit 1
 fi
 
-if [ -f /home/easydeploy/usr/bin/health_check.sh ]
+if [ -f /home/easydeploy/project/ezd/bin/health_check.sh ]
 then
-    if sudo su - easydeploy -c "timelimit -t300 -T5 bash /home/easydeploy/usr/bin/health_check.sh"
+    if sudo su - easydeploy -c "timelimit -t300 -T5 bash /home/easydeploy/project/ezd/bin/health_check.sh"
     then
         echo "OK"
         exit 0

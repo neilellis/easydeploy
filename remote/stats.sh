@@ -2,29 +2,29 @@
 
 . /home/easydeploy/bin/env.sh
 
-if [[ -f /home/easydeploy/usr/etc/datadog-api-key.txt ]]
+if [[ -f /home/easydeploy/project/ezd/etc/datadog-api-key.txt ]]
 then
-    DDOG=$(</home/easydeploy/usr/etc/datadog-api-key.txt)
+    DDOG=$(</home/easydeploy/project/ezd/etc/datadog-api-key.txt)
 else
     DDOG=
 fi
-if [[ -f /home/easydeploy/usr/etc/stathat-user.txt ]]
+if [[ -f /home/easydeploy/project/ezd/etc/stathat-user.txt ]]
 then
-    STATHAT=$(< /home/easydeploy/usr/etc/stathat-user.txt)
+    STATHAT=$(< /home/easydeploy/project/ezd/etc/stathat-user.txt)
 else
     STATHAT=
 fi
 
-if [[ -f /home/easydeploy/usr/etc/librato-cred.txt ]]
+if [[ -f /home/easydeploy/project/ezd/etc/librato-cred.txt ]]
 then
-    LIBRATO=$(< /home/easydeploy/usr/etc/librato-cred.txt)
+    LIBRATO=$(< /home/easydeploy/project/ezd/etc/librato-cred.txt)
 else
     LIBRATO=
 fi
 
-if [[ -f /home/easydeploy/usr/etc/hg-key.txt ]]
+if [[ -f /home/easydeploy/project/ezd/etc/hg-key.txt ]]
 then
-    HG=$(< /home/easydeploy/usr/etc/hg-key.txt)
+    HG=$(< /home/easydeploy/project/ezd/etc/hg-key.txt)
 else
     HG=
 fi

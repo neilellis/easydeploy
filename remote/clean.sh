@@ -22,9 +22,9 @@ fi
 
 docker rmi $(docker images -a | grep "^<none>" | awk '{print $3}')
 
-if [ -f /home/easydeploy/usr/bin/clean.sh ]
+if [ -f /home/easydeploy/project/ezd/bin/clean.sh ]
 then
-     /home/easydeploy/usr/bin/clean.sh
+     /home/easydeploy/project/ezd/bin/clean.sh
 fi
 
 exit 0

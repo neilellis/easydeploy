@@ -93,12 +93,15 @@ export EASYDEPLOY_HOST_IP=$(</var/easydeploy/share/.config/ip)
 sudo cp -f *.sh /home/easydeploy/bin
 mv -f bashrc_profile ~/.bashrc_profile
 sudo mv .dockercfg /home/easydeploy/
-[ -d ~/user-scripts ] && sudo cp -rf ~/user-scripts/*  /home/easydeploy/usr/bin/
-[ -d ~/user-config ] && sudo cp -rf ~/user-config/*  /home/easydeploy/usr/etc/
+[ -d /home/easydeploy/project/ezd/bin/ ] || mkdir -p /home/easydeploy/project/ezd/bin/
+[ -d /home/easydeploy/project/ezd/etc/ ] || mkdir -p /home/easydeploy/project/ezd/etc/
+sudo cp -rf ~/project  /home/easydeploy/
+[ -d ~/user-scripts ] && sudo cp -rf ~/user-scripts/*  /home/easydeploy/project/ezd/bin/
+[ -d ~/user-config ] && sudo cp -rf ~/user-config/*  /home/easydeploy/project/ezd/etc/
 sudo chown easydeploy:easydeploy /home/easydeploy/.dockercfg
 sudo chmod 700 /home/easydeploy/.dockercfg
 sudo chmod 755 /home/easydeploy/bin/*
-sudo chmod 755 /home/easydeploy/usr/bin/* ||:
+sudo chmod 755 /home/easydeploy/project/ezd/bin/* ||:
 
 
 echo "Setting up deployment project"
@@ -112,7 +115,7 @@ EOF
 echo ${EASYDEPLOY_HOST_IP} > /var/easydeploy/share/.config/ip
 
 echo "Reading config"
-. /home/easydeploy/usr/etc/ezd.sh
+. /home/easydeploy/project/ezd/etc/ezd.sh
 
 
 #store useful info for scripts
@@ -369,6 +372,9 @@ then
     touch /var/easydeploy/.install/docker
 fi
 
+curl -L https://github.com/docker/fig/releases/download/0.5.2/linux > /usr/local/bin/fig
+chmod +x /usr/local/bin/fig
+
 sudo chown -R easydeploy:easydeploy /var/easydeploy
 
 sudo [ -d /home/easydeploy/modules ] && rm -rf /home/easydeploy/modules
@@ -378,13 +384,13 @@ sudo chown easydeploy:easydeploy /var/easydeploy
 
 
  #Pre installation custom tasks
-[ -f /home/easydeploy/usr/bin/pre-install.sh ] && sudo bash /home/easydeploy/usr/bin/pre-install.sh
+[ -f /home/easydeploy/project/ezd/bin/pre-install.sh ] && sudo bash /home/easydeploy/project/ezd/bin/pre-install.sh
 
-if [ -f /home/easydeploy/usr/bin/pre-install-user.sh ]
+if [ -f /home/easydeploy/project/ezd/bin/pre-install-user.sh ]
 then
     sudo su - easydeploy <<EOF
 set -eu
-bash /home/easydeploy/usr/bin/pre-install-user.sh
+bash /home/easydeploy/project/ezd/bin/pre-install-user.sh
 EOF
 fi
 
@@ -466,36 +472,36 @@ sudo /etc/rc.local
 
 #Monitoring
 echo "Adding Monitoring"
-if [ -f /home/easydeploy/usr/etc/newrelic-license-key.txt ]
+if [ -f /home/easydeploy/project/ezd/etc/newrelic-license-key.txt ]
 then
     echo "Adding New Relic support"
     sudo echo deb http://apt.newrelic.com/debian/ newrelic non-free >> /etc/apt/sources.list.d/newrelic.list
     wget -O- https://download.newrelic.com/548C16BF.gpg | apt-key add -
     sudo apt-get -qq update
     sudo apt-get -q install -y newrelic-sysmond
-    sudo nrsysmond-config --set license_key=$(cat /home/easydeploy/usr/etc/newrelic-license-key.txt)
+    sudo nrsysmond-config --set license_key=$(cat /home/easydeploy/project/ezd/etc/newrelic-license-key.txt)
     /etc/init.d/newrelic-sysmond start
 fi
 
-if [[ $DEPLOY_ENV == "prod" ]]  && [[ -f  /home/easydeploy/usr/etc/boundary-token.txt ]]
+if [[ $DEPLOY_ENV == "prod" ]]  && [[ -f  /home/easydeploy/project/ezd/etc/boundary-token.txt ]]
 then
     echo "Adding Boundary support"
-    curl -s -d "{\"token\":\"$(cat /home/easydeploy/usr/etc/boundary-token.txt)\"}" -H 'Content-Type: application/json' https://premium.boundary.com/agent/install | sh
+    curl -s -d "{\"token\":\"$(cat /home/easydeploy/project/ezd/etc/boundary-token.txt)\"}" -H 'Content-Type: application/json' https://premium.boundary.com/agent/install | sh
 fi
 
 sudo apt-get -q install -y dstat
 
-if [[ $DEPLOY_ENV == "prod" ]]  && [[ -f  /home/easydeploy/usr/etc/datadog-api-key.txt ]]
+if [[ $DEPLOY_ENV == "prod" ]]  && [[ -f  /home/easydeploy/project/ezd/etc/datadog-api-key.txt ]]
 then
 echo "Installing DataDog agent"
-    DD_API_KEY=$(< /home/easydeploy/usr/etc/datadog-api-key.txt) bash -c "$(curl -L https://raw.githubusercontent.com/DataDog/dd-agent/master/packaging/datadog-agent/source/install_agent.sh)" &> /dev/null
+    DD_API_KEY=$(< /home/easydeploy/project/ezd/etc/datadog-api-key.txt) bash -c "$(curl -L https://raw.githubusercontent.com/DataDog/dd-agent/master/packaging/datadog-agent/source/install_agent.sh)" &> /dev/null
 fi
-#if [ -f /home/easydeploy/usr/etc/scalyr-license-key.txt ]
+#if [ -f /home/easydeploy/project/ezd/etc/scalyr-license-key.txt ]
 #then
 #    wget https://www.scalyr.com/scalyr-repo/stable/latest/installScalyrRepo.sh
 #    sudo bash ./installScalyrRepo.sh
 #    sudo apt-get install scalyr-agent
-#    sudo scalyr-agent-config --run_as root --write_logs_key -   < /home/easydeploy/usr/etc/scalyr-license-key.txt
+#    sudo scalyr-agent-config --run_as root --write_logs_key -   < /home/easydeploy/project/ezd/etc/scalyr-license-key.txt
 #    cp ~/agentConfig.json  /etc/scalyrAgent/agentConfig.json
 #    sudo scalyr-agent start
 #fi
@@ -510,8 +516,8 @@ then
     touch /var/easydeploy/.install/hardened
 fi
 
-[ -f  /home/easydeploy/usr/bin/post-install.sh ] && sudo bash /home/easydeploy/usr/bin/post-install.sh
-[ -f  /home/easydeploy/usr/bin/post-install-userland.sh ] && sudo su  easydeploy "cd; bash  /home/easydeploy/usr/bin/post-install-userland.sh"
+[ -f  /home/easydeploy/project/ezd/bin/post-install.sh ] && sudo bash /home/easydeploy/project/ezd/bin/post-install.sh
+[ -f  /home/easydeploy/project/ezd/bin/post-install-userland.sh ] && sudo su  easydeploy "cd; bash  /home/easydeploy/project/ezd/bin/post-install-userland.sh"
 
 
 echo "Starting/Restarting services"

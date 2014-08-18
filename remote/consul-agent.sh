@@ -5,7 +5,7 @@ export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/e
 
 killall consul || :
 
-. /home/easydeploy/usr/etc/ezd.sh
+. /home/easydeploy/project/ezd/etc/ezd.sh
 
 export EASYDEPLOY_HOST_IP=$(</var/easydeploy/share/.config/ip)
 export PROJECT=$(cat /var/easydeploy/share/.config/project)

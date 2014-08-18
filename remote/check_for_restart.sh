@@ -27,9 +27,9 @@ fi
 /home/easydeploy/bin/supervisord_monitor.sh
 
 
-if [ -f /home/easydeploy/usr/bin/health_check.sh ]
+if [ -f /home/easydeploy/project/ezd/bin/health_check.sh ]
 then
-    timelimit -t300 -T10 bash /home/easydeploy/usr/bin/health_check.sh > /tmp/.health_check_restart_tmp_value.txt
+    timelimit -t300 -T10 bash /home/easydeploy/project/ezd/bin/health_check.sh > /tmp/.health_check_restart_tmp_value.txt
     result=$?
     error_text=$(cat /tmp/.health_check_restart_tmp_value.txt | tr '\n' ' ' | tr '"' ' ')
     if (( $result == 1 ))
@@ -42,7 +42,7 @@ then
         /ezbin/restart-component.sh
         sleep 30
         /ezbin/notify.sh ":recycle:" "Restarted component $(cat /ezshare/.config/component) due to health check failure: $error_text"  || :
-        if ! timelimit -t300 -T10 bash /home/easydeploy/usr/bin/health_check.sh > /tmp/.health_check_restart_tmp_value.txt
+        if ! timelimit -t300 -T10 bash /home/easydeploy/project/ezd/bin/health_check.sh > /tmp/.health_check_restart_tmp_value.txt
         then
             serf tags -set health=failed
             serf leave

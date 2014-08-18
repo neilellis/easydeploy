@@ -14,11 +14,11 @@ export MIN_INSTANCES=0
 export MAX_INSTANCES=10000000
 export BACKUP_HOST=localhost
 
-if ! which overcast
-then
-    echo "Installing overcast as you don't seem to have it installed."
-    npm -g install overcast
-fi
+#if ! which overcast
+#then
+#    echo "Installing overcast as you don't seem to have it installed."
+#    npm -g install overcast
+#fi
 
 if ! which wget  &> /dev/null
 then

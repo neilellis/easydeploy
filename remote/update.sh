@@ -19,6 +19,7 @@ touch /tmp/easydeploy-run-disable
 touch /var/easydeploy/share/.config/easydeploy-run-disable
 sudo apt-get -qq update
 sudo unattended-upgrades
+chown -R easydeploy:easydeploy /home/easydeploy/project
 su - easydeploy << EOF
 set -eux
 cd project

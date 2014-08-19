@@ -99,6 +99,7 @@ cp -rf ~/project/*  /home/easydeploy/project/
 [ -d ~/user-scripts ] && sudo cp -rf ~/user-scripts/*  /home/easydeploy/project/ezd/bin/
 [ -d ~/user-config ] && sudo cp -rf ~/user-config/*  /home/easydeploy/project/ezd/etc/
 sudo chown easydeploy:easydeploy /home/easydeploy/.dockercfg
+sudo chown -R easydeploy:easydeploy /home/easydeploy/project
 sudo chmod 700 /home/easydeploy/.dockercfg
 sudo chmod 755 /home/easydeploy/bin/*
 sudo chmod 755 /home/easydeploy/project/ezd/bin/* ||:

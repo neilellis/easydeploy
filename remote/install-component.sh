@@ -95,7 +95,7 @@ mv -f bashrc_profile ~/.bashrc_profile
 sudo mv .dockercfg /home/easydeploy/
 [ -d /home/easydeploy/project/ezd/bin/ ] || mkdir -p /home/easydeploy/project/ezd/bin/
 [ -d /home/easydeploy/project/ezd/etc/ ] || mkdir -p /home/easydeploy/project/ezd/etc/
-sync ~/project/  /home/easydeploy/project/
+cp -rf ~/project/*  /home/easydeploy/project/
 [ -d ~/user-scripts ] && sudo cp -rf ~/user-scripts/*  /home/easydeploy/project/ezd/bin/
 [ -d ~/user-config ] && sudo cp -rf ~/user-config/*  /home/easydeploy/project/ezd/etc/
 sudo chown easydeploy:easydeploy /home/easydeploy/.dockercfg

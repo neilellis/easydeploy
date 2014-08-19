@@ -22,7 +22,7 @@ sudo unattended-upgrades
 su - easydeploy << EOF
 set -eux
 cd project
-docker build . -t ${DOCKER_IMAGE}:${DEPLOY_ENV}
+docker build -t ${DOCKER_IMAGE}:${DEPLOY_ENV}   .
 EOF
 #sudo apt-get -y upgrade
 echo "Rebooting"

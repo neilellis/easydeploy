@@ -530,7 +530,8 @@ sleep 10
 sudo killall docker || true
 sudo service docker.io start
 sudo service supervisor restart || true
-sudo supervisorctl restart all
+sleep 10
+sudo supervisorctl restart all  || true
 
 
 echo "Done"

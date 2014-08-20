@@ -136,7 +136,7 @@ then
     exit 1
 fi
 
-env_profile=ezd/deploy/${DEPLOY_ENV}/conf.sh
+env_profile=$DIR/ezd/deploy/${DEPLOY_ENV}/conf.sh
 cd $DIR > /dev/null
 source ${profile}
 [ -f ${env_profile} ] &&  source ${env_profile} || :

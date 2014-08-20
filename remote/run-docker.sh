@@ -38,10 +38,9 @@ fi
 
 serf tags -set health=ok
 cd ~/project
-if [[ -f build.sh ]]
+if [[ -f ~/ezd/bin/pre-build.sh ]]
 then
-    chmod 755 build.sh
-    ./build.sh
+    ./ezd/bin/pre-build.sh
 fi
 docker build -t ${DOCKER_IMAGE}:${DEPLOY_ENV}   .
 docker run --name ${COMPONENT}-$(date +%s)-${1} --rm=true  --sig-proxy=true -t -i $DOCKER_ARGS -v /var/easydeploy/container/$1:/var/local -v /var/log/easydeploy/container/$1:/var/log/easydeploy -v /var/easydeploy/share:/var/share -v /var/easydeploy/share:/var/easydeploy/share -e EASYDEPLOY_HOST_IP=${EASYDEPLOY_HOST_IP} --dns ${EASYDEPLOY_HOST_IP} ${dockerLinks} ${DOCKER_IMAGE}:${DEPLOY_ENV} ${DOCKER_COMMANDS}

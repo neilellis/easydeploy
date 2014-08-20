@@ -23,10 +23,9 @@ chown -R easydeploy:easydeploy /home/easydeploy/project
 su - easydeploy << EOF
 set -eux
 cd project
-if [[ -f build.sh ]]
+if [[ -f ~/ezd/bin/pre-build.sh ]]
 then
-    chmod 755 build.sh
-    ./build.sh
+    ./ezd/bin/pre-build.sh
 fi
 docker build -t ${DOCKER_IMAGE}:${DEPLOY_ENV}   .
 EOF

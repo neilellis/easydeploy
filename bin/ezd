@@ -130,7 +130,7 @@ then
 fi
 
 
-if [ -f $profile ]
+if [ ! -f $profile ]
 then
     echo "Please specify the deployment profile to use, this is normally a file called conf.sh, default is ezd/deploy/conf.sh"
     exit 1

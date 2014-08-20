@@ -1,5 +1,5 @@
 #!/bin/bash
-set -eux
+set -eu
 #Defaults
 export LB_HTTP_CHECK_URL="/"
 export LB_RATELIMIT_AFTER=1024

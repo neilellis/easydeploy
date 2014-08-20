@@ -14,12 +14,12 @@ amount="$1"
 
 if [[ $1 == "min" ]]
 then
-    amoumt=${MIN_INSTANCES}
+    amount=${MIN_INSTANCES}
 fi
 
 if [[ $1 == "max" ]]
 then
-    amoumt=${MAX_INSTANCES}
+    amount=${MAX_INSTANCES}
 fi
 
 if [[ ${amount} -gt ${MAX_INSTANCES} ]]

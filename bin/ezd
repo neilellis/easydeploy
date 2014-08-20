@@ -93,7 +93,7 @@ EOF
 
 profile=ezd/deploy/conf.sh
 e=
-componentModifier=
+envModifier=
 export USE_PARALLEL=
 while getopts "he:p:m:b:P" OPTION
 do
@@ -106,7 +106,7 @@ do
              e=$OPTARG
              ;;
          m)
-             componentModifier=$OPTARG
+             envModifier=$OPTARG
              ;;
          P)
              export USE_PARALLEL=1
@@ -141,9 +141,9 @@ source ${profile}
 [ -f ${env_profile} ] &&  source ${env_profile} || :
 cd - > /dev/null
 
-if [ ! -z "$componentModifier" ]
+if [ ! -z "$envModifier" ]
 then
-    export COMPONENT_MODIFIER="$componentModifier"
+    export $ENVIRONMENT_MODIFIER="$envModifier"
 fi
 
 

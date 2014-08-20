@@ -1,5 +1,11 @@
 #!/bin/bash -eu
 
+deployEnvMod="${1}"
+if [[ ! -z "$ENVIRONMENT_MODIFIER" ]]
+then
+    deployEnvMod="${deployEnvMod}-$ENVIRONMENT_MODIFIER"
+fi
+
 function template_name()  {
  if [[ ! -z "$LB_TARGET_COMPONENT" ]]
     then
@@ -16,58 +22,50 @@ function template_name()  {
         else
             echo "template-${DEPLOY_ENV}-${PROJECT}-${COMPONENT}"
         fi
+
     fi
 }
 
 function mc_name() {
-    if [[ ! -z "$LB_TARGET_COMPONENT" ]]
-    then
-        if [[ ! -z "$COMPONENT_MODIFIER" ]]
-        then
-            echo "${DEPLOY_ENV}-${PROJECT}-${LB_TARGET_COMPONENT}-${COMPONENT_MODIFIER}-lb"
-        else
-            echo "${DEPLOY_ENV}-${PROJECT}-${LB_TARGET_COMPONENT}-lb"
-        fi
-    else
-        if [[ ! -z "$COMPONENT_MODIFIER" ]]
-        then
-            echo "${DEPLOY_ENV}-${PROJECT}-${COMPONENT}-${COMPONENT_MODIFIER}"
-        else
-            echo "${DEPLOY_ENV}-${PROJECT}-${COMPONENT}"
-        fi
-    fi
+    mc_name_for_env "${DEPLOY_ENV}"
+
 }
 
 function mc_name_for_env() {
+    deployEnvMod="${1}"
+    if [[ ! -z "$ENVIRONMENT_MODIFIER" ]]
+    then
+        deployEnvMod="${deployEnvMod}-$ENVIRONMENT_MODIFIER"
+    fi
     if [[ ! -z "$LB_TARGET_COMPONENT" ]]
     then
         if [[ ! -z "$COMPONENT_MODIFIER" ]]
         then
-            echo "${1}-${PROJECT}-${LB_TARGET_COMPONENT}-${COMPONENT_MODIFIER}-lb"
+            echo "${deployEnvMod}-${PROJECT}-${LB_TARGET_COMPONENT}-${COMPONENT_MODIFIER}-lb"
         else
-            echo "${1}-${PROJECT}-${LB_TARGET_COMPONENT}-lb"
+            echo "${deployEnvMod}-${PROJECT}-${LB_TARGET_COMPONENT}-lb"
         fi
     else
         if [[ ! -z "$COMPONENT_MODIFIER" ]]
         then
-            echo "${1}-${PROJECT}-${COMPONENT}-${COMPONENT_MODIFIER}"
+            echo "${deployEnvMod}-${PROJECT}-${COMPONENT}-${COMPONENT_MODIFIER}"
         else
-            echo "${1}-${PROJECT}-${COMPONENT}"
+            echo "${deployEnvMod}-${PROJECT}-${COMPONENT}"
         fi
     fi
 }
 
 function projectMachinePrefix() {
-    echo "${DEPLOY_ENV}-${PROJECT}-"
+    echo "${deployEnvMod}-${PROJECT}-"
 }
 
 
 function targetmc_name() {
         if [[ ! -z "$COMPONENT_MODIFIER" ]]
         then
-            echo "${DEPLOY_ENV}-${PROJECT}-${LB_TARGET_COMPONENT}-${COMPONENT_MODIFIER}"
+            echo "${deployEnvMod}-${PROJECT}-${LB_TARGET_COMPONENT}-${COMPONENT_MODIFIER}"
         else
-            echo "${DEPLOY_ENV}-${PROJECT}-${LB_TARGET_COMPONENT}"
+            echo "${deployEnvMod}-${PROJECT}-${LB_TARGET_COMPONENT}"
         fi
 }
 

@@ -56,28 +56,28 @@ function mc_name_for_env() {
 }
 
 function projectMachinePrefix() {
-deployEnvMod="${DEPLOY_ENV}"
-if [[ ! -z "$ENVIRONMENT_MODIFIER" ]]
-then
-    deployEnvMod="${deployEnvMod}-$ENVIRONMENT_MODIFIER"
-fi
+    deployEnvMod="${DEPLOY_ENV}"
+    if [[ ! -z "$ENVIRONMENT_MODIFIER" ]]
+    then
+        deployEnvMod="${deployEnvMod}-$ENVIRONMENT_MODIFIER"
+    fi
 
     echo "${deployEnvMod}-${PROJECT}-"
 }
 
 
 function targetmc_name() {
-deployEnvMod="${DEPLOY_ENV}"
-if [[ ! -z "$ENVIRONMENT_MODIFIER" ]]
-then
-    deployEnvMod="${deployEnvMod}-$ENVIRONMENT_MODIFIER"
-fi
-        if [[ ! -z "$COMPONENT_MODIFIER" ]]
-        then
-            echo "${deployEnvMod}-${PROJECT}-${LB_TARGET_COMPONENT}-${COMPONENT_MODIFIER}"
-        else
-            echo "${deployEnvMod}-${PROJECT}-${LB_TARGET_COMPONENT}"
-        fi
+    deployEnvMod="${DEPLOY_ENV}"
+    if [[ ! -z "$ENVIRONMENT_MODIFIER" ]]
+    then
+        deployEnvMod="${deployEnvMod}-$ENVIRONMENT_MODIFIER"
+    fi
+    if [[ ! -z "$COMPONENT_MODIFIER" ]]
+    then
+        echo "${deployEnvMod}-${PROJECT}-${LB_TARGET_COMPONENT}-${COMPONENT_MODIFIER}"
+    else
+        echo "${deployEnvMod}-${PROJECT}-${LB_TARGET_COMPONENT}"
+    fi
 }
 
 function sync() {

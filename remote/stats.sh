@@ -40,7 +40,7 @@ function sendVal() {
 
     [[ -z $STATHAT ]] || curl -d "stat=${1}~${HOST},${IP}&email=${STATHAT}&value=${2}" http://api.stathat.com/ez
     
-    if [[ $DEPLOY_ENV != "prod" ]]
+    if [[ $DEPLOY_ENV != prod* ]]
     then
         [[ -z $DDOG ]]  || curl  -X POST -H "Content-type: application/json" -d "{ \"series\" : [{\"metric\":\"ezd.${1}\", \"points\":[[$(date +%s), $2]], \"type\":\"gauge\", \"host\":\"${HOST}-${IP}\", \"tags\":[\"environment:${DEPLOY_ENV}\",\"component:${COMPONENT}\", \"project:${PROJECT}\"]} ] }" "https://app.datadoghq.com/api/v1/series?api_key=${DDOG}"
     fi

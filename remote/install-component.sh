@@ -484,7 +484,7 @@ then
     /etc/init.d/newrelic-sysmond start
 fi
 
-if [[ $DEPLOY_ENV == "prod" ]]  && [[ -f  /home/easydeploy/project/ezd/etc/boundary-token.txt ]]
+if [[ $DEPLOY_ENV == prod* ]]  && [[ -f  /home/easydeploy/project/ezd/etc/boundary-token.txt ]]
 then
     echo "Adding Boundary support"
     curl -s -d "{\"token\":\"$(cat /home/easydeploy/project/ezd/etc/boundary-token.txt)\"}" -H 'Content-Type: application/json' https://premium.boundary.com/agent/install | sh
@@ -492,7 +492,7 @@ fi
 
 sudo apt-get -q install -y dstat
 
-if [[ $DEPLOY_ENV == "prod" ]]  && [[ -f  /home/easydeploy/project/ezd/etc/datadog-api-key.txt ]]
+if [[ $DEPLOY_ENV == prod* ]]  && [[ -f  /home/easydeploy/project/ezd/etc/datadog-api-key.txt ]]
 then
 echo "Installing DataDog agent"
     DD_API_KEY=$(< /home/easydeploy/project/ezd/etc/datadog-api-key.txt) bash -c "$(curl -L https://raw.githubusercontent.com/DataDog/dd-agent/master/packaging/datadog-agent/source/install_agent.sh)" &> /dev/null

@@ -29,7 +29,7 @@ fi
 #fig up
 
 dockerLinks=
-if [[ $DEPLOY_ENV == "prod" ]]  && [[ -f /home/easydeploy/project/ezd/etc/datadog-agent-image.txt ]]
+if [[ $DEPLOY_ENV == prod* ]]  && [[ -f /home/easydeploy/project/ezd/etc/datadog-agent-image.txt ]]
 then
     dockerLinks="${dockerLinks} --link datadog:datadog"
 fi

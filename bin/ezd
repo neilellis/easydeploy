@@ -95,7 +95,7 @@ profile=ezd/deploy/conf.sh
 e=
 componentModifier=
 export USE_PARALLEL=
-while getopts "he:p:b:P" OPTION
+while getopts "he:p:m:b:P" OPTION
 do
      case $OPTION in
          h)

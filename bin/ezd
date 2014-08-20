@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+set -eux
 #Defaults
 export LB_HTTP_CHECK_URL="/"
 export LB_RATELIMIT_AFTER=1024
@@ -92,7 +92,7 @@ EOF
 }
 
 
-profile=ezd/deploy/conf.sh
+profile="$DIR/ezd/deploy/conf.sh"
 e=
 envModifier=
 export USE_PARALLEL=
@@ -137,10 +137,8 @@ then
 fi
 
 env_profile="$DIR/ezd/deploy/${DEPLOY_ENV}/conf.sh"
-cd $DIR > /dev/null
 source "${profile}"
 [ -f ${env_profile} ] &&  source "${env_profile}" || :
-cd - > /dev/null
 
 if [ ! -z "$envModifier" ]
 then

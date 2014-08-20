@@ -32,11 +32,6 @@ function mc_name_for_env() {
     then
         deployEnvMod="${deployEnvMod}-$ENVIRONMENT_MODIFIER"
     fi
-
-    if [[ ! -z "$ENVIRONMENT_MODIFIER" ]]
-    then
-        deployEnvMod="${deployEnvMod}-$ENVIRONMENT_MODIFIER"
-    fi
     if [[ ! -z "$LB_TARGET_COMPONENT" ]]
     then
         if [[ ! -z "$COMPONENT_MODIFIER" ]]

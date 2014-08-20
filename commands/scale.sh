@@ -10,20 +10,31 @@ cd $(dirname $0)
 export MACHINE_NAME=$(mc_name)
 set -eu
 
+amount="$1"
 
-if [ $1 -gt ${MAX_INSTANCES} ]
+if [[ $1 == "min" ]]
+then
+    amoumt=${MIN_INSTANCES}
+fi
+
+if [[ $1 == "max" ]]
+then
+    amoumt=${MAX_INSTANCES}
+fi
+
+if [[ ${amount} -gt ${MAX_INSTANCES} ]]
 then
     echo "Exceeded instance limit of ${MAX_INSTANCES}"
     exit -1
 fi
 
-if [ $1 -lt ${MIN_INSTANCES} ]
+if [[ ${amount} -lt ${MIN_INSTANCES} ]]
 then
     echo "Cannot scale below ${MIN_INSTANCES}"
     exit -1
 fi
 
-../providers/${PROVIDER}/scale.sh $1
+../providers/${PROVIDER}/scale.sh $amount
 
 
 

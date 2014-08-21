@@ -17,8 +17,7 @@ then
 fi
 
 touch /tmp/.restart-in-progress
-iptables -t nat -D OUTPUT -p tcp --dport 1888 -j REDIRECT --to-port 80
-iptables -t nat -D PREROUTING -p tcp --dport 1888 -j REDIRECT --to-port 80
+/home/easydeploy/bin/lb_off.sh
 sleep 60
 supervisorctl stop $(cat /var/easydeploy/share/.config/component):
 docker stop $(docker ps -q)
@@ -46,8 +45,8 @@ do
         sleep 10
     fi
 done
-iptables -t nat -A OUTPUT -p tcp --dport 1888 -j REDIRECT --to-port 80
-iptables -t nat -A PREROUTING -p tcp --dport 1888 -j REDIRECT --to-port 80
+/home/easydeploy/bin/lb_on.sh
+
 
 rm /tmp/.restart-in-progress
 exit 0

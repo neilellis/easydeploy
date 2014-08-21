@@ -11,7 +11,7 @@ then
     for machine in $machines
     do
             sync ${DIR}/*  easydeploy@${machine}:~/project/
-            ssh  -o "StrictHostKeyChecking no" ${USERNAME}@${machine} "sudo chown -R /home/easydeploy/project easydeploy:easydeploy"
+            ssh  -o "StrictHostKeyChecking no" ${USERNAME}@${machine} "sudo chown -R easydeploy:easydeploy /home/easydeploy/project "
             ssh  -o "StrictHostKeyChecking no" easydeploy@${machine} "cd project; docker build . ;"
             ssh  -o "StrictHostKeyChecking no" easyadmin@${machine} "sudo /ezbin/restart-component.sh"
     done

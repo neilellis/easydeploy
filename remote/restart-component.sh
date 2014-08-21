@@ -17,6 +17,9 @@ then
 fi
 
 touch /tmp/.restart-in-progress
+iptables -t nat -D OUTPUT -p tcp --dport 1888 -j REDIRECT --to-port 80
+iptables -t nat -D PREROUTING -p tcp --dport 1888 -j REDIRECT --to-port 80
+sleep 60
 supervisorctl stop $(cat /var/easydeploy/share/.config/component):
 docker stop $(docker ps -q)
 service docker.io stop
@@ -43,5 +46,8 @@ do
         sleep 10
     fi
 done
+iptables -t nat -A OUTPUT -p tcp --dport 1888 -j REDIRECT --to-port 80
+iptables -t nat -A PREROUTING -p tcp --dport 1888 -j REDIRECT --to-port 80
+
 rm /tmp/.restart-in-progress
 exit 0

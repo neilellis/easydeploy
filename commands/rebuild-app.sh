@@ -12,10 +12,10 @@ then
             sync ${DIR}/*  easydeploy@${machine}:~/project/
             ssh  -o "StrictHostKeyChecking no" ${USERNAME}@${machine} "sudo chown -R /home/easydeploy/project easydeploy:easydeploy"
             ssh  -o "StrictHostKeyChecking no" easydeploy@${machine} "cd project; docker build . ;"
-            ssh  -o "StrictHostKeyChecking no" easyadmin@${machine} "supervisorctl restart all"
+            ssh  -o "StrictHostKeyChecking no" ${USERNAME}@${machine} "sudo supervisorctl restart all"
     done
 else
-   ../providers/${PROVIDER}/list-machines-by-ip.sh $(mc_name) | parallel --gnu -P 0  "set -eux; sync ${DIR}/*  easydeploy@{}:~/project/; ssh  -o 'StrictHostKeyChecking no' ${USERNAME}@{} 'sudo chown -R  easydeploy:easydeploy' /home/easydeploy/project;ssh  -o 'StrictHostKeyChecking no' easydeploy@{} 'cd project; docker build .'; ssh  -o 'StrictHostKeyChecking no' easyadmin@{} 'supervisorctl restart ${COMPONENT}:'"
+   ../providers/${PROVIDER}/list-machines-by-ip.sh $(mc_name) | parallel --gnu -P 0  "set -eux; sync ${DIR}/*  easydeploy@{}:~/project/; ssh  -o 'StrictHostKeyChecking no' ${USERNAME}@{} 'sudo chown -R  easydeploy:easydeploy' /home/easydeploy/project;ssh  -o 'StrictHostKeyChecking no' easydeploy@{} 'cd project; docker build .'; ssh  -o 'StrictHostKeyChecking no' ${USERNAME}@{} 'sudo supervisorctl restart ${COMPONENT}:'"
 fi
 
 

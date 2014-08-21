@@ -400,7 +400,8 @@ sudo chmod a+rwx /var/run/docker.sock
 echo "Configuring firewall"
 sudo ufw allow 22    #ssh
 sudo ufw allow 7946  #serf
-sudo ufw allow 17123
+sudo ufw allow 17123 #???
+sudo ufw allow 1888  #status check for lb
 sudo ufw allow 9595  #btsync
 sudo ufw allow from 172.16.0.0/12 to any port 53 #dns from containers
 sudo ufw allow from 172.16.0.0/12 to any port 8125 #dogstatsd from containers
@@ -415,8 +416,8 @@ for port in ${EASYDEPLOY_PORTS} ${EASYDEPLOY_EXTERNAL_PORTS}
 do
     sudo ufw allow ${port}
 done
-#Status port for routers, allows for graceful draining.
 
+#Status port for routers, allows for graceful draining.
 iptables -t nat -A OUTPUT -p tcp --dport 1888 -j REDIRECT --to-port 80
 iptables -t nat -A PREROUTING -p tcp --dport 1888 -j REDIRECT --to-port 80
 

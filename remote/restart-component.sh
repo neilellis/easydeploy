@@ -17,7 +17,7 @@ then
 fi
 
 touch /tmp/.restart-in-progress
-/home/easydeploy/bin/lb_off.sh
+/ezbin/lb_off.sh
 sleep 60
 supervisorctl stop ${COMPONENT}:
 docker stop $(docker ps -q)
@@ -47,7 +47,7 @@ do
     fi
 done
 sleep 30
-/home/easydeploy/bin/lb_on.sh
+/ezbin/lb_on.sh
 
 
 rm /tmp/.restart-in-progress

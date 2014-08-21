@@ -106,6 +106,7 @@ fi
         touch /tmp/.started
         supervisorctl start "$(cat /var/easydeploy/share/.config/component):" || :
         touch /tmp/.discovery-first-run
+        /home/easydeploy/bin/lb_on.sh
     fi
     rm -f /tmp/.initializing-in-progress
     sleep 183

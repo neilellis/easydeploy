@@ -40,7 +40,8 @@ do
     then
         echo "Failed to restart component"
         /ezbin/notify.sh ":fire:" "Rebooting, could not restart component ${COMPONENT} due to supervisorctl statuses: $(supervisorctl status)"
-       reboot
+        reboot
+        exit 0
     else
         sleep 10
     fi

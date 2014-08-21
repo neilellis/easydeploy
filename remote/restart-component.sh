@@ -19,7 +19,7 @@ fi
 touch /tmp/.restart-in-progress
 /home/easydeploy/bin/lb_off.sh
 sleep 60
-supervisorctl stop $(cat /var/easydeploy/share/.config/component):
+supervisorctl stop ${COMPONENT}:
 docker stop $(docker ps -q)
 service docker.io stop
 sleep 10
@@ -29,7 +29,7 @@ sleep 30
 cat /var/easydeploy/share/.config/discovery/all.txt
 sleep 30
 service docker.io start
-supervisorctl start $(cat /var/easydeploy/share/.config/component):
+supervisorctl start ${COMPONENT}:
 
 count=0
 while supervisorctl status | grep -v "RUNNING"
@@ -39,12 +39,13 @@ do
     if (( $count > 30 ))
     then
         echo "Failed to restart component"
-        /ezbin/notify.sh ":fire:" "Rebooting, could not restart component $(cat /ezshare/.config/component) due to supervisorctl statuses: $(supervisorctl status)"
+        /ezbin/notify.sh ":fire:" "Rebooting, could not restart component ${COMPONENT} due to supervisorctl statuses: $(supervisorctl status)"
        reboot
     else
         sleep 10
     fi
 done
+sleep 30
 /home/easydeploy/bin/lb_on.sh
 
 

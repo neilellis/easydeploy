@@ -15,7 +15,7 @@ then
             ssh  -o "StrictHostKeyChecking no" easyadmin@${machine} "supervisorctl restart all"
     done
 else
-   ../providers/${PROVIDER}/list-machines-by-ip.sh $(mc_name) | parallel --gnu -P 0  "sync ${DIR}/*  ${USERNAME}@{}:~/project/; ssh  -o 'StrictHostKeyChecking no' ${USERNAME}@{} 'sudo chown -R /home/easydeploy/project easydeploy:easydeploy';ssh  -o 'StrictHostKeyChecking no' easydeploy@{} 'cd project; docker build .'; ssh  -o 'StrictHostKeyChecking no' easyadmin@{} 'supervisorctl restart all'"
+   ../providers/${PROVIDER}/list-machines-by-ip.sh $(mc_name) | parallel --gnu -P 0  "sync ${DIR}/*  ${USERNAME}@{}:~/project/; ssh  -o 'StrictHostKeyChecking no' ${USERNAME}@{} 'sudo chown -R /home/easydeploy/project easydeploy:easydeploy';ssh  -o 'StrictHostKeyChecking no' easydeploy@{} 'cd project; docker build .'; ssh  -o 'StrictHostKeyChecking no' easyadmin@{} 'supervisorctl restart ${COMPONENT}:'"
 fi
 
 

@@ -86,6 +86,8 @@ create
 scale
 remote-tail
 rebuild
+rebuild-app
+update
 upgrade
 
 EOF

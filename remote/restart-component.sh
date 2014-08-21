@@ -32,7 +32,7 @@ service docker.io start
 supervisorctl start ${COMPONENT}:
 
 count=0
-while supervisorctl status | grep -v "RUNNING"
+while supervisorctl status |  grep -v "EXITED" | grep -v "RUNNING"
 do
     echo "Waiting for supervisor processes to restart"
     count=$(( $count + 1 ))

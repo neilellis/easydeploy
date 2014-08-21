@@ -11,9 +11,9 @@ fi
 
 touch /tmp/.restart-in-progress
 /ezbin/lb_off.sh
-sleep 30
+sleep $1
 supervisorctl restart ${COMPONENT}:
-sleep 30
+sleep $1
 /ezbin/lb_on.sh
 rm /tmp/.restart-in-progress
 exit 0

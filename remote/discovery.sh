@@ -104,7 +104,7 @@ fi
     then
         supervisorctl start logstash-ship || :
         touch /tmp/.started
-        supervisorctl start "$(cat /var/easydeploy/share/.config/component):" || :
+        supervisorctl start "${COMPONENT}:" || :
         touch /tmp/.discovery-first-run
         /home/easydeploy/bin/lb_on.sh
     fi

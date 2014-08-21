@@ -79,3 +79,5 @@ function sync() {
     rsync --rsh="/usr/bin/ssh -o 'StrictHostKeyChecking no' " --quiet --recursive --times --perms --links  --exclude ".Sync*"  "$@"
 }
 
+export -f sync
+

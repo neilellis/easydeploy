@@ -106,8 +106,8 @@ fi
         touch /tmp/.started
         supervisorctl start "${COMPONENT}:" || :
         touch /tmp/.discovery-first-run
-        /home/easydeploy/bin/lb_on.sh
     fi
+    /home/easydeploy/bin/lb_on.sh
     rm -f /tmp/.initializing-in-progress
     sleep 183
 

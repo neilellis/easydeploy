@@ -42,7 +42,7 @@ mkdir -p $dir
 cp /ezlog/* ${dir}
 postmortem > ${dir}/postmortem.log
 cp /var/log/syslog ${dir}
-cp /var/log/upstart/docker.io.log  ${dir}
+cp /var/log/upstart/docker.log  ${dir}
 cp /var/log/supervisor/supervisord.log ${dir}
 tar -zcvf /tmp/postmortem.tgz ${dir}
 

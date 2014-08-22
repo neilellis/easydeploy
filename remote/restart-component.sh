@@ -21,14 +21,14 @@ touch /tmp/.restart-in-progress
 sleep 60
 supervisorctl stop ${COMPONENT}:
 docker stop $(docker ps -a -q)
-service docker.io stop
+service docker stop
 sleep 10
 kill_tree run-docker.sh
 
 sleep 30
 cat /var/easydeploy/share/.config/discovery/all.txt
 sleep 30
-service docker.io start
+service docker start
 supervisorctl start ${COMPONENT}:
 
 count=0

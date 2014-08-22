@@ -363,13 +363,13 @@ then
     echo "Installing Docker"
 #    sudo apt-get install -y docker.io
     curl -sSL https://get.docker.io/ubuntu/ | sudo sh
-    sudo ln -sf /usr/bin/docker.io /usr/local/bin/docker
+#    sudo ln -sf /usr/bin/docker.io /usr/local/bin/docker
     #sudo addgroup worker docker
     sudo addgroup easydeploy docker
     sudo chmod a+rwx /var/run/docker.sock
     sudo chown -R easydeploy:easydeploy /home/easydeploy/
-    grep "limit nofile 65536 65536" /etc/init/docker.io.conf || echo "limit nofile 65536 65536" >> /etc/init/docker.io.conf
-    sudo service docker.io start || true
+    grep "limit nofile 65536 65536" /etc/init/docker.conf || echo "limit nofile 65536 65536" >> /etc/init/docker.conf
+    sudo service docker start || true
     touch /var/easydeploy/.install/docker
 fi
 
@@ -525,12 +525,12 @@ fi
 echo "Starting/Restarting services"
 sudo service supervisor stop || true
 sudo docker kill $(docker ps -q) || true
-sudo timelimit -t 30 -T 5 service docker.io stop || :
+sudo timelimit -t 30 -T 5 service docker stop || :
 [ -e  /tmp/supervisor.sock ] && sudo unlink /tmp/supervisor.sock
 [ -e  /var/run/supervisor.sock  ] && sudo unlink /var/run/supervisor.sock
 sleep 10
 sudo killall docker || true
-sudo service docker.io start
+sudo service docker start
 sudo service supervisor restart || true
 sleep 10
 sudo supervisorctl restart all  || true

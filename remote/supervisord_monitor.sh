@@ -98,17 +98,16 @@ then
 fi
 
 
-if  service docker.io status | grep running &> /dev/null
+if  service docker status | grep running &> /dev/null
 then
     :
 else
     echo  "FAIL: Docker process not running."
     /home/easydeploy/bin/notify.sh ":ghost:" "Docker is dead"
-    /var/log/upstart/docker.io.log
-    [ -f /ezubin/send-file.sh ] && /ezubin/send-file.sh /var/log/upstart/docker.io.log  docker-$(cat /var/easydeploy/share/.config/hostname)-${IP}.log
-    service docker.io restart
+    [ -f /var/log/upstart/docker.log ] && [ -f /ezubin/send-file.sh ] && /ezubin/send-file.sh /var/log/upstart/docker.log  docker-$(cat /var/easydeploy/share/.config/hostname)-${IP}.log
+    service docker restart
     sleep 120
-    ( service docker.io status | grep running &> /dev/null ) || ( /home/easydeploy/bin/notify.sh ":fire:" "Failed to restart docker.io, will reboot" && reboot )
+    ( service docker status | grep running &> /dev/null ) || ( /home/easydeploy/bin/notify.sh ":fire:" "Failed to restart docker, will reboot" && reboot )
     exit 0
 
 fi

@@ -10,7 +10,7 @@ then
 fi
 
 
-if ! service docker.io status | grep running &> /dev/null
+if ! service docker status | grep running &> /dev/null
 then
     echo  "FAIL: Docker process not running."
     exit 1

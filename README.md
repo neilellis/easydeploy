@@ -1,6 +1,8 @@
     ***********************************************************
     ** PRE RELEASE SOFTWARE - DO NOT USE UNLESS YOU IS CRAZY **
     ***********************************************************
+    
+    If you still want to use this, please contact neil@cazcade.com
 
 easydeploy
 ==========
@@ -20,32 +22,34 @@ A set of scripts that allow incredibly easy deployment and running of apps using
 
     ezd -e dev deploy 88.37.2.89
 
-#### Re-image and upgrade multiple machines quickly
+#### Re-image and upgrade multiple machines 
 
     ezd -e dev upgrade
+
+#### Re-buid and deploy your app 
+
+    ezd -e dev rebuild-app
 
 #### Built in (bit torrent) large file syncing
 
     /var/easydeploy/share/sync/global
 
-#### Self updating
-
-Git is polled regularly and when a change occurs the Docker container is rebuilt.
-
 ### Philosophy
 
-Tools to help you, not a straight jacket to trap you; that's why Easydeploy **IS NOT A PaaS** 
+Tools to help you, not a straight jacket to trap you - that's why Easydeploy **IS NOT A PaaS** it's a DevOps tool.
 
 Convention over configuration.
 
-For small deployments, there are many more people needing to do 5-100 cloud server deploys than there are people doing 10,000 server deploys. So we optimize for samller deployments.
+For small deployments - there are many more people needing to do 5-100 cloud server deploys than there are people doing 10,000 server deploys. So we optimize for samller deployments.
 
 
 ## 1. Creating a Project
 
 At present easydeploy only supports Ubuntu/Docker combination.
 
-### The Configuration file ezd.sh
+### The Configuration file ezd/etc/ezd.sh
+
+** Beware this is likely to change as we switch over to using Fig **
 
 This file should contain the following:
 
@@ -87,7 +91,7 @@ You can add your own modules by placing them in the directory ~/.edmods on the m
 
 ## 2. Deployment
 
-### Deployment profile files
+### Deployment configuration files ezd/deploy/conf.sh and ezd/deploy/<env>/conf.sh
 
 Again all variables should be exported, and here are the variables:
 
@@ -105,16 +109,7 @@ Again all variables should be exported, and here are the variables:
     export DO_REGION=4
 
     #Loadbalancers Only
-    export LB_TARGET_USER=snapito
-    export LB_TARGET_ENV=prod
     export LB_TARGET_COMPONENT=api
-    export LB_HTTP_CHECK_URL="/image?url=example.com&freshness=60&key=monitor"
-    export LB_RATELIMIT_AFTER=1024
-    export LB_MAXCONN=1024
-    export LB_MAXCONN_PER=256
-    export LB_CHECK_INTERVAL=5000
-    export LB_TIMEOUT=600s
-    export LB_STATS_PASSWORD=123
 
     #Scaling
     export MIN_INSTANCES=2
@@ -127,6 +122,13 @@ Again all variables should be exported, and here are the variables:
 The first time the script is run it will create the easydeploy ssh keys and tell you the public key. 
 
 Once the keys are created this command will deploy your application to the hostname supplied - run it within a docker container and keep it running using supervisord
+
+#### Blue/Green Deploys
+
+    ezd -m blue -e prod update
+    ezd -m green -e prod update
+    
+The -m option allows the adding of an additional modifier which will affect hostnames but not image names. Allowing multiple environments at the same deploy stage. This is typically to be used for blue/green deployments.
 
 #### File uploads
 
@@ -143,7 +145,7 @@ As part of the deployment process a user called 'easydeploy' will be created on 
 
 #### run-docker.sh
 
-This is the script that is run by supervisord which then runs your docker container, this script should be run by the easydeploy user.
+This is the script that is run by supervisord which then builds and runs your docker container, this script should be run by the easydeploy user.
 
 #### update.sh
 
@@ -177,9 +179,9 @@ To use this you *must* have `multitail` installed (try Homebrew `brew install mu
 
 ### Scale to N Instances
 
-     ezd -e <environment>> scale <N>
+     ezd -e <environment>> scale [<N> | 'max' | 'min']
 
-This will scale the number of instances to N, if the current number of instances is larger they will be destroyed if less then they will be created.
+This will scale the number of instances to N, if the current number of instances is larger they will be destroyed if less then they will be created. The values max and min are synonyms for the MAX_INSTANCES and MIN_INSTANCES configuration values.
 
 
 ### List Instances
@@ -215,14 +217,15 @@ This command should not need to be run regularly as serf will self-heal itself. 
 
 ## 5. Continuous Deployment
 
-Continuous deployment is integral to easydeploy, it will assume that you're trying to do this if you're app has `export EASYDEPLOY_STATE="stateless"` set in the `ezd.sh`file. If it doesn't have this value set then we treat it as stateful and do not attempt to rebuild it automatically. Stateless apps are always preferable as gradually accrued unwanted or unexpected state can be deleted at any time.
+Continuous deployment is integral to easydeploy, it will assume that you're trying to do this if you're app has `export EASYDEPLOY_STATE="stateless"` set in the `ezd.sh`file. Stateless apps are always preferable as gradually accrued unwanted or unexpected state can be deleted at any time.
 
 **TRY TO MAKE ALL YOUR APPS STATELESS, EXCEPT YOUR ACTUAL DATABASE**
 
 Easydeploy manages CD in an incredibly simple manner, using supervisord and a simple shellscript.
 
-HOW DO I REDEPLOY? Is probably what you're asking right now. Well it's simple, the best way to do this is to make sure the process that you run in the docker container responds to a simple Ctrl-C - because that's what easydeploy will send the app when a build has finished. Once your app exits supervisord will restart it in the new docker container. Simple.
+HOW DO I REDEPLOY? 
 
+    ezd -m blue -e prod rebuild-app
 
 
 ## 6. Shared Directories
@@ -278,7 +281,7 @@ This directory is the parent directory of the self deleting directories, anythin
 
 ## A. Examples
 
-More will be forthcoming :-) but for now https://github.com/cazcade/easydeploy-logstash should give you the idea!
+Not yet, sorry.
 
 #easydeploy is powered by#
 

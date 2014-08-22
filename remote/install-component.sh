@@ -417,10 +417,6 @@ do
     sudo ufw allow ${port}
 done
 
-#Status port for routers, allows for graceful draining.
-iptables -t nat -A OUTPUT -p tcp --dport 1888 -j REDIRECT --to-port 80
-iptables -t nat -A PREROUTING -p tcp --dport 1888 -j REDIRECT --to-port 80
-
 yes | sudo ufw enable
 
 

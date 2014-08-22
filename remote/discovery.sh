@@ -105,9 +105,9 @@ fi
         supervisorctl start logstash-ship || :
         touch /tmp/.started
         supervisorctl start "${COMPONENT}:" || :
+        /ezbin/lb_on.sh
         touch /tmp/.discovery-first-run
     fi
-    /home/easydeploy/bin/lb_on.sh
     rm -f /tmp/.initializing-in-progress
     sleep 183
 

@@ -1,6 +1,6 @@
 #!/bin/bash -eux
-/ezbin/health_check.sh > /tmp/health_check_out
-while  !  grep FAIL < /tmp/health_check_out
+/ezbin/health_check.sh > /tmp/hco
+while  ! grep FAIL < /tmp/hco
 do
-  nc -l -p 1888 -q 60 -c "/ezbin/health_check.sh > /tmp/health_check_out ; echo -e \"HTTP/1.1 200 OK\n\n $(</tmp/health_check_out)\""
+  nc -l -p 1888 -c "(/ezbin//health_check.sh > /tmp/hco && cat /tmp/hco) || exit 1"
 done

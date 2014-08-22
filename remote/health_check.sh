@@ -29,13 +29,19 @@ then
 fi
 
 
-
-if (( $(df -h / | tail -1 | tr -s ' ' | cut -d' ' -f5 | tr -d '%') > 90 ))
+rootUsage=$(df -h / | tail -1 | tr -s ' ' | cut -d' ' -f5 | tr -d '%')
+if (( $rootUsage > 80 ))
 then
-    echo "FAIL: Root disk usage at $(df -h / | tail -1 | tr -s ' ' | cut -d' ' -f5)"
     /home/easydeploy/bin/clean.sh
+fi
+
+rootUsage=$(df -h / | tail -1 | tr -s ' ' | cut -d' ' -f5 | tr -d '%')
+if (( $rootUsage > 90 ))
+then
+    echo "FAIL: Root disk usage at $rootUsage"
     exit 1
 fi
+
 
 if [ -f /home/easydeploy/project/ezd/bin/health_check.sh ]
 then

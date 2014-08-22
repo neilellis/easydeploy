@@ -20,7 +20,7 @@ touch /tmp/.restart-in-progress
 /ezbin/lb_off.sh
 sleep 60
 supervisorctl stop ${COMPONENT}:
-docker stop $(docker ps -q)
+docker stop $(docker ps -a -q)
 service docker.io stop
 sleep 10
 kill_tree run-docker.sh

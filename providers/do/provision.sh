@@ -21,13 +21,15 @@ shift $((OPTIND-1))
 
 tugboat create --size=${DO_IMAGE_SIZE} --image=${image} --region=${DO_REGION}  --keys=${DO_KEYS} --private-networking  $1   >&2
 
-while ! tugboat wait $1
+while ! tugboat wait $1 > /dev/null
 do
     sleep 30
 done
 sleep 30
-while ! tugboat ssh -c "true" $1
+while ! tugboat ssh -c "true" $1  > /dev/null
 do
     sleep 60
 done
+
 $(pwd)/list-machines-by-ip.sh $1
+

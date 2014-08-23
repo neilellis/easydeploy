@@ -1,5 +1,4 @@
 #!/bin/bash -eu
-. ./do_common.sh
 trap 'echo FAILED' ERR
 
 if tugboat info_image -n $2

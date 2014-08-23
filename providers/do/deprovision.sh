@@ -1,6 +1,7 @@
 #!/bin/bash -eu
 cd $(dirname $0)
 . ../../commands/common.sh
+. ./do_common.sh
 
 set -eux
 

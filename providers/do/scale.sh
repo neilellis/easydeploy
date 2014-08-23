@@ -2,6 +2,8 @@
 #trap 'echo FAILED' ERR
 cd $(dirname $0)
 . ../../commands/common.sh
+. ./do_common.sh
+
 current=$(echo $(tugboat droplets | grep "^${MACHINE_NAME} " | wc -l))
 export ids=( $(./list-machines-by-id.sh "^${MACHINE_NAME} " ) )
 echo "Currently $current servers requested $1 servers running difference is $(($1 - $current))"

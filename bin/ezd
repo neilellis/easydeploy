@@ -14,6 +14,7 @@ export ENVIRONMENT_MODIFIER=
 export MIN_INSTANCES=0
 export MAX_INSTANCES=10000000
 export BACKUP_HOST=localhost
+export DATACENTER=
 
 #if ! which overcast
 #then

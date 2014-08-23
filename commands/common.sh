@@ -6,16 +6,16 @@ function template_name()  {
     then
         if [[ ! -z "$COMPONENT_MODIFIER" ]]
         then
-            echo "template-${DEPLOY_ENV}-${PROJECT}-${LB_TARGET_COMPONENT}-${COMPONENT_MODIFIER}-lb"
+            echo "template-${DATACENTER}-${DEPLOY_ENV}-${PROJECT}-${LB_TARGET_COMPONENT}-${COMPONENT_MODIFIER}-lb"
         else
-            echo "template-${DEPLOY_ENV}-${PROJECT}-${LB_TARGET_COMPONENT}-lb"
+            echo "template-${DATACENTER}-${DEPLOY_ENV}-${PROJECT}-${LB_TARGET_COMPONENT}-lb"
         fi
     else
         if [[ ! -z "$COMPONENT_MODIFIER" ]]
         then
-            echo "template-${DEPLOY_ENV}-${PROJECT}-${COMPONENT}-${COMPONENT_MODIFIER}"
+            echo "template-${DATACENTER}-${DEPLOY_ENV}-${PROJECT}-${COMPONENT}-${COMPONENT_MODIFIER}"
         else
-            echo "template-${DEPLOY_ENV}-${PROJECT}-${COMPONENT}"
+            echo "template-${DATACENTER}-${DEPLOY_ENV}-${PROJECT}-${COMPONENT}"
         fi
 
     fi
@@ -36,16 +36,16 @@ function mc_name_for_env() {
     then
         if [[ ! -z "$COMPONENT_MODIFIER" ]]
         then
-            echo "${deployEnvMod}-${PROJECT}-${LB_TARGET_COMPONENT}-${COMPONENT_MODIFIER}-lb"
+            echo "${DATACENTER}-${deployEnvMod}-${PROJECT}-${LB_TARGET_COMPONENT}-${COMPONENT_MODIFIER}-lb"
         else
-            echo "${deployEnvMod}-${PROJECT}-${LB_TARGET_COMPONENT}-lb"
+            echo "${DATACENTER}-${deployEnvMod}-${PROJECT}-${LB_TARGET_COMPONENT}-lb"
         fi
     else
         if [[ ! -z "$COMPONENT_MODIFIER" ]]
         then
-            echo "${deployEnvMod}-${PROJECT}-${COMPONENT}-${COMPONENT_MODIFIER}"
+            echo "${DATACENTER}-${deployEnvMod}-${PROJECT}-${COMPONENT}-${COMPONENT_MODIFIER}"
         else
-            echo "${deployEnvMod}-${PROJECT}-${COMPONENT}"
+            echo "${DATACENTER}-${deployEnvMod}-${PROJECT}-${COMPONENT}"
         fi
     fi
 }
@@ -57,7 +57,7 @@ function projectMachinePrefix() {
         deployEnvMod="${deployEnvMod}-$ENVIRONMENT_MODIFIER"
     fi
 
-    echo "${deployEnvMod}-${PROJECT}-"
+    echo "${DATACENTER}-${deployEnvMod}-${PROJECT}-"
 }
 
 
@@ -65,13 +65,13 @@ function targetmc_name() {
     deployEnvMod="${DEPLOY_ENV}"
     if [[ ! -z "$ENVIRONMENT_MODIFIER" ]]
     then
-        deployEnvMod="${deployEnvMod}-$ENVIRONMENT_MODIFIER"
+        deployEnvMod="${DATACENTER}-${deployEnvMod}-$ENVIRONMENT_MODIFIER"
     fi
     if [[ ! -z "$COMPONENT_MODIFIER" ]]
     then
-        echo "${deployEnvMod}-${PROJECT}-${LB_TARGET_COMPONENT}-${COMPONENT_MODIFIER}"
+        echo "${DATACENTER}-${deployEnvMod}-${PROJECT}-${LB_TARGET_COMPONENT}-${COMPONENT_MODIFIER}"
     else
-        echo "${deployEnvMod}-${PROJECT}-${LB_TARGET_COMPONENT}"
+        echo "${DATACENTER}-${deployEnvMod}-${PROJECT}-${LB_TARGET_COMPONENT}"
     fi
 }
 

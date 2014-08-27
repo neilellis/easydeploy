@@ -4,8 +4,7 @@
 
 if [[ -f /home/easydeploy/project/ezd/etc/datadog-api-key.txt ]]
 then
-    DDOG=$(</home/easydeploy/project/ezd/etc/datadog-api-key.txt)
-else
+    DDOG=$( </home/easydeploy/project/ezd/etc/datadog-api-key.txt)
     DDOG=
 fi
 if [[ -f /home/easydeploy/project/ezd/etc/stathat-user.txt ]]
@@ -33,27 +32,27 @@ fi
 
 
 function sendVal() {
-    [[ -z HG ]] || echo "${HG}.${1}.${HOST} $2" | nc carbon.hostedgraphite.com 2003
-    [[ -z HG ]] ||  echo "${HG}.${1}.${IP} $2" | nc carbon.hostedgraphite.com 2003
+    [[ -z $HG ]] || echo "${HG}.${1}.${HOST} $2" | nc carbon.hostedgraphite.com 2003
+    [[ -z $HG ]] ||  echo "${HG}.${1}.${IP} $2" | nc carbon.hostedgraphite.com 2003
 
     [[ -z $LIBRATO ]] || curl -u ${LIBRATO} -d "measure_time=$(date +%s)&source=${HOST}&gauges[0][name]=${1}-agg&gauges[0][value]=${2}&gauges[1][name]=${1}&gauges[1][value]=${2}&gauges[1][source]=${IP}" -X POST https://metrics-api.librato.com/v1/metrics
 
     [[ -z $STATHAT ]] || curl -d "stat=${1}~${HOST},${IP}&email=${STATHAT}&value=${2}" http://api.stathat.com/ez
     
-    if [[ $DEPLOY_ENV != prod* ]]
+    if [[ ${DEPLOY_ENV} != "prod" ]]
     then
-        [[ -z $DDOG ]]  || curl  -X POST -H "Content-type: application/json" -d "{ \"series\" : [{\"metric\":\"ezd.${1}\", \"points\":[[$(date +%s), $2]], \"type\":\"gauge\", \"host\":\"${HOST}-${IP}\", \"tags\":[\"environment:${DEPLOY_ENV}\",\"component:${COMPONENT}\", \"project:${PROJECT}\"]} ] }" "https://app.datadoghq.com/api/v1/series?api_key=${DDOG}"
+        [[ -z ${DDOG} ]]  || curl  -X POST -H "Content-type: application/json" -d "{ \"series\" : [{\"metric\":\"ezd.${1}\", \"points\":[[$(date +%s), $2]], \"type\":\"gauge\", \"host\":\"${HOST}-${IP}\", \"tags\":[\"environment:${DEPLOY_ENV}\",\"component:${COMPONENT}\", \"project:${PROJECT}\"]} ] }" "https://app.datadoghq.com/api/v1/series?api_key=${DDOG}"
     fi
 
 }
 
 function sendCount() {
-    [[ -z HG ]] || echo "${HG}.${1}.${HOST} $2" | nc carbon.hostedgraphite.com 2003
-    [[ -z HG ]] || echo "${HG}.${1}.${IP} $2" | nc carbon.hostedgraphite.com 2003
+    [[ -z $HG ]] || echo "${HG}.${1}.${HOST} $2" | nc carbon.hostedgraphite.com 2003
+    [[ -z $HG ]] || echo "${HG}.${1}.${IP} $2" | nc carbon.hostedgraphite.com 2003
 
     [[ -z $LIBRATO ]] || curl -u ${LIBRATO} -d "measure_time=$(date +%s)&source=${HOST}&counters[0][name]=${1}-agg&counters[0][value]=${2}&counters[1][name]=${1}&counters[1][value]=${2}&counters[1][source]=${IP}" -X POST https://metrics-api.librato.com/v1/metrics
 
-    [[ -z $STATHAT ]] || curl -d "stat=${1}~${HOST},${IP}&email=${STATHAT}&value=${2}" http://api.stathat.com/ez
+    [[ -z ${STATHAT} ]] || curl -d "stat=${1}~${HOST},${IP}&email=${STATHAT}&value=${2}" http://api.stathat.com/ez
 
 }
 

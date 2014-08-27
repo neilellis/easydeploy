@@ -3,7 +3,7 @@
 . /home/easydeploy/bin/env.sh
 
 #
-if  [[ $DEPLOY_ENV == "prod" ]]  && [[ -f  /home/easydeploy/project/ezd/etc/datadog-agent-image.txt ]]  && [[ -f  /home/easydeploy/project/ezd/etc/datadog-api-key.txt ]]
+if  [[ ${DEPLOY_ENV} == "prod" ]]  && [[ -f  /home/easydeploy/project/ezd/etc/datadog-agent-image.txt ]]  && [[ -f  /home/easydeploy/project/ezd/etc/datadog-api-key.txt ]]
 then
     echo "Starting DataDog Agent"
     if ! grep "${HOST}-${IP}" < /etc/dd-agent/datadog.conf

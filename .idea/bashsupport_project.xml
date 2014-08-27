@@ -4,6 +4,7 @@
     <option name="globalVariables">
       <set>
         <option value="COMPONENT" />
+        <option value="DEPLOY_ENV" />
         <option value="PROJECT" />
       </set>
     </option>

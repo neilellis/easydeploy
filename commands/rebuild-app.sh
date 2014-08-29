@@ -11,13 +11,11 @@ then
     for machine in $machines
     do
             sync ${DIR}/*  easydeploy@${machine}:~/project/
-            ssh  -o "StrictHostKeyChecking no" ${USERNAME}@${machine} "sudo chown -R easydeploy:easydeploy /home/easydeploy/project "
-            ssh  -o "StrictHostKeyChecking no" easydeploy@${machine} "cd project; docker build . ;"
-            ssh  -o "StrictHostKeyChecking no" easyadmin@${machine} "sudo reboot"
+            ssh  -o "StrictHostKeyChecking no" easyadmin@${machine} '/usr/bin/supervisorctl restart $(cat /var/easydeploy/share/.config/component):'
             sleep ${1:-120}
     done
 else
-   ../providers/${PROVIDER}/list-machines-by-ip.sh $(mc_name) | parallel --gnu -P 0  "set -eux; sync ${DIR}/*  easydeploy@{}:~/project/; ssh  -o 'StrictHostKeyChecking no' ${USERNAME}@{} 'sudo chown -R easydeploy:easydeploy  /home/easydeploy/project';ssh  -o 'StrictHostKeyChecking no' easydeploy@{} 'cd project; docker build .'; ssh  -o 'StrictHostKeyChecking no' easyadmin@{} 'sudo reboot' "
+   ../providers/${PROVIDER}/list-machines-by-ip.sh $(mc_name) | parallel --gnu -P 0  "set -eux; sync ${DIR}/*  easydeploy@{}:~/project/;  ssh  -o 'StrictHostKeyChecking no' easyadmin@{} '/usr/bin/supervisorctl restart $(cat /var/easydeploy/share/.config/component):' "
 fi
 
 

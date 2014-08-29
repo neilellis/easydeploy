@@ -39,7 +39,7 @@ fi
 function sendVal() {
     [[ -z $HG ]] || echo "${HG}.${1}.${HOST} $2" | nc carbon.hostedgraphite.com 2003
     [[ -z $HG ]] ||  echo "${HG}.${1}.${IP} $2" | nc carbon.hostedgraphite.com 2003
-    [[ -z $STATSD ]] || echo -n "sys.ezd.{$1}.${IP} $2" | nc $STATSD 8125
+    [[ -z $STATSD ]] || echo -n "sys.ezd.{$1}.${IP}:$2|g" | nc $STATSD 8125
     [[ -z $LIBRATO ]] || curl -u ${LIBRATO} -d "measure_time=$(date +%s)&source=${HOST}&gauges[0][name]=${1}-agg&gauges[0][value]=${2}&gauges[1][name]=${1}&gauges[1][value]=${2}&gauges[1][source]=${IP}" -X POST https://metrics-api.librato.com/v1/metrics
 
     [[ -z $STATHAT ]] || curl -d "stat=${1}~${HOST},${IP}&email=${STATHAT}&value=${2}" http://api.stathat.com/ez
@@ -54,7 +54,7 @@ function sendVal() {
 function sendCount() {
     [[ -z $HG ]] || echo "${HG}.${1}.${HOST} $2" | nc carbon.hostedgraphite.com 2003
     [[ -z $HG ]] || echo "${HG}.${1}.${IP} $2" | nc carbon.hostedgraphite.com 2003
-    [[ -z $STATSD ]] || echo -n "sys.ezd.{$1}.${IP} $2|c" | nc $STATSD 8125
+    [[ -z $STATSD ]] || echo -n "sys.ezd.{$1}.${IP}:$2|c" | nc $STATSD 8125
 
     [[ -z $LIBRATO ]] || curl -u ${LIBRATO} -d "measure_time=$(date +%s)&source=${HOST}&counters[0][name]=${1}-agg&counters[0][value]=${2}&counters[1][name]=${1}&counters[1][value]=${2}&counters[1][source]=${IP}" -X POST https://metrics-api.librato.com/v1/metrics
 

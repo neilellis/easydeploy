@@ -50,6 +50,6 @@ fi
 trap "docker stop ${COMPONENT}-${OFFSET} || : ; echo 'SIGTERM' ; exit 0" SIGTERM
 
 
-docker run --name ${COMPONENT}-${1} --rm=true --user="easydeploy" --sig-proxy=true -t -i $DOCKER_ARGS -v /var/easydeploy/container/$1:/var/local -v /var/log/easydeploy/container/$1:/var/log/easydeploy -v /var/easydeploy/share:/var/share -v /var/easydeploy/share:/var/easydeploy/share -e EASYDEPLOY_HOST_IP=${EASYDEPLOY_HOST_IP} --dns ${EASYDEPLOY_HOST_IP} ${dockerLinks} ${DOCKER_IMAGE}:${DEPLOY_ENV} ${DOCKER_COMMANDS}
+docker run --name ${COMPONENT}-${1} --rm=true  --sig-proxy=true -t -i $DOCKER_ARGS -v /var/easydeploy/container/$1:/var/local -v /var/log/easydeploy/container/$1:/var/log/easydeploy -v /var/easydeploy/share:/var/share -v /var/easydeploy/share:/var/easydeploy/share -e EASYDEPLOY_HOST_IP=${EASYDEPLOY_HOST_IP} --dns ${EASYDEPLOY_HOST_IP} ${dockerLinks} ${DOCKER_IMAGE}:${DEPLOY_ENV} ${DOCKER_COMMANDS}
 
 serf tags -set health=failed

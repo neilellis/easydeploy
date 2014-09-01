@@ -145,7 +145,10 @@ fi
 
 #GNU Parallel
 sudo apt-get install -y parallel
-sudo rm /etc/parallel/config
+if [[ -f /etc/parallel/config ]]
+then
+    sudo rm /etc/parallel/config
+fi
 
 #Sync between nodes using btsync
 echo "Installing Bit Torrent sync"

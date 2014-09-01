@@ -119,7 +119,7 @@ EOF
     sudo apt-get -qq update
     sudo apt-get -qq -y upgrade
 
-    sudo apt-get -q install  -y git software-properties-common unattended-upgrades incron fileschanged dialog zip sharutils apparmor monit ntp netcat-traditional mosh
+    sudo apt-get -q install  -y git software-properties-common unattended-upgrades incron fileschanged dialog zip sharutils apparmor monit ntp netcat-traditional mosh parallel
 
     if [[ -n "$INSTALL_JAVA_FLAG" ]]
     then

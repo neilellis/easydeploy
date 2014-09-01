@@ -144,6 +144,9 @@ then
 fi
 
 
+sudo apt-get install -y parallel
+sudo rm /etc/parallel/config
+
 #Sync between nodes using btsync
 echo "Installing Bit Torrent sync"
 if [ ! -f /var/easydeploy/.install/btsync ]

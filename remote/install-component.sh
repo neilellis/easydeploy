@@ -143,7 +143,7 @@ then
     sudo apt-get -q install -y ${EASYDEPLOY_PACKAGES}
 fi
 
-
+#GNU Parallel
 sudo apt-get install -y parallel
 sudo rm /etc/parallel/config
 

@@ -76,7 +76,7 @@ function targetmc_name() {
 }
 
 function sync() {
-    rsync --rsh="/usr/bin/ssh -o 'StrictHostKeyChecking no' " --quiet --recursive --times --perms --links  --exclude ".Sync*"  "$@"
+    rsync --rsh="/usr/bin/ssh -o 'StrictHostKeyChecking no' " --quiet --recursive --times --perms --links --delete-after  --exclude ".Sync*"  "$@"
 }
 
 export -f sync

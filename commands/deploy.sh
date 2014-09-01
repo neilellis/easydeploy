@@ -21,8 +21,8 @@ sync ../remote/  ${USERNAME}@${IP_ADDRESS}:~/
 [ -d ~/.ezd/bin/  ] && sync ~/.ezd/bin/  ${USERNAME}@${IP_ADDRESS}:~/user-scripts/
 sync ${DIR}/*  ${USERNAME}@${IP_ADDRESS}:~/project/
 [ -d ~/.ezd/etc/  ] && sync ~/.ezd/etc/  ${USERNAME}@${IP_ADDRESS}:~/user-config/
-sync ~/.ssh/easydeploy_* ${USERNAME}@${IP_ADDRESS}:~/.ssh/
-sync ~/.ssh/id*.pub ${USERNAME}@${IP_ADDRESS}:~/keys
+scp  -qo "StrictHostKeyChecking no" ~/.ssh/easydeploy_* ${USERNAME}@${IP_ADDRESS}:~/.ssh/
+scp  -qo "StrictHostKeyChecking no" ~/.ssh/id*.pub ${USERNAME}@${IP_ADDRESS}:~/keys
 
 if [ ! -z "$PROVIDER" ]
 then

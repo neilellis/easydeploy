@@ -407,7 +407,7 @@ sudo ufw allow from 172.16.0.0/12 to any port 53 #dns from containers
 sudo ufw allow from 172.16.0.0/12 to any port 8125 #dogstatsd from containers
 if [ ! -z "$EASYDEPLOY_REMOTE_IP_RANGE" ]
 then
-    ufw allow from $EASYDEPLOY_REMOTE_IP_RANGE to any port 60000:60050/udp  # mosh
+    ufw allow allow proto udp from $EASYDEPLOY_REMOTE_IP_RANGE to any port 60000:60050  # mosh
     ufw allow from $EASYDEPLOY_REMOTE_IP_RANGE to any port 8500
     ufw allow from $EASYDEPLOY_REMOTE_IP_RANGE to any port 8400
     ufw allow from $EASYDEPLOY_REMOTE_IP_RANGE to any port 8600

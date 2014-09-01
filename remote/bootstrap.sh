@@ -155,7 +155,7 @@ EOF
 fi
 
 echo "Installing ${COMPONENT} on ${DEPLOY_ENV}"
-bash ./install-component.sh ${COMPONENT} ${DEPLOY_ENV} ${PROJECT} ${BACKUP_HOST} ${MACHINE_NAME} ${TARGET_COMPONENT} ${EASYDEPLOY_REMOTE_IP_RANGE} ${OTHER_ARGS}
+bash ~/remote/install-component.sh ${COMPONENT} ${DEPLOY_ENV} ${PROJECT} ${BACKUP_HOST} ${MACHINE_NAME} ${TARGET_COMPONENT} ${EASYDEPLOY_REMOTE_IP_RANGE} ${OTHER_ARGS}
 rm -f /tmp/.install-in-progress
 echo "**** SUCCESS ****"
 exit 0

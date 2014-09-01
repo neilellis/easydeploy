@@ -42,10 +42,11 @@ if [[ -f ~/ezd/bin/pre-build.sh ]]
 then
     ./ezd/bin/pre-build.sh
 fi
-docker pull ${DOCKER_IMAGE}:${DEPLOY_ENV}
 if [[ -f Dockerfile ]]
 then
     docker build -t ${DOCKER_IMAGE}:${DEPLOY_ENV}   .
+else
+    docker pull ${DOCKER_IMAGE}:${DEPLOY_ENV}
 fi
 
 docker stop ${COMPONENT}-${OFFSET} || :

@@ -90,8 +90,8 @@ fi
 export EASYDEPLOY_HOST_IP=$(</var/easydeploy/share/.config/ip)
 
 
-sudo cp -f *.sh /home/easydeploy/bin
-mv -f bashrc_profile ~/.bashrc_profile
+sudo cp -f ~/remote/*.sh /home/easydeploy/bin
+mv -f ~/remote/bashrc_profile ~/.bashrc_profile
 sudo mv .dockercfg /home/easydeploy/
 [ -d /home/easydeploy/project/ezd/bin/ ] || mkdir -p /home/easydeploy/project/ezd/bin/
 [ -d /home/easydeploy/project/ezd/etc/ ] || mkdir -p /home/easydeploy/project/ezd/etc/
@@ -247,10 +247,10 @@ then
     unzip 0.5.0_linux_amd64.zip
     sudo mv -f serf /usr/local/bin
     [ -d /etc/serf ] || sudo mkdir /etc/serf
-    sudo cp -f serf-event-handler.sh /etc/serf/event-handler.sh
+    sudo cp -f ~/remote/serf-event-handler.sh /etc/serf/event-handler.sh
     [ -d /etc/serf ] || sudo mkdir /etc/serf
     [ -d /etc/serf/handlers ] && sudo rm -rf /etc/serf/handlers
-    sudo cp -rf serf-handlers /etc/serf/handlers
+    sudo cp -rf ~/remote/serf-handlers /etc/serf/handlers
     sudo chmod 755 /etc/serf/handlers/*
     sudo chmod 755 /etc/serf/event-handler.sh
     touch /var/easydeploy/.install/serf
@@ -385,7 +385,7 @@ chmod +x /usr/local/bin/fig
 sudo chown -R easydeploy:easydeploy /var/easydeploy
 
 sudo [ -d /home/easydeploy/modules ] && rm -rf /home/easydeploy/modules
-sudo cp -r $DIR/modules /home/easydeploy
+sudo cp -r ~/remote/modules /home/easydeploy
 sudo chown easydeploy:easydeploy /var/log/easydeploy
 sudo chown easydeploy:easydeploy /var/easydeploy
 
@@ -451,7 +451,7 @@ EOF
 fi
 
 sudo [ -d /home/easydeploy/template ] || mkdir /home/easydeploy/template
-sudo cp template-run.conf /home/easydeploy/template/
+sudo cp ~/remote/template-run.conf /home/easydeploy/template/
 
 
 
@@ -469,13 +469,13 @@ export COMPONENT=${COMPONENT}
 export EASYDEPLOY_HOST_IP=$EASYDEPLOY_HOST_IP
 export DEPLOY_ENV=$DEPLOY_ENV
 export EASYDEPLOY_PROCESS_NUMBER=${EASYDEPLOY_PROCESS_NUMBER}
-envsubst < template-run.conf  > /etc/supervisor/conf.d/run.conf
+envsubst < ~/remote/template-run.conf  > /etc/supervisor/conf.d/run.conf
 EOF
 
 
 
 
-sudo cp rc.local /etc
+sudo cp ~/remote/rc.local /etc
 sudo chmod 755 /etc/rc.local
 sudo /etc/rc.local
 

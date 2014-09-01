@@ -13,14 +13,16 @@ cat  ~/.ssh/easydeploy_id_rsa.pub
 echo "******************************************************************"
 
 [[ -f .ssh/known_hosts ]] && ssh-keygen -R ${IP_ADDRESS} || :
-ssh  -qo "StrictHostKeyChecking no" ${USERNAME}@${IP_ADDRESS} "[ -d ~/.ssh ] || (echo | ssh-keygen -q -t rsa -N '' ) ; mkdir -p ~/modules/ ; mkdir -p /var/easydeploy/share/sync/global/; [ -d ~/keys ] || mkdir ~/keys ;mkdir ~/project/ ; mkdir -p /var/easydeploy/share/deployer/"
+ssh  -qo "StrictHostKeyChecking no" ${USERNAME}@${IP_ADDRESS} "[ -d ~/.ssh ] || (echo | ssh-keygen -q -t rsa -N '' ) ; mkdir -p ~/remote/; mkdir -p ~/modules/ ; mkdir -p /var/easydeploy/share/sync/global/; [ -d ~/keys ] || mkdir ~/keys ;mkdir ~/project/ ; mkdir -p /var/easydeploy/share/deployer/"
 
-sync ../remote/  ${USERNAME}@${IP_ADDRESS}:~/
+sync ../remote/  ${USERNAME}@${IP_ADDRESS}:~/remote
 [ -d ~/.ezd/modules/  ] && sync ~/.ezd/modules/  ${USERNAME}@${IP_ADDRESS}:~/modules/
 [ -f ~/.dockercfg  ] && sync ~/.dockercfg   ${USERNAME}@${IP_ADDRESS}:~/.dockercfg
 [ -d ~/.ezd/bin/  ] && sync ~/.ezd/bin/  ${USERNAME}@${IP_ADDRESS}:~/user-scripts/
-sync ${DIR}/*  ${USERNAME}@${IP_ADDRESS}:~/project/
 [ -d ~/.ezd/etc/  ] && sync ~/.ezd/etc/  ${USERNAME}@${IP_ADDRESS}:~/user-config/
+
+sync ${DIR}/*  ${USERNAME}@${IP_ADDRESS}:~/project/
+
 scp  -qo "StrictHostKeyChecking no" ~/.ssh/easydeploy_* ${USERNAME}@${IP_ADDRESS}:~/.ssh/
 scp  -qo "StrictHostKeyChecking no" ~/.ssh/id*.pub ${USERNAME}@${IP_ADDRESS}:~/keys
 
@@ -34,7 +36,7 @@ fi
 
 scp -qo "StrictHostKeyChecking no" ~/.ezd/serf_key ${USERNAME}@${IP_ADDRESS}:~/serf_key
 
-ssh  -qo "StrictHostKeyChecking no" ${USERNAME}@${IP_ADDRESS} "./bootstrap.sh  ${COMPONENT} ${DEPLOY_ENV} ${PROJECT} ${BACKUP_HOST} $(mc_name)  ${LB_TARGET_COMPONENT:-${COMPONENT}} ${REMOTE_IP_RANGE} \"${APP_ARGS}\" "
+ssh  -qo "StrictHostKeyChecking no" ${USERNAME}@${IP_ADDRESS} "~/remote/bootstrap.sh  ${COMPONENT} ${DEPLOY_ENV} ${PROJECT} ${BACKUP_HOST} $(mc_name)  ${LB_TARGET_COMPONENT:-${COMPONENT}} ${REMOTE_IP_RANGE} \"${APP_ARGS}\" "
 
 
 

@@ -45,11 +45,11 @@ cd
 
 #http://serverfault.com/questions/500764/dpkg-reconfigure-unable-to-re-open-stdin-no-file-or-directory
 export DEBIAN_FRONTEND=noninteractive
-export LANGUAGE=en_US.UTF-8
-export LANG=en_US.UTF-8
-export LC_ALL=en_US.UTF-8
-locale-gen en_US.UTF-8
-dpkg-reconfigure locales
+#export LANGUAGE=en_US.UTF-8
+#export LANG=en_US.UTF-8
+#export LC_ALL=en_US.UTF-8
+#locale-gen en_US.UTF-8
+#dpkg-reconfigure locales
 
 #Optional installation components, to install them set the flag in ~/.ezd/bin/pre-bootstrap.sh or ./ezd/bin/pre-bootstrap.sh
 

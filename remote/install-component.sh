@@ -157,7 +157,9 @@ fi
 echo "Installing Bit Torrent sync"
 if [ ! -f /usr/local/bin/btsync ]
 then
-    curl http://download.getsyncapp.com/endpoint/btsync/os/linux-x64/track/stable > /usr/local/bin/btsync
+    curl http://download.getsyncapp.com/endpoint/btsync/os/linux-x64/track/stable > /tmp/btsync.tgz
+    tar -zxvf /tmp/btsync.tgz
+    mv btsync   /usr/local/bin/btsync
     chmod 755 /usr/local/bin/btsync
     sudo apt-get install -q -y rhash
     export EASYDEPLOY_GLOBAL_SYNC_SECRET="$(cat /home/easydeploy/.ssh/id_rsa | sed -e 's/0/1/g' | rhash --sha512 - | cut -c1-64 )"

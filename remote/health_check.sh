@@ -16,12 +16,6 @@ then
     exit 1
 fi
 
-if ! service btsync status | grep running &> /dev/null
-then
-    echo  "FAIL: Bit Torrent Sync process not running."
-    exit 1
-fi
-
 if ! serf members
 then
     echo  "FAIL: Serf process not working."

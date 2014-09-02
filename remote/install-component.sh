@@ -91,6 +91,7 @@ export EASYDEPLOY_HOST_IP=$(</var/easydeploy/share/.config/ip)
 
 
 sudo cp -f ~/remote/*.sh /home/easydeploy/bin
+sudo cp -f ~/remote/bin ~/bin
 mv -f ~/remote/bashrc_profile ~/.bashrc_profile
 sudo cp -f ~/.dockercfg /home/easydeploy/
 [ -d /home/easydeploy/project/ezd/bin/ ] || mkdir -p /home/easydeploy/project/ezd/bin/

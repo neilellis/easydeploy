@@ -152,22 +152,23 @@ fi
 
 #Sync between nodes using btsync
 echo "Installing Bit Torrent sync"
-if [ ! -f /var/easydeploy/.install/btsync ]
+if [ ! -f /usr/local/bin/btsync ]
 then
-curl http://download.getsyncapp.com/endpoint/btsync/os/linux-x64/track/stable > /usr/local/bin/btsync
-sudo apt-get install -q -y  rhash
-export EASYDEPLOY_GLOBAL_SYNC_SECRET="$(cat /home/easydeploy/.ssh/id_rsa | sed -e 's/0/1/g' | rhash --sha512 - | cut -c1-64 )"
-export EASYDEPLOY_COMPONENT_SYNC_SECRET="$(cat /home/easydeploy/.ssh/id_rsa /var/easydeploy/share/.config/component /var/easydeploy/share/.config/project  /var/easydeploy/share/.config/deploy_env | rhash --sha512 - | cut -c1-64)"
-export EASYDEPLOY_ENV_SYNC_SECRET="$(cat /home/easydeploy/.ssh/id_rsa /var/easydeploy/share/.config/deploy_env /var/easydeploy/share/.config/project | rhash --sha512 - | cut -c1-64)"
+    curl http://download.getsyncapp.com/endpoint/btsync/os/linux-x64/track/stable > /usr/local/bin/btsync
+    chmod 755 /usr/local/bin/btsync
+    sudo apt-get install -q -y rhash
+    export EASYDEPLOY_GLOBAL_SYNC_SECRET="$(cat /home/easydeploy/.ssh/id_rsa | sed -e 's/0/1/g' | rhash --sha512 - | cut -c1-64 )"
+    export EASYDEPLOY_COMPONENT_SYNC_SECRET="$(cat /home/easydeploy/.ssh/id_rsa /var/easydeploy/share/.config/component /var/easydeploy/share/.config/project  /var/easydeploy/share/.config/deploy_env | rhash --sha512 - | cut -c1-64)"
+    export EASYDEPLOY_ENV_SYNC_SECRET="$(cat /home/easydeploy/.ssh/id_rsa /var/easydeploy/share/.config/deploy_env /var/easydeploy/share/.config/project | rhash --sha512 - | cut -c1-64)"
 
-known_hosts="\"localhost\""
-for m in $(cat ~/   machines.txt | cut -d: -f2 | tr '\n' ' ')
-do
-    known_hosts="${known_hosts},\"${m}\""
-done
+    known_hosts="\"localhost\""
+    for m in $(cat ~/   machines.txt | cut -d: -f2 | tr '\n' ' ')
+    do
+        known_hosts="${known_hosts},\"${m}\""
+    done
 
 
-sudo cat >  /etc/btsynconf <<EOF
+sudo cat >  /etc/btsync.conf <<EOF
 {
     "device_name": "$EASYDEPLOY_HOST_IP",
     "listening_port": 9595,
@@ -222,11 +223,8 @@ sudo cat >  /etc/btsynconf <<EOF
     ]
 }
 EOF
-sudo chown -R easydeploy:easydeploy /var/easydeploy/share/sync
-sudo chown -R easydeploy:easydeploy /etc/btsync/default.conf
-sudo chmod 600 /etc/btsync/default.conf
-sudo service btsync start
-touch /var/easydeploy/.install/btsync
+    sudo chown -R easydeploy:easydeploy /var/easydeploy/share/sync
+    sudo chown easydeploy:easydeploy /etc/btsync.conf
 fi
 
 

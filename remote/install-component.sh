@@ -129,7 +129,7 @@ echo ${PROJECT} > /var/easydeploy/share/.config/project
 echo ${BACKUP_HOST} > /var/easydeploy/share/.config/backup_host
 echo ${MACHINE_NAME} > /var/easydeploy/share/.config/hostname
 echo ${TARGET_COMPONENT} > /var/easydeploy/share/.config/target
-cp serf_key  /var/easydeploy/share/.config/serf_key
+cp ~/serf_key  /var/easydeploy/share/.config/serf_key
 sudo chown easydeploy:easydeploy /var/easydeploy/share
 
 [ -f machines.txt ] && cp -f machines.txt  /var/easydeploy/share/.config/machines.txt

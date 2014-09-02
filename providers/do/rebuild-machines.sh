@@ -40,7 +40,7 @@ if [ -z "${USE_PARALLEL}" ]
 then
     droplets | while read m; do rebuild $m $image; done
 else
-    droplets | parallel --gnu -P 0 --bar --no-run-if-empty "rebuild {} $image"
+    droplets | parallel --gnu -P 0 --no-run-if-empty "rebuild {} $image"
 fi
 sleep 30
 

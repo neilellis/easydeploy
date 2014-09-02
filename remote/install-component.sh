@@ -154,27 +154,20 @@ fi
 echo "Installing Bit Torrent sync"
 if [ ! -f /var/easydeploy/.install/btsync ]
 then
+curl http://download.getsyncapp.com/endpoint/btsync/os/linux-x64/track/stable > /usr/local/bin/btsync
 sudo apt-get install -q -y  rhash
-sudo add-apt-repository -y ppa:tuxpoldo/btsync
-sudo apt-get -qq update
-echo "n" | sudo apt-get -q install -y btsync
 export EASYDEPLOY_GLOBAL_SYNC_SECRET="$(cat /home/easydeploy/.ssh/id_rsa | sed -e 's/0/1/g' | rhash --sha512 - | cut -c1-64 )"
 export EASYDEPLOY_COMPONENT_SYNC_SECRET="$(cat /home/easydeploy/.ssh/id_rsa /var/easydeploy/share/.config/component /var/easydeploy/share/.config/project  /var/easydeploy/share/.config/deploy_env | rhash --sha512 - | cut -c1-64)"
 export EASYDEPLOY_ENV_SYNC_SECRET="$(cat /home/easydeploy/.ssh/id_rsa /var/easydeploy/share/.config/deploy_env /var/easydeploy/share/.config/project | rhash --sha512 - | cut -c1-64)"
 
 known_hosts="\"localhost\""
-for m in $(cat machines.txt | cut -d: -f2 | tr '\n' ' ')
+for m in $(cat ~/   machines.txt | cut -d: -f2 | tr '\n' ' ')
 do
     known_hosts="${known_hosts},\"${m}\""
 done
 
 
-sudo cat >  /etc/btsync/default.conf <<EOF
-//!/usr/lib/btsync/btsync-daemon --config
-//
-// in this profile, btsync will run as my user ID
-// DAEMON_UID=easydeploy
-//
+sudo cat >  /etc/btsynconf <<EOF
 {
     "device_name": "$EASYDEPLOY_HOST_IP",
     "listening_port": 9595,
@@ -229,7 +222,6 @@ sudo cat >  /etc/btsync/default.conf <<EOF
     ]
 }
 EOF
-echo 'AUTOSTART="all"' > /etc/default/btsync
 sudo chown -R easydeploy:easydeploy /var/easydeploy/share/sync
 sudo chown -R easydeploy:easydeploy /etc/btsync/default.conf
 sudo chmod 600 /etc/btsync/default.conf

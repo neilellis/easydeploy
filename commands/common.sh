@@ -83,5 +83,22 @@ function sync() {
     done
 }
 
+function rssh() {
+    while ! ssh -qo 'StrictHostKeyChecking no' $@
+    do
+        echo "ssh failed, retrying ...."
+        sleep 20
+    done
+}
+
+function rscp() {
+    while ! scp -qo 'StrictHostKeyChecking no' $@
+    do
+        echo "scp failed, retrying ...."
+        sleep 20
+    done
+}
+
+
 export -f sync
 

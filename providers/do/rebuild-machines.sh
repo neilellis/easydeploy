@@ -1,4 +1,4 @@
-#!/bin/bash -eu
+#!/bin/bash -eux
 cd $(dirname $0)
 . ../../commands/common.sh
 . ./do_common.sh
@@ -31,7 +31,11 @@ function rebuild() {
         sleep 5
      done
     echo
-    tugboat wait -i $1
+    while ! tugboat wait -i $1
+    do
+        echo "Waiting for $1"
+        sleep 60
+    done
 }
 
 export -f rebuild

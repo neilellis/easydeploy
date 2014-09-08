@@ -28,7 +28,7 @@ fi
 
 if [ -f ~/.dockercfg  ]
 then
-    sync ~/.dockercfg   ${USERNAME}@${IP_ADDRESS}:~/.dockercfg
+    rscp ~/.dockercfg   ${USERNAME}@${IP_ADDRESS}:~/.dockercfg
 fi
 
 if [ -d ~/.ezd/bin/  ]

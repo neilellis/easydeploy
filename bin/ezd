@@ -98,8 +98,9 @@ EOF
 profile="$DIR/ezd/deploy/conf.sh"
 e=
 envModifier=
+project=
 export USE_PARALLEL=
-while getopts "he:p:m:b:P" OPTION
+while getopts "he:p:m:b:Pc:" OPTION
 do
      case $OPTION in
          h)
@@ -115,8 +116,11 @@ do
          P)
              export USE_PARALLEL=1
              ;;
-         p)
+         c)
              profile="$OPTARG"
+             ;;
+         p)
+             project="$OPTARG"
              ;;
          ?)
              usage
@@ -146,6 +150,12 @@ source "${profile}"
 if [ ! -z "$envModifier" ]
 then
     export ENVIRONMENT_MODIFIER="$envModifier"
+fi
+
+
+if [ ! -z "$project" ]
+then
+    export PROJECT="$project"
 fi
 
 

@@ -524,6 +524,13 @@ fi
 [ -f  /home/easydeploy/project/ezd/bin/post-install-userland.sh ] && sudo su  easydeploy "cd; bash  /home/easydeploy/project/ezd/bin/post-install-userland.sh"
 
 
+#Pre-cache docker image
+su - easydeploy <<EOF
+cd project
+docker build .
+EOF
+
+
 echo "Starting/Restarting services"
 sudo service supervisor stop || true
 sudo docker kill $(docker ps -q) || true

@@ -347,7 +347,7 @@ echo "${EASYDEPLOY_UPDATE_CRON} root /bin/bash -l -c '/home/easydeploy/bin/updat
 fi
 
 echo $pathline > /etc/cron.d/clean
-echo "*/13 * * * * root /bin/bash -l -c '/home/easydeploy/bin/clean.sh &>  /var/log/easydeploy/clean.log'" >> /etc/cron.d/clean
+echo "0 5 * * * root /bin/bash -l -c '/home/easydeploy/bin/clean.sh &>  /var/log/easydeploy/clean.log'" >> /etc/cron.d/clean
 
 chmod 755 /etc/cron.d/*
 

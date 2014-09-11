@@ -6,7 +6,7 @@ cd $(dirname $0)
 
 if [ -n "$DO_BASE_IMAGE_NAME" ]
 then
-    DO_BASE_IMAGE=$(tugboat info_image -n $DO_BASE_IMAGE_NAME | grep ID: | cut -d: -f2  | tr -d ' ' | tail -1)
+    export DO_BASE_IMAGE=$(tugboat info_image -n $DO_BASE_IMAGE_NAME | grep ID: | cut -d: -f2  | tr -d ' ' | tail -1)
 fi
 
 set -eu

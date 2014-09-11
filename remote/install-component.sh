@@ -527,7 +527,7 @@ fi
 #Pre-cache docker image
 su - easydeploy <<EOF
 cd project
-docker build .
+[ -f Dockerfile ] && docker build . || :
 EOF
 
 

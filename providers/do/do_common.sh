@@ -1,3 +1,7 @@
+cd $(dirname $0)
+DIR=$(pwd)
+cd -
+
 
 set +u
 if [ -n "$DO_BASE_IMAGE_NAME" ]  && [ -z "$DO_BASE_IMAGE" ]
@@ -15,5 +19,5 @@ do
     [[ $KEY == $DATACENTER ]] && export DO_REGION=${VALUE}  || :
 done
 
-alias tugboat="./tugboat_retry.sh"
+alias tugboat="${DIR}/tugboat_retry.sh"
 

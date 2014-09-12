@@ -185,6 +185,9 @@ case $command in
          ../commands/destroy.sh $@
          ;;
      create)
+         ../commands/create.sh $@
+         ;;
+     create-single)
          ../commands/deploy-and-provision.sh $@
          ;;
      cycle)

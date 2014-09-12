@@ -476,7 +476,7 @@ sudo /etc/rc.local
 
 #Monitoring
 echo "Adding Monitoring"
-if [ -f /home/easydeploy/project/ezd/etc/newrelic-license-key.txt ]
+if [ -f /home/easydeploy/project/ezd/etc/newrelic-license-key.txt ] && [ ! -f /var/easydeploy/.install/newrelic ]
 then
     echo "Adding New Relic support"
     sudo echo deb http://apt.newrelic.com/debian/ newrelic non-free >> /etc/apt/sources.list.d/newrelic.list
@@ -485,30 +485,11 @@ then
     sudo apt-get -q install -y newrelic-sysmond
     sudo nrsysmond-config --set license_key=$(cat /home/easydeploy/project/ezd/etc/newrelic-license-key.txt)
     /etc/init.d/newrelic-sysmond start
+    touch /var/easydeploy/.install/newrelic
 fi
 
-if [[ $DEPLOY_ENV == prod* ]]  && [[ -f  /home/easydeploy/project/ezd/etc/boundary-token.txt ]]
-then
-    echo "Adding Boundary support"
-    curl -s -d "{\"token\":\"$(cat /home/easydeploy/project/ezd/etc/boundary-token.txt)\"}" -H 'Content-Type: application/json' https://premium.boundary.com/agent/install | sh
-fi
 
 sudo apt-get -q install -y dstat
-
-if [[ $DEPLOY_ENV == prod* ]]  && [[ -f  /home/easydeploy/project/ezd/etc/datadog-api-key.txt ]]
-then
-echo "Installing DataDog agent"
-    DD_API_KEY=$(< /home/easydeploy/project/ezd/etc/datadog-api-key.txt) bash -c "$(curl -L https://raw.githubusercontent.com/DataDog/dd-agent/master/packaging/datadog-agent/source/install_agent.sh)" &> /dev/null
-fi
-#if [ -f /home/easydeploy/project/ezd/etc/scalyr-license-key.txt ]
-#then
-#    wget https://www.scalyr.com/scalyr-repo/stable/latest/installScalyrRepo.sh
-#    sudo bash ./installScalyrRepo.sh
-#    sudo apt-get install scalyr-agent
-#    sudo scalyr-agent-config --run_as root --write_logs_key -   < /home/easydeploy/project/ezd/etc/scalyr-license-key.txt
-#    cp ~/agentConfig.json  /etc/scalyrAgent/agentConfig.json
-#    sudo scalyr-agent start
-#fi
 
 
 #Security (always the last thing hey!)

@@ -12,7 +12,7 @@ if [ $current -gt $1 ]
 then
     for i in $(seq 0 $(($current - $1 - 1)))
     do
-        $tugboat destroy -c -i $ids[${i}] &
+        $tugboat destroy -c -i ${ids[${i}]} &
     done
 
 elif [ $current -lt $1 ]

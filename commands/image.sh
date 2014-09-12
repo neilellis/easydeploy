@@ -10,17 +10,21 @@ then
     exit -1
 else
     ./deploy.sh ${IP_ADDRESS}
-    export IMAGE=$(../providers/${PROVIDER}/make-image.sh ${MACHINE_NAME} $(template_name) ${IP_ADDRESS} | tail -1)
-    sleep 30
-    ../providers/${PROVIDER}/deprovision.sh ${MACHINE_NAME}
-    if [ $IMAGE == "FAILED" ]
-    then
-        echo "Failed to create image ${MACHINE_NAME}"
-        exit -1
-    else
-        echo "Image created on ${PROVIDER} was ${IMAGE}"
-        exit 0
-    fi
+    export IMAGE=FAILED
+    while  [ "$IMAGE" == "FAILED" ]
+    do
+        export IMAGE=$(../providers/${PROVIDER}/make-image.sh ${MACHINE_NAME} $(template_name) ${IP_ADDRESS} | tail -1)
+        sleep 30
+        ../providers/${PROVIDER}/deprovision.sh ${MACHINE_NAME}
+        if [ $IMAGE == "FAILED" ]
+        then
+            echo "Failed to create image ${MACHINE_NAME}"
+            sleep 60
+        else
+            echo "Image created on ${PROVIDER} was ${IMAGE}"
+            exit 0
+        fi
+    done
 
 fi
 

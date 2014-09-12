@@ -34,5 +34,7 @@ do
     sleep 60
 done
 
+./do_to_cf.sh
+
 $(pwd)/list-machines-by-ip.sh $1
 

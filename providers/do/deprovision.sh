@@ -10,3 +10,6 @@ do
     tugboat destroy -c -i ${id} || echo "Couldn't destroy ${id}"
 done
 
+./do_to_cf.sh
+
+

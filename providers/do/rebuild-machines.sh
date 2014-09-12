@@ -48,5 +48,8 @@ else
 fi
 sleep 30
 
+./do_to_cf.sh
+
+
 
 

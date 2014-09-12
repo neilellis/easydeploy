@@ -7,7 +7,7 @@ set -eu
 while ! ./wire.sh
 do
     ./remote.sh "sudo reboot"
-    echo "Retying to wire"
+    echo "Retrying to wire"
     sleep 60
 done
 

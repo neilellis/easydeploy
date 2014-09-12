@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash -eu
 #trap 'echo FAILED' ERR
 cd $(dirname $0)
 . ../../commands/common.sh

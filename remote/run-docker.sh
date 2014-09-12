@@ -53,6 +53,7 @@ else
     docker pull ${dockerImage}
 fi
 
+docker ps || (sudo service docker restart; sudo service supervisor restart;  exit -1 )
 docker stop ${COMPONENT}-${OFFSET} || :
 docker rm --force ${COMPONENT}-${OFFSET} || :
 trap "docker stop ${COMPONENT}-${OFFSET} || : ; docker rm --force ${COMPONENT}-${OFFSET} || : ; echo 'SIGTERM' ; exit 0" SIGTERM

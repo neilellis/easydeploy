@@ -538,8 +538,7 @@ sudo timelimit -t 30 -T 5 service docker stop || :
 [ -e  /tmp/supervisor.sock ] && sudo unlink /tmp/supervisor.sock
 [ -e  /var/run/supervisor.sock  ] && sudo unlink /var/run/supervisor.sock
 sleep 10
-sudo killall docker || true
-sudo service docker start
+sudo service docker restart
 sudo service supervisor restart || true
 sleep 10
 sudo supervisorctl restart all  || true

@@ -4,7 +4,11 @@ cd $(dirname $0) &> /dev/null
 set -eu
 ./update.sh
 ./scale.sh min
-./wire.sh
+while ! ./wire.sh
+do
+    echo "Retying to wire"
+    sleep 60
+done
 
 
 

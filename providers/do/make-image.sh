@@ -1,4 +1,4 @@
-#!/bin/bash -eu
+#!/bin/bash -eux
 trap 'echo FAILED' ERR
 
 if tugboat info_image -n $2

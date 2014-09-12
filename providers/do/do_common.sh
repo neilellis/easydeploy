@@ -14,3 +14,5 @@ do
     VALUE="${dataCenter##*:}"
     [[ $KEY == $DATACENTER ]] && export DO_REGION=${VALUE}  || :
 done
+
+alias tugboat="./tugboat_retry.sh"

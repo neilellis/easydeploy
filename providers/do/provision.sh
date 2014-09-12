@@ -4,11 +4,6 @@ cd $(dirname $0)
 . ../../commands/common.sh
 . ./do_common.sh
 
-if [ -n "$DO_BASE_IMAGE_NAME" ]
-then
-    export DO_BASE_IMAGE=$(tugboat info_image -n $DO_BASE_IMAGE_NAME | grep ID: | cut -d: -f2  | tr -d ' ' | tail -1)
-fi
-
 set -eu
 image=${DO_BASE_IMAGE}
 

@@ -17,7 +17,7 @@ then
     for i in $(seq $current $(($1 - 1)) )
     do
         echo "Creating new ${MACHINE_NAME}"
-    ../../commands/deploy-and-provision.sh
+        ../../commands/deploy-and-provision.sh
     done
 else
     echo "Nothing to do."

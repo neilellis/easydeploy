@@ -14,7 +14,7 @@ export image=$(tugboat image | grep "^$(template_name) " |  cut -d":" -f2| tr -d
 
 function rebuild() {
     echo "Rebuilding $MACHINE_NAME ($1)"
-    for i in $(seq 1 10)
+    for i in $(seq 1 60)
     do
         if tugboat rebuild -c -k $2 -i $1
          then

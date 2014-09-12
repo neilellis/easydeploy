@@ -19,7 +19,10 @@ error() {
    code=$3
    echo "$1:$2" $3
    set +e
-   [ -f /tmp/.initializing-in-progress ] && rm /tmp/.initializing-in-progress
+   if [ -f /tmp/.initializing-in-progress ]
+   then
+    rm /tmp/.initializing-in-progress
+    fi
    exit $3
 }
 
@@ -114,7 +117,6 @@ fi
 
 }
 
-rm -f /tmp/.initializing-in-progress
 
 (
     flock -n -e 200 || ( /ezbin/notify.sh ":interrobang:" "Discovery is already running, flock failed." && exit 1)

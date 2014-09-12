@@ -513,7 +513,7 @@ echo "Starting/Restarting services"
 #[ -e  /var/run/supervisor.sock  ] && sudo unlink /var/run/supervisor.sock
 #sleep 10
 sudo service docker restart
-sudo service supervisor restart || true
+#sudo service supervisor restart || true
 sudo supervisorctl restart all  || true
 
 

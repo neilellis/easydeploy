@@ -422,7 +422,7 @@ done
 yes | sudo ufw enable
 
 
-if [[ -n "$INSTALL_SQUID_FLAG" ]]
+if [[ -n "$INSTALL_SQUID_FLAG" ]] && [[ ! -f /etc/squid3/squid.conf ]]
 then
     #Squid
     sudo apt-get -q install -y squid3
@@ -470,7 +470,7 @@ EOF
 
 
 
-sudo cp ~/remote/rc.local /etc
+sudo cp -f ~/remote/rc.local /etc
 sudo chmod 755 /etc/rc.local
 sudo /etc/rc.local
 
@@ -503,13 +503,6 @@ fi
 
 [ -f  /home/easydeploy/project/ezd/bin/post-install.sh ] && sudo bash /home/easydeploy/project/ezd/bin/post-install.sh
 [ -f  /home/easydeploy/project/ezd/bin/post-install-userland.sh ] && sudo su  easydeploy "cd; bash  /home/easydeploy/project/ezd/bin/post-install-userland.sh"
-
-
-#Pre-cache docker image
-su - easydeploy <<EOF
-cd project
-[ -f Dockerfile ] && docker build . || :
-EOF
 
 
 echo "Starting/Restarting services"

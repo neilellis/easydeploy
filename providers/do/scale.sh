@@ -14,11 +14,10 @@ then
 
 elif [ $current -lt $1 ]
 then
-    image=$(tugboat info_image -n $(template_name) | grep ID: | cut -d: -f2  | tr -d ' ' | tail -1)
     for i in $(seq $current $(($1 - 1)) )
     do
         echo "Creating new ${MACHINE_NAME}"
-        tugboat create --quiet --size=${DO_IMAGE_SIZE} --image=${image} --region=${DO_REGION}  --keys=${DO_KEYS} --private-networking  $MACHINE_NAME
+    ../../commands/deploy-and-provision.sh
     done
 else
     echo "Nothing to do."

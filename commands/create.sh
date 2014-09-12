@@ -4,6 +4,7 @@ cd $(dirname $0) &> /dev/null
 set -eu
 ./update.sh
 ./scale.sh min
+./wire.sh
 
 
 

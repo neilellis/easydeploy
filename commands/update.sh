@@ -1,4 +1,4 @@
-#!/bin/bash -eux
+#!/bin/bash -eu
 
 cd $(dirname $0) &> /dev/null
 . common.sh

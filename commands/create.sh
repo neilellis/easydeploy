@@ -4,6 +4,7 @@ cd $(dirname $0) &> /dev/null
 set -eu
 ./image.sh
 ./scale.sh min
+./rebuild-machines.sh
 
 
 

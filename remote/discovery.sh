@@ -46,6 +46,7 @@ if  ! serf members &> /dev/null
 then
     echo "Serf agent not running"
     sleep 15
+    rm -f /tmp/.initializing-in-progress
     exit -1
 fi
 
@@ -113,6 +114,7 @@ fi
 
 }
 
+rm -f /tmp/.initializing-in-progress
 
 (
     flock -n -e 200 || ( /ezbin/notify.sh ":interrobang:" "Discovery is already running, flock failed." && exit 1)

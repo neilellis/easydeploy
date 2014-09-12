@@ -19,5 +19,5 @@ do
     [[ $KEY == $DATACENTER ]] && export DO_REGION=${VALUE}  || :
 done
 
-alias tugboat="${DIR}/tugboat_retry.sh"
+export tugboat="${DIR}/tugboat_retry.sh"
 

@@ -10,7 +10,7 @@ echo "Currently $current servers requested $1 servers running difference is $(($
 
 if [ $current -gt $1 ]
 then
-    seq 0 $(($current - $1 - 1))  | (while read i; do echo ${ids[$i]};done) | parallel "tugboat destroy -c -i {}"
+    seq 0 $(($current - $1 - 1))  | (while read i; do echo ${ids[$i]};done) | parallel "$tugboat destroy -c -i {}"
 
 elif [ $current -lt $1 ]
 then

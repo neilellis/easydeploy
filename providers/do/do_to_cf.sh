@@ -29,5 +29,5 @@ function convert() {
 }
 
 
-tugboat droplets | filter | convert
+$tugboat droplets | filter | convert
 

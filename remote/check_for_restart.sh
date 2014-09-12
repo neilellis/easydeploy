@@ -5,13 +5,13 @@ export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/e
 
 if [  -f /tmp/.install-in-progress ]
 then
-    echo "Install in progress."
+    echo "Install in progress"
     exit 0
 fi
 
 if [ -f /tmp/.initializing-in-progress ]
 then
-    echo "Still initialzing component"
+    echo "Still initializing component"
     exit 0
 fi
 

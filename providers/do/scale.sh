@@ -17,7 +17,7 @@ then
 
 elif [ $current -lt $1 ]
 then
-    for i in $(seq $current $(($1 - 1)) )
+    for i in $(seq 0 $(($1 - $current - 1)))
     do
         echo "Creating new ${MACHINE_NAME}"
         ../../commands/deploy-and-provision.sh

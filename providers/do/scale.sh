@@ -4,13 +4,13 @@ cd $(dirname $0)
 . ../../commands/common.sh
 . ./do_common.sh
 
-current=$(echo $(tugboat droplets | grep "^${MACHINE_NAME} " | wc -l))
+current=$(echo $($tugboat droplets | grep "^${MACHINE_NAME} " | wc -l))
 export ids=( $(./list-machines-by-id.sh "^${MACHINE_NAME} " ) )
 echo "Currently $current servers requested $1 servers running difference is $(($1 - $current))"
 
 if [ $current -gt $1 ]
 then
-    seq 0 $(($current - $1 - 1))  | (while read i; do echo ${ids[$i]};done) | parallel "$tugboat destroy -c -i {}"
+    seq 0 $(($current - $1 - 1))  | (while read i; do echo ${ids[$i]};done) | parallel --gnu -P 0 --no-run-if-empty  "$tugboat destroy -c -i {}"
 
 elif [ $current -lt $1 ]
 then

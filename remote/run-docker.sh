@@ -11,8 +11,8 @@ do
 done
 [ -d /var/easydeploy/container/$1 ] || mkdir -p /var/easydeploy/container/$1
 [ -d /var/log/easydeploy/container/$1 ] || mkdir -p /var/log/easydeploy/container/$1
-[ -d /var/log/easydeploy/container/$1/data ] || mkdir -p /var/log/easydeploy/container/$1/data
-chown 9999 /var/log/easydeploy/container/$1/data
+[ -d /var/easydeploy/container/$1/data ] || mkdir -p /var/easydeploy/container/$1/data
+chown 9999 /var/easydeploy/container/$1/data
 
 
 if [ ! -z "$EASYDEPLOY_WAIT_FOR" ]

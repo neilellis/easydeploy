@@ -39,7 +39,7 @@ then
     exit 1
 fi
 
-if (( $(df -h / | tail -1 | tr -s ' ' | cut -d' ' -f5 | tr -d '%') > 90 ))
+if (( $(df -h / | tail -1 | tr -s ' ' | cut -d' ' -f5 | tr -d '%') > 80 ))
 then
     echo "FAIL: Root disk usage at $(df -h / | tail -1 | tr -s ' ' | cut -d' ' -f5)"
     /home/easydeploy/bin/clean.sh

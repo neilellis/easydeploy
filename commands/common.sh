@@ -76,7 +76,7 @@ function targetmc_name() {
 }
 
 function sync() {
-    while ! rsync --rsh="/usr/bin/ssh -o 'StrictHostKeyChecking no' " --quiet --recursive --times --perms --links --delete-after  --exclude ".Sync*"  "$@"
+    while ! rsync --rsh="/usr/bin/ssh -o 'StrictHostKeyChecking no' " --quiet --recursive --checksum --perms --links --delete-after  --exclude ".Sync*"  "$@"
     do
         echo "rsync failed, retrying ...."
         sleep 20

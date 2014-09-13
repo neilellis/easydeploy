@@ -20,7 +20,12 @@ then
     exit 0
 fi
 
-docker rmi $(docker images -a | grep "^<none>" | awk '{print $3}')
+if (( $(df -h / | tail -1 | tr -s ' ' | cut -d' ' -f5 | tr -d '%') > 50 ))
+then
+    echo "FAIL: Root disk usage at $(df -h / | tail -1 | tr -s ' ' | cut -d' ' -f5)"
+    docker rmi $(docker images -a | grep "^<none>" | awk '{print $3}')
+fi
+
 
 if [ -f /home/easydeploy/project/ezd/bin/clean.sh ]
 then

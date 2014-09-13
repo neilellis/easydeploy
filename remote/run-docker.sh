@@ -58,6 +58,6 @@ docker stop ${COMPONENT}-${OFFSET} || :
 docker rm --force ${COMPONENT}-${OFFSET} || :
 trap "docker stop ${COMPONENT}-${OFFSET} || : ; docker rm --force ${COMPONENT}-${OFFSET} || : ; echo 'SIGTERM' ; exit 0" SIGTERM
 
-docker run --name ${COMPONENT}-${1} --rm=true  --sig-proxy=true -t -i $DOCKER_ARGS -v /home/easydeploy/usr/etc/container:/var/easydeploy/etc -v /var/easydeploy/container/$1:/var/local -v /var/log/easydeploy/container/$1:/var/log/easydeploy -v /var/easydeploy/share:/var/share -v /var/easydeploy/share:/var/easydeploy/share -e EASYDEPLOY_HOST_IP=${EASYDEPLOY_HOST_IP} --dns ${EASYDEPLOY_HOST_IP} ${dockerLinks} ${dockerImage} ${DOCKER_COMMANDS}
+docker run --name ${COMPONENT}-${1} --rm=true  --sig-proxy=true -t -i $DOCKER_ARGS -v /home/easydeploy/usr/etc/container:/var/easydeploy/etc -v /var/easydeploy/container/$1:/var/local/share -v /var/log/easydeploy/container/$1:/var/log/easydeploy -v /var/easydeploy/share:/var/share -v /var/easydeploy/share:/var/easydeploy/share -e EASYDEPLOY_HOST_IP=${EASYDEPLOY_HOST_IP} --dns ${EASYDEPLOY_HOST_IP} ${dockerLinks} ${dockerImage} ${DOCKER_COMMANDS}
 
 serf tags -set health=failed

@@ -4,7 +4,7 @@ cd $(dirname $0) &> /dev/null
 . common.sh
 export MACHINE_NAME=$(mc_name)
 export IP_ADDRESS=$(../providers/${PROVIDER}/provision.sh ${MACHINE_NAME} | tail -1)
-if [ $IP_ADDRESS == "FAILED" ]
+if [ "$IP_ADDRESS" == "FAILED" ]
 then
     echo "Failed to provision $MACHINE_NAME"
     exit -1

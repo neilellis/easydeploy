@@ -515,6 +515,10 @@ echo "Starting/Restarting services"
 sudo service docker restart
 #sudo service supervisor restart || true
 sudo supervisorctl restart all  || true
+while supervisorctl status | grep "STARTING"
+do
+    sleep 10
+done
 
 
 echo "Done"

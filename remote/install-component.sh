@@ -178,7 +178,7 @@ sudo cat >  /etc/btsync.conf <<EOF
     "device_name": "$EASYDEPLOY_HOST_IP",
     "listening_port": 9595,
     "check_for_updates": false,
-    "storage_path":"/var/easydeploy/share/sync",
+    "storage_path":"/var/easydeploy/.btsync",
     "use_upnp": false,
     "download_limit": 0,
     "upload_limit": 0,

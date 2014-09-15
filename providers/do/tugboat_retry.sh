@@ -6,6 +6,7 @@ do
         echo "Tugboat error, retrying."
         sleep 60
     else
-        exit $?
+        exit 0
     fi
 done
+exit 1

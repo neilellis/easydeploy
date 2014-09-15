@@ -23,13 +23,11 @@ done
 shift $((OPTIND-1))
 
 $tugboat create --size=${DO_IMAGE_SIZE} --image=${image} --region=${DO_REGION}  --keys=${DO_KEYS} --private-networking  $1   >&2
-
-$tugboat wait $1
-sleep 30
-$tugboat ssh -c "true" $1
-
-
+sleep 60
+id=$($(pwd)/list-machines-by-id.sh $1 | tail -1)
+$tugboat wait -i $id
+sleep 60
+$tugboat ssh -c "true" -i $id
 ./do_to_cf.sh
-
-$(pwd)/list-machines-by-ip.sh $1
+$(pwd)/list-machines-by-ip.sh $1 | tail -1
 

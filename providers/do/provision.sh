@@ -24,9 +24,9 @@ shift $((OPTIND-1))
 
 $tugboat create --size=${DO_IMAGE_SIZE} --image=${image} --region=${DO_REGION}  --keys=${DO_KEYS} --private-networking  $1   >&2
 
-$tugboat wait $1 > /dev/null
+$tugboat wait $1
 sleep 30
-$tugboat ssh -c "true" $1  > /dev/null
+$tugboat ssh -c "true" $1
 
 
 ./do_to_cf.sh

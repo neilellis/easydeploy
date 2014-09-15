@@ -6,6 +6,7 @@ cd $(dirname $0) &> /dev/null
 if [ -z "${USE_PARALLEL}" ]
 then
     machines="$(../providers/${PROVIDER}/list-machines-by-ip.sh $(mc_name) | tr '\n' ' ' | tr -s ' ')"
+    echo "Updating $machines"
     for machine in $machines
     do
             ./deploy.sh $machine

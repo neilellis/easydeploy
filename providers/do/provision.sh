@@ -4,7 +4,7 @@ cd $(dirname $0)
 . ../../commands/common.sh
 . ./do_common.sh
 
-set -eu
+set -eux
 image=${DO_BASE_IMAGE}
 
 

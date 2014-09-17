@@ -24,9 +24,9 @@ fi
 
 
 rootUsage=$(df -h / | tail -1 | tr -s ' ' | cut -d' ' -f5 | tr -d '%')
-if (( $rootUsage > 80 ))
+if (( $rootUsage > 70 ))
 then
-    /home/easydeploy/bin/clean.sh
+    sudo /ezbin/clean.sh || sudo reboot
 fi
 
 rootUsage=$(df -h / | tail -1 | tr -s ' ' | cut -d' ' -f5 | tr -d '%')

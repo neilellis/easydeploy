@@ -36,7 +36,11 @@ function postmortem() {
 
 ip=$(</var/easydeploy/share/.config/ip)
 
-dir=postmortem-$(cat /var/easydeploy/share/.config/hostname)-${ip}-$(date +%s)
+dir=postmortem-$(cat /var/easydeploy/share/.config/hostname)-${ip}
+if [ -d ${dir} ]
+then
+    rm -rf ${dir}
+fi
 cd /eztmp/monthly
 mkdir -p $dir
 cp /ezlog/* ${dir}
@@ -45,7 +49,7 @@ cp /var/log/syslog ${dir}
 cp /var/log/upstart/docker.log  ${dir}
 cp /var/log/supervisor/supervisord.log ${dir}
 tar -zcvf /tmp/postmortem.tgz ${dir}
-
+rm -rf ${dir}
 if [ -f /ezubin/send-file.sh ]
 then
     /ezubin/send-file.sh /tmp/postmortem.tgz $(cat /var/easydeploy/share/.config/hostname)-${ip}-$(date "+%Y-%m-%d-%H-%M").tgz

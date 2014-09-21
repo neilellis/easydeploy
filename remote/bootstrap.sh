@@ -61,9 +61,10 @@ INSTALL_SYSDIG_FLAG=
 
 [[ -f ~/user-scripts/pre-bootstrap.sh ]] &&  . ~/user-scripts/pre-bootstrap.sh || :
 
-if [[ -f /ezbin/clean.sh ]]
+if which docker &> /dev/null
 then
-    /ezbin/clean.sh
+    docker kill $(docker ps -aq)
+    docker rmi $(docker images -a | grep -v "^<none>" | awk '{print $3}')
 fi
 
 if [ ! -f .bootstrapped ]

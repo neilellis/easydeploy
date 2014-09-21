@@ -61,6 +61,11 @@ INSTALL_SYSDIG_FLAG=
 
 [[ -f ~/user-scripts/pre-bootstrap.sh ]] &&  . ~/user-scripts/pre-bootstrap.sh || :
 
+if [[ -f /ezbin/clean.sh ]]
+then
+    /ezbin/clean.sh
+fi
+
 if [ ! -f .bootstrapped ]
 then
 

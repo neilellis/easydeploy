@@ -6,7 +6,7 @@ cd $(dirname $0) &> /dev/null
 . common.sh
 export IP_ADDRESS=$1
 echo "IP = $1"
-set -eu
+set -eux
 
 echo "************************** Public Key ****************************"
 cat  ~/.ssh/easydeploy_id_rsa.pub

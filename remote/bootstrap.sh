@@ -23,7 +23,7 @@ error() {
 
 trap 'error "${BASH_SOURCE}" "${LINENO}" "$?"' ERR
 
-set -eu
+set -eux
 
 export COMPONENT=$1
 shift

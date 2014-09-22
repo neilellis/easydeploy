@@ -63,8 +63,8 @@ INSTALL_SYSDIG_FLAG=
 
 if which docker &> /dev/null
 then
-    docker kill $(docker ps -aq)
-    docker rmi $(docker images -a | grep -v "^<none>" | awk '{print $3}')
+    docker kill $(docker ps -aq) || :
+    docker rmi $(docker images -a | grep -v "^<none>" | awk '{print $3}') || :
 fi
 
 if [ ! -f .bootstrapped ]

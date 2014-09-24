@@ -251,6 +251,66 @@ then
     touch /var/easydeploy/.install/serf
 fi
 
+
+
+consul_server=true
+[ -z "$EASYDEPLOY_ADMIN_SERVER" ] && consul_server=false
+[ -d /etc/consul.d ] || sudo mkdir /etc/consul.d
+cat > /etc/consul.d/server.json <<EOF
+
+{
+  "datacenter": "${DATACENTER}",
+  "data_dir": "/var/consul",
+  "log_level": "INFO",
+  "server": ${consul_server},
+  "domain" : "consul.",
+  "encrypt" :"$(cat /var/easydeploy/share/.config/serf_key)",
+  "leave_on_terminate" : true
+}
+EOF
+
+
+if [ ! -f /var/easydeploy/.install/consul ]
+then
+    echo "Installing consul for service discovery and communication"
+    sudo apt-get install -y unzip
+    [ -f 0.4.0_linux_amd64.zip ] || wget https://dl.bintray.com/mitchellh/consul/0.4.0_linux_amd64.zip
+    unzip 0.4.0_linux_amd64.zip
+    sudo mv -f consul /usr/local/bin
+    touch /var/easydeploy/.install/consul
+fi
+
+
+if [ ! -f 0.4.0_web_ui.zip ]
+then
+    [ -f 0.4.0_web_ui.zip ] || wget https://dl.bintray.com/mitchellh/consul/0.4.0_web_ui.zip
+    mkdir webziptmp
+    unzip -d webziptmp 0.4.0_web_ui.zip
+    rm -rf /usr/local/consul_ui
+    mv webziptmp/dist /usr/local/consul_ui
+    rm -rf webziptmp
+fi
+
+
+ports=( ${EASYDEPLOY_PRIMARY_PORT} ${EASYDEPLOY_PORTS} ${EASYDEPLOY_EXTERNAL_PORTS} )
+if [ ! -z "$ports" ]
+then
+primary_port=${ports[0]}
+cat > /etc/consul.d/component.json <<EOF
+{
+    "service": {
+        "name": "${MACHINE_NAME}",
+        "port": ${primary_port},
+        "check": {
+            "script": "/home/easydeploy/bin/consul_health_check.sh",
+            "interval": "30s"
+        }
+    }
+}
+EOF
+
+fi
+
 sudo apt-get -q install -y dnsutils bind9
 
 cat > /etc/bind/ezd.conf <<EOF
@@ -276,6 +336,15 @@ ezd. IN	SOA	localhost. support.cazcade.com. (
 ezd.     IN      NS	    127.0.0.1
 EOF
 
+  cat > /etc/bind/consul.conf <<EOF
+zone "consul" IN {
+    type forward;
+    forward only;
+    forwarders { 127.0.0.1 port 8600; };
+};
+EOF
+
+
 
 cat > /etc/bind/named.conf.options <<EOF
 options {
@@ -289,6 +358,7 @@ options {
     version "none of your business";
 };
 	include "/etc/bind/ezd.conf";
+	include "/etc/bind/consul.conf";
 EOF
 
 
@@ -404,6 +474,8 @@ sudo ufw allow 7946  #serf
 sudo ufw allow 17123 #???
 sudo ufw allow 1888  #status check for lb
 sudo ufw allow 9595  #btsync
+sudo ufw allow 8301  #consul
+sudo ufw allow 8302  #consul
 sudo ufw allow from 172.16.0.0/12 to any port 53 #dns from containers
 sudo ufw allow from 172.16.0.0/12 to any port 8125 #dogstatsd from containers
 if [ ! -z "$EASYDEPLOY_REMOTE_IP_RANGE" ]

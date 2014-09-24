@@ -34,6 +34,7 @@ function joinSerf() {
     do
        #If the machine is not available don't hang around, move on quickly
        timelimit -t 2 -T 1 -s 2 serf join $i || :
+       timelimit -t 2 -T 1 -s 2 consul join $i || :
     done
 }
 
@@ -63,7 +64,7 @@ then
 fi
 
 #Only bootstrap if we haven't already connected to other machines
-if (( $(serf members | wc -l) < 2 ))
+if (( $(serf members | wc -l) < 2 )) && (( $(consul members | wc -l) < 2 ))
 then
 
         sleep 10

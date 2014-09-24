@@ -1,5 +1,5 @@
 #!/bin/bash
-#This starts the serf agent and forces it to bind to the public IP address
+#This starts the consul agent and forces it to bind to the public IP address
 #this behaviour may change in the future, but for now it makes life easier
 export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/easydeploy/bin:/root/bin
 
@@ -20,4 +20,4 @@ then
 fi
 
 #Assign a node name, bind to the public ip, add relevant tags and the event handlers.
-/usr/local/bin/consul agent $1 -server -ui-dir  /usr/local/consul_ui  -config-dir=/etc/consul.d -node=$(cat /var/easydeploy/share/.config/hostname)-$(/sbin/ifconfig eth0 | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p'| tr '.' '-') -bind=${EASYDEPLOY_HOST_IP} ${client_flag} || (sleep 20 && exit -1)
+/usr/local/bin/consul agent $1 -server -bootstrap-expect 1 -ui-dir  /usr/local/consul_ui  -config-dir=/etc/consul.d -node=$(cat /var/easydeploy/share/.config/hostname)-$(/sbin/ifconfig eth0 | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p'| tr '.' '-') -bind=${EASYDEPLOY_HOST_IP} ${client_flag} || (sleep 20 && exit -1)

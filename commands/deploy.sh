@@ -62,7 +62,7 @@ fi
 
 rscp  ~/.ezd/serf_key ${USERNAME}@${IP_ADDRESS}:~/serf_key
 
-ssh  -qo "StrictHostKeyChecking no" ${USERNAME}@${IP_ADDRESS} "~/remote/bootstrap.sh  ${COMPONENT} ${DEPLOY_ENV} ${PROJECT} ${BACKUP_HOST} $(mc_name)  ${LB_TARGET_COMPONENT:-${COMPONENT}} ${REMOTE_IP_RANGE} \"${APP_ARGS}\" "
+ssh  -qo "StrictHostKeyChecking no" ${USERNAME}@${IP_ADDRESS} "~/remote/bootstrap.sh ${DATACENTER} ${COMPONENT} ${DEPLOY_ENV} ${PROJECT} ${BACKUP_HOST} $(mc_name)  ${LB_TARGET_COMPONENT:-${COMPONENT}} ${REMOTE_IP_RANGE} \"${APP_ARGS}\" "
 
 
 

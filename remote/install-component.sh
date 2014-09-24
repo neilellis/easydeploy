@@ -20,6 +20,8 @@ DIR=$(pwd)
 
 
 echo "Setting defaults"
+export  DATACENTER=$1
+shift
 export COMPONENT=$1
 shift
 export DEPLOY_ENV=$1
@@ -474,10 +476,11 @@ sudo ufw allow 7946  #serf
 sudo ufw allow 17123 #???
 sudo ufw allow 1888  #status check for lb
 sudo ufw allow 9595  #btsync
+sudo ufw allow 8300  #consul
 sudo ufw allow 8301  #consul
 sudo ufw allow 8302  #consul
 sudo ufw allow from 172.16.0.0/12 to any port 53 #dns from containers
-sudo ufw allow from 172.16.0.0/12 to any port 8125 #dogstatsd from containers
+sudo ufw allow from 172.16.0.0/12 to any port 8125 #statsd from containers
 if [ ! -z "$EASYDEPLOY_REMOTE_IP_RANGE" ]
 then
     ufw allow  proto udp from $EASYDEPLOY_REMOTE_IP_RANGE to any port 60000:60050  # mosh

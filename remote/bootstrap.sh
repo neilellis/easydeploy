@@ -25,6 +25,8 @@ trap 'error "${BASH_SOURCE}" "${LINENO}" "$?"' ERR
 
 set -eux
 
+export DATACENTER=$1
+shift
 export COMPONENT=$1
 shift
 export DEPLOY_ENV=$1
@@ -161,7 +163,7 @@ EOF
 fi
 
 echo "Installing ${COMPONENT} on ${DEPLOY_ENV}"
-bash ~/remote/install-component.sh ${COMPONENT} ${DEPLOY_ENV} ${PROJECT} ${BACKUP_HOST} ${MACHINE_NAME} ${TARGET_COMPONENT} ${EASYDEPLOY_REMOTE_IP_RANGE} ${OTHER_ARGS}
+bash ~/remote/install-component.sh ${DATACENTER} ${COMPONENT} ${DEPLOY_ENV} ${PROJECT} ${BACKUP_HOST} ${MACHINE_NAME} ${TARGET_COMPONENT} ${EASYDEPLOY_REMOTE_IP_RANGE} ${OTHER_ARGS}
 rm -f /tmp/.install-in-progress
 echo "**** SUCCESS ****"
 exit 0

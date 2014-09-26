@@ -22,7 +22,7 @@ do
 done
 shift $((OPTIND-1))
 
-$tugboat create --size=${DO_IMAGE_SIZE} --image=${image} --region=${DO_REGION}  --keys=${DO_KEYS} --private-networking  $1   >&2
+$tugboat create --size=${DO_IMAGE_SIZE} --image=${image} --region=${DO_REGION}  --keys=${DO_KEYS}  $1   >&2
 sleep 60
 id=$($(pwd)/list-machines-by-id.sh $1 | tail -1)
 $tugboat wait -i $id

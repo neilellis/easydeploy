@@ -63,11 +63,14 @@ INSTALL_SYSDIG_FLAG=
 
 [[ -f ~/user-scripts/pre-bootstrap.sh ]] &&  . ~/user-scripts/pre-bootstrap.sh || :
 
-if which docker &> /dev/null
-then
-    docker kill $(docker ps -aq) || :
-    docker rmi $(docker images -a | grep -v "^<none>" | awk '{print $3}') || :
-fi
+
+#Missing
+echo "easydeploy ALL=(ALL:ALL) NOPASSWD: /usr/local/bin/weave" > /etc/sudoers.d/easydeploy
+echo "easyadmin	 ALL=(ALL:ALL) NOPASSWD: /usr/bin/supervisorctl, /bin/su easydeploy, /bin/kill, /sbin/shutdown, /sbin/reboot, /bin/ls, /ezbin/*,  /ezubin/*, /usr/bin/unattended-upgrade"  > /etc/sudoers.d/easyadmin
+sudo apt-get -q -y install jq conntrack
+
+#End missing
+
 
 if [ ! -f .bootstrapped ]
 then
@@ -115,7 +118,8 @@ EOF
     addNewUser easydeploy
     addNewUser easyadmin
 
-    echo "easyadmin	ALL=(ALL:ALL) NOPASSWD: /usr/bin/supervisorctl, /bin/su easydeploy, /bin/kill, /sbin/shutdown, /sbin/reboot, /bin/ls, /ezbin/*, /ezubin/*" > /etc/sudoers.d/easyadmin
+    echo "easyadmin	ALL=(ALL:ALL) NOPASSWD: /usr/bin/supervisorctl, /bin/su easydeploy, /bin/kill, /sbin/shutdown, /sbin/reboot, /bin/ls, /ezbin/*,  /ezubin/*, /usr/bin/unattended-upgrade"  > /etc/sudoers.d/easyadmin
+    echo "easydeploy ALL=(ALL:ALL) NOPASSWD: /usr/local/bin/weave" > /etc/sudoers.d/easydeploy
 
     chmod 0440 /etc/sudoers.d/easyadmin
 
@@ -127,7 +131,7 @@ EOF
     sudo apt-get -qq update
     sudo apt-get -qq -y upgrade
 
-    sudo apt-get -q install  -y git software-properties-common unattended-upgrades incron fileschanged dialog zip sharutils apparmor monit ntp netcat-traditional mosh parallel
+    sudo apt-get -q install  -y git software-properties-common unattended-upgrades incron fileschanged dialog zip sharutils apparmor monit ntp netcat-traditional mosh parallel jq ethtool conntrack
 
     if [[ -n "$INSTALL_JAVA_FLAG" ]]
     then

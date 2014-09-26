@@ -139,6 +139,12 @@ sudo chown easydeploy:easydeploy /var/easydeploy/share
 
 [ -f machines.txt ] && cp -f machines.txt  /var/easydeploy/share/.config/machines.txt
 
+if which docker &> /dev/null && [[ $EASYDEPLOY_STATE == "stateless" ]]
+then
+    docker kill $(docker ps -aq) || :
+    docker rmi $(docker images -a | grep -v "^<none>" | awk '{print $3}') || :
+fi
+
 
 #Install additional host packages, try to avoid that and keep them in
 #the Dockerfile where possible.
@@ -411,6 +417,8 @@ echo $pathline > /etc/cron.d/restart
 echo "*/13 * * * * root /bin/bash -l -c '/home/easydeploy/bin/check_for_restart.sh &>  /var/log/easydeploy/restart.log'" >> /etc/cron.d/restart
 echo $pathline > /etc/cron.d/backup
 echo "7 * * * * easydeploy /bin/bash -l -c '/home/easydeploy/bin/backup.sh &>  /var/log/easydeploy/backup.log'" >> /etc/cron.d/backup
+echo $pathline > /etc/cron.d/security
+echo "0 */4 * * * root /bin/bash -l -c '/usr/bin/unattended-upgrade &>  /var/log/easydeploy/security-update.log'" >> /etc/cron.d/security
 
 if [[ ! -z "${EASYDEPLOY_UPDATE_CRON}" ]]
 then
@@ -446,8 +454,22 @@ then
     touch /var/easydeploy/.install/docker
 fi
 
-curl -L https://github.com/docker/fig/releases/download/0.5.2/linux > /usr/local/bin/fig
-chmod +x /usr/local/bin/fig
+sudo curl https://raw.githubusercontent.com/zettio/weave/master/weaver/docker-ns > /usr/local/bin/docker-ns
+sudo curl https://raw.githubusercontent.com/dpw/weave/87_multicast_route/weaver/weave > /usr/local/bin/weave
+sudo chmod +x /usr/local/bin/docker-ns
+sudo chmod a+x /usr/local/bin/weave
+
+if [ ! -f /usr/local/bin/weave ]
+then
+#    sudo wget -O /usr/local/bin/weave  https://raw.githubusercontent.com/zettio/weave/master/weaver/weave
+    sudo chmod a+x /usr/local/bin/weave
+fi
+
+if [ ! -f /usr/local/bin/fig ]
+then
+    sudo curl -L https://github.com/docker/fig/releases/download/0.5.2/linux > /usr/local/bin/fig
+    sudo chmod +x /usr/local/bin/fig
+fi
 
 sudo chown -R easydeploy:easydeploy /var/easydeploy
 
@@ -479,6 +501,8 @@ sudo ufw allow 9595  #btsync
 sudo ufw allow 8300  #consul
 sudo ufw allow 8301  #consul
 sudo ufw allow 8302  #consul
+sudo ufw allow 6783  #weave
+sudo ufw allow 37582 #weave
 sudo ufw allow from 172.16.0.0/12 to any port 53 #dns from containers
 sudo ufw allow from 172.16.0.0/12 to any port 8125 #statsd from containers
 if [ ! -z "$EASYDEPLOY_REMOTE_IP_RANGE" ]
@@ -564,7 +588,10 @@ then
 fi
 
 
-sudo apt-get -q install -y dstat
+if ! which dstat
+then
+    sudo apt-get -q install -y dstat
+fi
 
 
 #Security (always the last thing hey!)

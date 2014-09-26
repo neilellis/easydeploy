@@ -7,7 +7,7 @@ then
     if ! sudo su - easydeploy -c "timelimit -t300 -T5 bash /home/easydeploy/project/ezd/bin/health_check.sh &> /tmp/.health.txt"
     then
         cat /tmp/.health.txt | tail -2
-        exit 2
+        exit 1
     fi
 fi
 
@@ -39,12 +39,26 @@ then
     exit 1
 fi
 
+if (( $(df -h / | tail -1 | tr -s ' ' | cut -d' ' -f5 | tr -d '%') > 90 ))
+then
+    echo "FAIL: Root disk usage at $(df -h / | tail -1 | tr -s ' ' | cut -d' ' -f5)"
+    /home/easydeploy/bin/clean.sh || :
+    exit 2
+fi
+
 if (( $(df -h / | tail -1 | tr -s ' ' | cut -d' ' -f5 | tr -d '%') > 80 ))
 then
     echo "FAIL: Root disk usage at $(df -h / | tail -1 | tr -s ' ' | cut -d' ' -f5)"
-    /home/easydeploy/bin/clean.sh
+    /home/easydeploy/bin/clean.sh || :
     exit 1
 fi
+
+if (( $(df -h / | tail -1 | tr -s ' ' | cut -d' ' -f5 | tr -d '%') > 90 ))
+then
+    echo "FAIL: Root disk usage at $(df -h / | tail -1 | tr -s ' ' | cut -d' ' -f5)"
+    exit 2
+fi
+
 
 echo "OK"
 exit 0

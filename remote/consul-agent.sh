@@ -15,7 +15,7 @@ export DEPLOY_ENV=$(cat /var/easydeploy/share/.config/deploy_env)
 
 client_flag=-client=127.0.0.1
 bootstrap_flag=
-if [ -n  "$EASYDEPLOY_ADMIN_SERVER" ]
+if [ -z  "$EASYDEPLOY_ADMIN_SERVER" ]
 then
 #    client_flag=-client=${EASYDEPLOY_HOST_IP}
     :
@@ -24,4 +24,4 @@ else
 fi
 
 #Assign a node name, bind to the public ip, add relevant tags and the event handlers.
-/usr/local/bin/consul agent $1 -server $bootstrap_flag -ui-dir  /usr/local/consul_ui  -config-dir=/etc/consul.d -node=$(cat /var/easydeploy/share/.config/hostname)-$(/sbin/ifconfig eth0 | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p'| tr '.' '-') -bind=${EASYDEPLOY_HOST_IP} ${client_flag} || (sleep 20 && exit -1)
+/usr/local/bin/consul agent $1 -server $bootstrap_flag -ui-dir  /usr/local/consul_ui  -config-dir=/etc/consul.d -data-dir=/tmp -node=$(cat /var/easydeploy/share/.config/hostname)-$(/sbin/ifconfig eth0 | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p'| tr '.' '-') -bind=${EASYDEPLOY_HOST_IP} ${client_flag} || (sleep 20 && exit -1)

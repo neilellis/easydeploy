@@ -11,7 +11,7 @@ then
 fi
 
 $tugboat ssh --ssh-user=${USERNAME} -q -c "sudo poweroff" $1  >&2
-while ! tugboat wait -s off $1
+while ! tugboat wait -s off $1  >&2
 do
     echo "Waiting for poweroff." >&2
     sleep 5
@@ -25,4 +25,4 @@ do
     echo "Waiting for machine to restart." >&2
     sleep 5
 done
-$tugboat info_image -n $2 | grep "ID:" | cut -d':' -f2 | tr -d ' '
+$tugboat info_image -n $2 | grep "ID:" | cut -d':' -f2 | tr -d ' '  || echo "FAILED"

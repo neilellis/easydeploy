@@ -3,7 +3,7 @@ cd $(dirname $0)
 . ../../commands/common.sh
 . ./do_common.sh
 
-trap 'echo FAILED' ERR
+trap 'echo error "${BASH_SOURCE}" "${LINENO}" "$?" >&2; echo FAILED' ERR
 
 if $tugboat info_image -n $2
 then

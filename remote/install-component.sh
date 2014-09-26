@@ -503,8 +503,12 @@ sudo ufw allow 8301  #consul
 sudo ufw allow 8302  #consul
 sudo ufw allow 6783  #weave
 sudo ufw allow 37582 #weave
-sudo ufw allow from 172.16.0.0/12 to any port 53 #dns from containers
-sudo ufw allow from 172.16.0.0/12 to any port 8125 #statsd from containers
+sudo ufw allow from 172.16.0.0/12  #docker network
+sudo ufw allow from 10.0.0.0/8     #weave network
+
+#sudo ufw allow from 172.16.0.0/12 to any port 53 #dns from containers
+#sudo ufw allow from 172.16.0.0/12 to any port 8125 #statsd from containers
+
 if [ ! -z "$EASYDEPLOY_REMOTE_IP_RANGE" ]
 then
     ufw allow  proto udp from $EASYDEPLOY_REMOTE_IP_RANGE to any port 60000:60050  # mosh

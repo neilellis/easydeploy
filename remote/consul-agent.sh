@@ -24,6 +24,6 @@ else
 fi
 
 #Assign a node name, bind to the public ip, add relevant tags and the event handlers.
-mkdir -p /var/easydeploy/.consul_state
+[ -d /var/easydeploy/.consul_state ] || mkdir -p /var/easydeploy/.consul_state
 /usr/local/bin/consul agent $1 -server $bootstrap_flag -ui-dir  /usr/local/consul_ui  -config-dir=/etc/consul.d
  -data-dir=/var/easydeploy/.consul_state -node=$(cat /var/easydeploy/share/.config/hostname)-$(/sbin/ifconfig eth0 | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p'| tr '.' '-') -bind=${EASYDEPLOY_HOST_IP} ${client_flag} || (sleep 20 && exit -1)

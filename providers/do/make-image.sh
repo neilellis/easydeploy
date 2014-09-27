@@ -10,7 +10,7 @@ then
     $tugboat destroy_image -c -n $2  >&2
 fi
 
-$tugboat ssh --ssh-user=${USERNAME} -q -c "sudo poweroff" $1  >&2
+$tugboat ssh --ssh-user=${USERNAME} -q --command="sudo poweroff" $1  >&2
 while ! tugboat wait -s off $1  >&2
 do
     echo "Waiting for poweroff." >&2

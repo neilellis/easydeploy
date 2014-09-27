@@ -268,7 +268,7 @@ cat > /etc/consul.d/server.json <<EOF
 
 {
   "datacenter": "${DATACENTER}",
-  "data_dir": "/var/consul",
+  "data_dir": "/var/easydeploy/.consul",
   "log_level": "INFO",
   "bootstrap_expect": 3,
   "rejoin_after_leave" : true,

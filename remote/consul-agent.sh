@@ -18,5 +18,5 @@ client_flag=-client=127.0.0.1
 
 #Assign a node name, bind to the public ip, add relevant tags and the event handlers.
 [ -d /var/easydeploy/.consul_state ] || mkdir -p /var/easydeploy/.consul_state
-/usr/local/bin/consul agent -bootstrap-expect 3 -server -ui-dir  /usr/local/consul_ui  -config-dir=/etc/consul.d
- -data-dir=/var/easydeploy/.consul_state -node=${MACHINE_NAME}-${EASYDEPLOY_HOST_IP}  -advertise=${EASYDEPLOY_HOST_IP} -bind=${EASYDEPLOY_HOST_IP} -rejoin ${client_flag} || (sleep 20 && exit -1)
+/usr/local/bin/consul agent -bootstrap-expect 3 -server -ui-dir  /usr/local/consul_ui  -config-dir /etc/consul.d
+ -data-dir /var/easydeploy/.consul_state -node ${MACHINE_NAME}-${EASYDEPLOY_HOST_IP}  -advertise ${EASYDEPLOY_HOST_IP} -bind=${EASYDEPLOY_HOST_IP} -rejoin ${client_flag} || (sleep 20 && exit -1)

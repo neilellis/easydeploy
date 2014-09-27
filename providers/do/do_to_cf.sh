@@ -8,7 +8,7 @@ function filter() {
 	while read -r line
 	do
 		mc=$(echo $line | cut -d' ' -f1)
-		if echo $mc  | grep "${MACHINE_NAME}$" &> /dev/null && echo $mc | grep -v 'template-' &> /dev/null
+		if echo $mc  | grep "$(mc_name)$" &> /dev/null && echo $mc | grep -v 'template-' &> /dev/null
 		then
 			echo "$line"
         fi

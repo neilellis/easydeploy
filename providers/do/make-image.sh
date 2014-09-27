@@ -5,7 +5,7 @@ cd $(dirname $0)
 
 trap 'echo error "${BASH_SOURCE}" "${LINENO}" "$?" >&2; echo FAILED' ERR
 
-if $tugboat info_image -n $2  >&2
+if tugboat info_image -n $2  >&2
 then
     $tugboat destroy_image -c -n $2  >&2
 fi

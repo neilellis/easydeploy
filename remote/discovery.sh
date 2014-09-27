@@ -64,7 +64,7 @@ then
 fi
 
 #Only bootstrap if we haven't already connected to other machines
-if (( $(serf members | wc -l) < 2 )) && (( $(consul members | wc -l) < 2 ))
+if (( $(serf members | wc -l) < 4 )) || (( $(consul members | wc -l) < 4 ))
 then
 
         sleep 10

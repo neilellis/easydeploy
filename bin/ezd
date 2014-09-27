@@ -199,6 +199,10 @@ case $command in
      rebuild-app)
          ../commands/rebuild-app.sh $@
          ;;
+     recreate)
+         ../commands/recreate.sh $@
+         ;;
+
      release)
          ../commands/release.sh $@
          ;;

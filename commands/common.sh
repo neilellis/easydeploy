@@ -100,5 +100,7 @@ function rscp() {
 }
 
 
+export MACHINE_NAME=$(mc_name)
+
 export -f sync
 

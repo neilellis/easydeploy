@@ -274,7 +274,6 @@ cat > /etc/consul.d/server.json <<EOF
   "rejoin_after_leave" : true,
   "leave_on_terminate" : true,
   "server": ${consul_server},
-  "node_name":"${MACHINE_NAME}",
   "domain" : "consul.",
   "encrypt" :"$(cat /var/easydeploy/share/.config/serf_key)",
   "leave_on_terminate" : true

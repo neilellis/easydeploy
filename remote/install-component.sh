@@ -270,7 +270,11 @@ cat > /etc/consul.d/server.json <<EOF
   "datacenter": "${DATACENTER}",
   "data_dir": "/var/consul",
   "log_level": "INFO",
+  "bootstrap_expect": 3,
+  "rejoin_after_leave" : true,
+  "leave_on_terminate" : true,
   "server": ${consul_server},
+  "node_name":"${MACHINE_NAME}",
   "domain" : "consul.",
   "encrypt" :"$(cat /var/easydeploy/share/.config/serf_key)",
   "leave_on_terminate" : true

@@ -14,14 +14,6 @@ export DEPLOY_ENV=$(cat /var/easydeploy/share/.config/deploy_env)
 [ -d /var/consul ] || mkdir /var/consul
 
 client_flag=-client=127.0.0.1
-bootstrap_flag=
-if [ -z  "$EASYDEPLOY_ADMIN_SERVER" ]
-then
-#    client_flag=-client=${EASYDEPLOY_HOST_IP}
-    :
-else
-    bootstrap_flag="-bootstrap-expect 1"
-fi
 
 #Assign a node name, bind to the public ip, add relevant tags and the event handlers.
 [ -d /var/easydeploy/.consul_state ] || mkdir -p /var/easydeploy/.consul_state

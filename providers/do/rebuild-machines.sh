@@ -3,7 +3,7 @@ cd $(dirname $0)
 . ../../commands/common.sh
 . ./do_common.sh
 
-MACHINE_NAME=$(mc_name)
+export MACHINE_NAME=$(mc_name)
 
 function droplets() {
     $tugboat droplets | grep "^${MACHINE_NAME} " |  cut -d":" -f5| tr -d ')' | tr -d ' '

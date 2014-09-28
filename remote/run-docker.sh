@@ -71,7 +71,7 @@ weave_ip="$(< /var/easydeploy/share/.config/weave_subnet).$(($1 + 100))"
 weave_net="${weave_ip}/8"
 
 export CONTAINER=$(sudo weave run ${weave_net} --name ${COMPONENT}-${1} $DOCKER_ARGS -v /home/easydeploy/usr/etc/container:/var/easydeploy/etc -v /var/easydeploy/container/$1:/var/local -v /var/log/easydeploy/container/$1:/var/log/easydeploy -v /var/easydeploy/container/$1/data:/data -v /var/easydeploy/share:/var/share -v /var/easydeploy/share:/var/easydeploy/share -e EASYDEPLOY_HOST_IP=${EASYDEPLOY_HOST_IP} -e WEAVE_IP=${weave_ip} -e WEAVE_SUBNET=${weave_subnet} --dns ${EASYDEPLOY_HOST_IP} ${dockerLinks} ${dockerImage} ${DOCKER_COMMANDS})
-#sudo docker-ns $CONTAINER route add -net 224.0.0.0 netmask 240.0.0.0 dev ethwe
+sudo docker-ns $CONTAINER route add -net 224.0.0.0 netmask 240.0.0.0 dev ethwe
 docker logs --follow  $CONTAINER
 
 if [[ $EASYDEPLOY_STATE == "stateless" ]]

@@ -529,6 +529,7 @@ done
 yes | sudo ufw enable
 
 sudo iptables -I FORWARD -i weave -o weave -j ACCEPT
+
 sudo bash -c "iptables-save > /etc/iptables.rules"
 
 

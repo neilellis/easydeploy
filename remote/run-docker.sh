@@ -5,6 +5,7 @@ export OFFSET=$1
 set -eux
 
 . /home/easydeploy/bin/env.sh
+. /home/easydeploy/project/ezd/deploy/conf.sh
 for port in ${EASYDEPLOY_PORTS}
 do
     export DOCKER_ARGS="$DOCKER_ARGS  -p ${EASYDEPLOY_HOST_IP}:$(($port + $OFFSET)):$(($port + $OFFSET))"
@@ -45,10 +46,10 @@ if [[ -f ~/ezd/bin/pre-build.sh ]]
 then
     ./ezd/bin/pre-build.sh
 fi
-dockerImage="${PROJECT}-${COMPONENT}:${DEPLOY_ENV}"
-
+dockerImage=${DOCKER_IMAGE}
 if ! docker pull ${dockerImage}
 then
+    dockerImage=${DOCKER_IMAGE}:${DEPLOY_ENV}
     docker build -t ${dockerImage}   .
 fi
 

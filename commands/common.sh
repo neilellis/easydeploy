@@ -21,6 +21,12 @@ function template_name()  {
     fi
 }
 
+
+function docker_name()  {
+        echo ${PROJECT}-${COMPONENT}:${DEPLOY_ENV}
+}
+
+
 function mc_name() {
     mc_name_for_env "${DEPLOY_ENV}"
 

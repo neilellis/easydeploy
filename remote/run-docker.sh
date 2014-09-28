@@ -45,14 +45,10 @@ if [[ -f ~/ezd/bin/pre-build.sh ]]
 then
     ./ezd/bin/pre-build.sh
 fi
-dockerImage=
-if [[ -f Dockerfile ]] && false
+dockerImage=${DOCKER_IMAGE}:${DEPLOY_ENV}
+if ! docker pull ${dockerImage}
 then
-    dockerImage=${DOCKER_IMAGE}:${DEPLOY_ENV}
     docker build -t ${dockerImage}   .
-else
-    dockerImage=${DOCKER_IMAGE}
-    docker pull ${dockerImage}
 fi
 
 docker ps || (sudo service docker restart; sudo service supervisor restart;  exit -1 )

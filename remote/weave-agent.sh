@@ -15,7 +15,7 @@ do
         then
             weave stop
             echo $subnet > /var/easydeploy/share/.config/weave_subnet
-            members=$(serf members  -tag "weave_subnet=10.*" | tr -s ' ' | cut -d' ' -f2 | cut -d: -f1 | sort -u)
+            members=$(serf members  -tag "weave_subnet=10.*" | tr -s ' ' | cut -d' ' -f2 | cut -d: -f1 | sort -u | tr '\n' ' ')
             weave launch ${subnet}.1/8 -password $(cat /var/easydeploy/share/.config/serf_key) ${members}
             serf tags -set weave_subnet=${subnet}
             weave expose ${subnet}.2/8

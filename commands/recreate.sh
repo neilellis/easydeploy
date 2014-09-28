@@ -2,5 +2,5 @@
 cd $(dirname $0) &> /dev/null
 . common.sh
 set -eux
-./destroy.sh
+./rebuild-machines.sh
 ./create.sh

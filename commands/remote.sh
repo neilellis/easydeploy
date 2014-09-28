@@ -5,7 +5,7 @@ machines=$(../providers/${PROVIDER}/list-machines-by-ip.sh $(mc_name) | tr '\n' 
 for machine in $machines
 do
     echo "$machine: $@"
-    ssh -o "StrictHostKeyChecking no" easyadmin@${machine} "$@"
+    ssh -o "StrictHostKeyChecking no" ${USERNAME}@${machine} "$@"
 done
 
 

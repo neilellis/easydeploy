@@ -46,7 +46,7 @@ then
     ./ezd/bin/pre-build.sh
 fi
 dockerImage=
-if [[ -f Dockerfile ]]
+if [[ -f Dockerfile ]] && false
 then
     dockerImage=${DOCKER_IMAGE}:${DEPLOY_ENV}
     docker build -t ${dockerImage}   .

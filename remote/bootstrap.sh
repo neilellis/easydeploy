@@ -65,7 +65,7 @@ INSTALL_SYSDIG_FLAG=
 
 
 #Missing
-echo "easydeploy ALL=(ALL:ALL) NOPASSWD: /usr/local/bin/weave" > /etc/sudoers.d/easydeploy
+echo "easydeploy ALL=(ALL:ALL) NOPASSWD: /usr/local/bin/weave, /usr/local/bin/docker-ns" > /etc/sudoers.d/easydeploy
 echo "easyadmin	 ALL=(ALL:ALL) NOPASSWD: /usr/bin/supervisorctl, /bin/su easydeploy, /bin/kill, /sbin/shutdown, /sbin/reboot, /bin/ls, /ezbin/*,  /ezubin/*, /usr/bin/unattended-upgrade"  > /etc/sudoers.d/easyadmin
 sudo apt-get -q -y install jq conntrack
 
@@ -119,7 +119,7 @@ EOF
     addNewUser easyadmin
 
     echo "easyadmin	ALL=(ALL:ALL) NOPASSWD: /usr/bin/supervisorctl, /bin/su easydeploy, /bin/kill, /sbin/shutdown, /sbin/reboot, /bin/ls, /ezbin/*,  /ezubin/*, /usr/bin/unattended-upgrade"  > /etc/sudoers.d/easyadmin
-    echo "easydeploy ALL=(ALL:ALL) NOPASSWD: /usr/local/bin/weave" > /etc/sudoers.d/easydeploy
+    echo "easydeploy ALL=(ALL:ALL) NOPASSWD: /usr/local/bin/weave, /usr/local/bin/docker-ns" > /etc/sudoers.d/easydeploy
 
     chmod 0440 /etc/sudoers.d/easyadmin
 

@@ -45,7 +45,8 @@ if [[ -f ~/ezd/bin/pre-build.sh ]]
 then
     ./ezd/bin/pre-build.sh
 fi
-dockerImage=${DOCKER_IMAGE}:${DEPLOY_ENV}
+dockerImage=$(< /var/easydeploy/share/.config/hostname):${DEPLOY_ENV}
+
 if ! docker pull ${dockerImage}
 then
     docker build -t ${dockerImage}   .

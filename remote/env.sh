@@ -15,4 +15,17 @@ export HOST=$(cat /var/easydeploy/share/.config/hostname)
 export IP=$(cat /var/easydeploy/share/.config/ip)
 export EASYDEPLOY_HOST_IP=${IP}
 
+if [ -f /home/easydeploy/project/ezd/etc/ezd.sh ]
+then
 . /home/easydeploy/project/ezd/etc/ezd.sh
+fi
+
+if [ -f /home/easydeploy/project/ezd/deploy/conf.sh ]
+then
+. /home/easydeploy/project/ezd/deploy/conf.sh
+fi
+
+if [ -f /home/easydeploy/project/ezd/${DEPLOY_ENV}/conf.sh ]
+then
+. /home/easydeploy/project/ezd/${DEPLOY_ENV}/conf.sh
+fi

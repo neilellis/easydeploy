@@ -5,7 +5,6 @@ export OFFSET=$1
 set -eux
 
 . /home/easydeploy/bin/env.sh
-. /home/easydeploy/project/ezd/deploy/conf.sh
 for port in ${EASYDEPLOY_PORTS}
 do
     export DOCKER_ARGS="$DOCKER_ARGS  -p ${EASYDEPLOY_HOST_IP}:$(($port + $OFFSET)):$(($port + $OFFSET))"

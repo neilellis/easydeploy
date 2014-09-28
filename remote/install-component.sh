@@ -508,8 +508,7 @@ sudo ufw allow 6783  #weave
 sudo ufw allow 37582 #weave
 sudo ufw allow from 172.16.0.0/12  #docker network
 sudo ufw allow from 10.0.0.0/8     #weave network
-sudo iptables -I FORWARD -i weave -o weave -j ACCEPT
-sudo bash -c "iptables-save > /etc/iptables.rules"
+
 
 #sudo ufw allow from 172.16.0.0/12 to any port 53 #dns from containers
 #sudo ufw allow from 172.16.0.0/12 to any port 8125 #statsd from containers
@@ -528,6 +527,9 @@ do
 done
 
 yes | sudo ufw enable
+
+sudo iptables -I FORWARD -i weave -o weave -j ACCEPT
+sudo bash -c "iptables-save > /etc/iptables.rules"
 
 
 if [[ -n "$INSTALL_SQUID_FLAG" ]] && [[ ! -f /etc/squid3/squid.conf ]]

@@ -76,7 +76,7 @@ sudo chmod 700 /home/easydeploy/.dockercfg ; \
 sudo chmod 755 /home/easydeploy/bin/* ; \
 sudo chmod 755 /home/easydeploy/project/ezd/bin/* ||: "
 
-rssh  ${USERNAME}@${IP_ADDRESS} "supervisorctl restart all"
+
 
 
 

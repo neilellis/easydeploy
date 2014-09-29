@@ -46,7 +46,7 @@ then
     ./ezd/bin/pre-build.sh
 fi
 
-docker rmi ${DOCKER_IMAGE}:${DEPLOY_ENV}
+docker rmi ${DOCKER_IMAGE}:${DEPLOY_ENV}  || :
 docker pull ${DOCKER_IMAGE}:${DEPLOY_ENV}
 docker ps || (sudo service docker restart; sudo service supervisor restart;  exit -1 )
 docker stop ${COMPONENT}-${OFFSET} || :

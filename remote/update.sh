@@ -20,15 +20,6 @@ touch /var/easydeploy/share/.config/easydeploy-run-disable
 sudo apt-get -qq update
 sudo unattended-upgrades
 chown -R easydeploy:easydeploy /home/easydeploy/project
-su - easydeploy << EOF
-set -eux
-cd project
-if [[ -f ~/ezd/bin/pre-build.sh ]]
-then
-    ./ezd/bin/pre-build.sh
-fi
-docker build -t ${DOCKER_IMAGE}:${DEPLOY_ENV}   .
-EOF
 #sudo apt-get -y upgrade
 echo "Rebooting"
 shutdown -r +2

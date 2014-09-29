@@ -46,18 +46,10 @@ then
     ./ezd/bin/pre-build.sh
 fi
 
-if [[ $EASYDEPLOY_STATE == "stateless" ]]
-then
-    docker rmi ${DOCKER_IMAGE}:${DEPLOY_ENV}  || :
-fi
-docker pull ${DOCKER_IMAGE}:${DEPLOY_ENV}
-docker ps || (sudo service docker restart; sudo service supervisor restart;  exit -1 )
-docker stop ${COMPONENT}-${OFFSET} || :
 
 if [[ $EASYDEPLOY_STATE == "stateless" ]]
 then
     trap "docker stop ${COMPONENT}-${OFFSET} || : ; docker rm --force ${COMPONENT}-${OFFSET} || : ; echo 'SIGTERM' ; exit 0" SIGTERM
-    docker rm --force ${COMPONENT}-${OFFSET} || :
 else
     trap "docker stop ${COMPONENT}-${OFFSET} || : ; echo 'SIGTERM' ; exit 0" SIGTERM
 fi
@@ -66,13 +58,27 @@ weave_subnet="$(< /var/easydeploy/share/.config/weave_subnet)"
 weave_ip="$(< /var/easydeploy/share/.config/weave_subnet).$(($1 + 100))"
 weave_net="${weave_ip}/8"
 
+docker ps || (sudo service docker restart; sudo service supervisor restart;  exit -1 )
+
 export CONTAINER=$(sudo weave run ${weave_net} --name ${COMPONENT}-${1} -t -i --sig-proxy $DOCKER_ARGS -v /home/easydeploy/usr/etc/container:/var/easydeploy/etc -v /var/easydeploy/container/$1:/var/local -v /var/log/easydeploy/container/$1:/var/log/easydeploy -v /var/easydeploy/container/$1/data:/data -v /var/easydeploy/share:/var/share -v /var/easydeploy/share:/var/easydeploy/share -e EASYDEPLOY_HOST_IP=${EASYDEPLOY_HOST_IP} -e WEAVE_IP=${weave_ip} -e WEAVE_SUBNET=${weave_subnet} --dns ${EASYDEPLOY_HOST_IP} ${dockerLinks} ${DOCKER_IMAGE}:${DEPLOY_ENV} ${DOCKER_COMMANDS})
 sudo docker-ns $CONTAINER route add -net 224.0.0.0 netmask 240.0.0.0 dev ethwe   || :
 docker attach $CONTAINER
+
+
+docker stop ${COMPONENT}-${OFFSET} || :
+
 
 if [[ $EASYDEPLOY_STATE == "stateless" ]]
 then
     docker rm --force $CONTAINER
 fi
+
+
+if [[ $EASYDEPLOY_STATE == "stateless" ]]
+then
+    docker rmi ${DOCKER_IMAGE}:${DEPLOY_ENV}
+    docker pull ${DOCKER_IMAGE}:${DEPLOY_ENV}
+fi
+
 
 serf tags -set health=failed

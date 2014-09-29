@@ -52,6 +52,7 @@ export EASYDEPLOY_UPDATE_CRON=none
 export DEBIAN_FRONTEND=noninteractive
 
 export SERF_VERSION=0.6.3
+export CONSUL_VERSION=0.4.0
 
 echo "Creating directories"
 sudo [ -d /home/easydeploy/bin ] || mkdir /home/easydeploy/bin
@@ -151,7 +152,7 @@ if [ ! -f /usr/local/bin/btsync ]
 then
     curl http://download.getsyncapp.com/endpoint/btsync/os/linux-x64/track/stable > /tmp/btsync.tgz
     tar -zxvf /tmp/btsync.tgz
-    mv btsync   /usr/local/bin/btsync
+    mv btsync /usr/local/bin/btsync
     chmod 755 /usr/local/bin/btsync
     sudo apt-get install -q -y rhash
 fi
@@ -272,18 +273,18 @@ if [ ! -f /var/easydeploy/.install/consul ]
 then
     echo "Installing consul for service discovery and communication"
     sudo apt-get install -y unzip
-    [ -f 0.4.0_linux_amd64.zip ] || wget https://dl.bintray.com/mitchellh/consul/0.4.0_linux_amd64.zip
-    unzip 0.4.0_linux_amd64.zip
+    [ -f ${CONSUL_VERSION}_linux_amd64.zip ] || wget https://dl.bintray.com/mitchellh/consul/${CONSUL_VERSION}_linux_amd64.zip
+    unzip ${CONSUL_VERSION}_linux_amd64.zip
     sudo mv -f consul /usr/local/bin
     touch /var/easydeploy/.install/consul
 fi
 
 
-if [ ! -f 0.4.0_web_ui.zip ]
+if [ ! -f ${CONSUL_VERSION}_web_ui.zip ]
 then
-    [ -f 0.4.0_web_ui.zip ] || wget https://dl.bintray.com/mitchellh/consul/0.4.0_web_ui.zip
+    [ -f ${CONSUL_VERSION}_web_ui.zip ] || wget https://dl.bintray.com/mitchellh/consul/${CONSUL_VERSION}_web_ui.zip
     mkdir webziptmp
-    unzip -d webziptmp 0.4.0_web_ui.zip
+    unzip -d webziptmp ${CONSUL_VERSION}_web_ui.zip
     rm -rf /usr/local/consul_ui
     mv webziptmp/dist /usr/local/consul_ui
     rm -rf webziptmp
@@ -400,8 +401,8 @@ fi
 
 if [[ ! -z "${EASYDEPLOY_UPDATE_CRON}" ]]
 then
-echo $pathline > /etc/cron.d/update
-echo "${EASYDEPLOY_UPDATE_CRON} root /bin/bash -l -c '/home/easydeploy/bin/update.sh $[ ( $RANDOM % 3600 )  + 1 ]s &> /var/log/easydeploy/update.log'" >> /etc/cron.d/update
+    echo $pathline > /etc/cron.d/update
+    echo "${EASYDEPLOY_UPDATE_CRON} root /bin/bash -l -c '/home/easydeploy/bin/update.sh $[ ( $RANDOM % 3600 )  + 1 ]s &> /var/log/easydeploy/update.log'" >> /etc/cron.d/update
 fi
 
 

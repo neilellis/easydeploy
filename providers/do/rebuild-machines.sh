@@ -44,7 +44,7 @@ then
 else
     droplets | parallel --gnu -P 0 --no-run-if-empty "rebuild {} "
 fi
-sleep 30
+
 
 ./do_to_cf.sh
 

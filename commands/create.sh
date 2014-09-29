@@ -4,7 +4,7 @@ cd $(dirname $0) &> /dev/null
 set -eux
 #./update.sh
 ./scale.sh min
-./deploy.sh
+./update.sh
 ./remote.sh "sudo reboot"
 sleep 30
 while ! ./wire.sh

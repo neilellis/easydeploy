@@ -22,7 +22,7 @@ fi
 
 if [[ $EASYDEPLOY_STATE == "stateless" ]]  && (( $(df -h / | tail -1 | tr -s ' ' | cut -d' ' -f5 | tr -d '%') > 50 ))
 then
-    docker rmi $(docker images -a | grep "^<none>" | awk '{print $3}') || :
+    docker rmi $(docker images -a | grep "<none>" | awk '{print $3}') || :
 fi
 
 if (( $(df -h / | tail -1 | tr -s ' ' | cut -d' ' -f5 | tr -d '%') > 50 ))

@@ -139,12 +139,6 @@ sudo chown easydeploy:easydeploy /var/easydeploy/share
 
 [ -f machines.txt ] && cp -f machines.txt  /var/easydeploy/share/.config/machines.txt
 
-if which docker &> /dev/null && [[ $EASYDEPLOY_STATE == "stateless" ]]
-then
-    docker kill $(docker ps -aq) || :
-    docker rmi $(docker images -a | grep -v "^<none>" | awk '{print $3}') || :
-fi
-
 
 #Install additional host packages, try to avoid that and keep them in
 #the Dockerfile where possible.

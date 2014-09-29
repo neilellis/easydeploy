@@ -10,6 +10,7 @@ then
     exit -1
 else
     ./deploy.sh ${IP_ADDRESS}
+    ./bootstrap.sh ${IP_ADDRESS}
 fi
 
 

@@ -177,6 +177,7 @@ case $command in
          ;;
      deploy)
          ../commands/deploy.sh $@
+         ../commands/bootstrap.sh $@
          ;;
      destroy)
          ../commands/destroy.sh $@

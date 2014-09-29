@@ -3,6 +3,9 @@ cd $(dirname $0) &> /dev/null
 . common.sh
 set -eux
 #./update.sh
+docker build -t ${DOCKER_IMAGE}:${DEPLOY_ENV} ${DIR}
+docker push ${DOCKER_IMAGE}:${DEPLOY_ENV}
+
 ./scale.sh min
 ./update.sh
 ./remote.sh "sudo reboot"

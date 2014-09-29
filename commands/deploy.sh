@@ -62,9 +62,6 @@ fi
 
 rscp  ~/.ezd/serf_key ${USERNAME}@${IP_ADDRESS}:~/serf_key
 
-docker build -t ${DOCKER_IMAGE}:${DEPLOY_ENV} ${DIR}
-docker push ${DOCKER_IMAGE}:${DEPLOY_ENV}
-
 rssh  ${USERNAME}@${IP_ADDRESS} "supevisorctl restart all"
 
 

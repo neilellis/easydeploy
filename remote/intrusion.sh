@@ -6,7 +6,7 @@ function changed() {
     while read file
     do
         echo $file changed
-        /home/easydeploy/bin/notify.sh ":cop:" $file changed
+        /ezbin/notify.sh ":cop:" $file changed
 #        shutdown now
     done
 }

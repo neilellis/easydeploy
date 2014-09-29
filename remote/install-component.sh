@@ -109,16 +109,6 @@ sudo chown -R easydeploy:easydeploy /home/easydeploy/project
 sudo chmod 700 /home/easydeploy/.dockercfg
 sudo chmod 755 /home/easydeploy/bin/*
 sudo chmod 755 /home/easydeploy/project/ezd/bin/* ||
-[ -d /home/easydeploy/project/ezd/bin/ ] || mkdir -p /home/easydeploy/project/ezd/bin/
-[ -d /home/easydeploy/project/ezd/etc/ ] || mkdir -p /home/easydeploy/project/ezd/etc/
-cp -rf ~/project/*  /home/easydeploy/project/
-[ -d ~/user-scripts ] && sudo cp -rf ~/user-scripts/*  /home/easydeploy/project/ezd/bin/
-[ -d ~/user-config ] && sudo cp -rf ~/user-config/*  /home/easydeploy/project/ezd/etc/
-sudo chown easydeploy:easydeploy /home/easydeploy/.dockercfg
-sudo chown -R easydeploy:easydeploy /home/easydeploy/project
-sudo chmod 700 /home/easydeploy/.dockercfg
-sudo chmod 755 /home/easydeploy/bin/*
-sudo chmod 755 /home/easydeploy/project/ezd/bin/* ||:
 
 
 echo "Setting up deployment project"
@@ -267,6 +257,7 @@ fi
 consul_server=true
 [ -z "$EASYDEPLOY_ADMIN_SERVER" ] && consul_server=false
 [ -d /etc/consul.d ] || sudo mkdir /etc/consul.d
+
 cat > /etc/consul.d/server.json <<EOF
 
 {
@@ -308,6 +299,7 @@ fi
 
 
 ports=( ${EASYDEPLOY_PRIMARY_PORT} ${EASYDEPLOY_PORTS} ${EASYDEPLOY_EXTERNAL_PORTS} )
+
 if [ ! -z "$ports" ]
 then
 primary_port=${ports[0]}
@@ -569,8 +561,6 @@ envsubst < ~/remote/template-run.conf  > /etc/supervisor/conf.d/run.conf
 EOF
 
 
-
-
 sudo cp -f ~/remote/rc.local /etc
 sudo chmod 755 /etc/rc.local
 sudo /etc/rc.local
@@ -606,23 +596,8 @@ then
 fi
 
 [ -f  /home/easydeploy/project/ezd/bin/post-install.sh ] && sudo bash /home/easydeploy/project/ezd/bin/post-install.sh
-[ -f  /home/easydeploy/project/ezd/bin/post-install-userland.sh ] && sudo su  easydeploy "cd; bash  /home/easydeploy/project/ezd/bin/post-install-userland.sh"
+[ -f  /home/easydeploy/project/ezd/bin/post-install-userland.sh ] && sudo su  easydeploy "cd; bash /home/easydeploy/project/ezd/bin/post-install-userland.sh"
 
-
-echo "Starting/Restarting services"
-#sudo service supervisor stop || true
-#sudo docker kill $(docker ps -q) || true
-#sudo timelimit -t 30 -T 5 service docker stop || :
-#[ -e  /tmp/supervisor.sock ] && sudo unlink /tmp/supervisor.sock
-#[ -e  /var/run/supervisor.sock  ] && sudo unlink /var/run/supervisor.sock
-#sleep 10
-#sudo service docker restart
-#sudo service supervisor restart || true
-#sudo supervisorctl restart all  || true
-#while supervisorctl status | grep "STARTING"
-#do
-#    sleep 10
-#done
 
 
 echo "Done"

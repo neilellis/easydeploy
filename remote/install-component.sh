@@ -295,7 +295,7 @@ then
 fi
 
 
-if [ ! -f ${CONSUL_VERSION}_web_ui.zip ]
+if [ ! -f /var/easydeploy/.install/consul_ui  ]
 then
     [ -f ${CONSUL_VERSION}_web_ui.zip ] || wget https://dl.bintray.com/mitchellh/consul/${CONSUL_VERSION}_web_ui.zip
     mkdir webziptmp
@@ -303,6 +303,7 @@ then
     rm -rf /usr/local/consul_ui
     mv webziptmp/dist /usr/local/consul_ui
     rm -rf webziptmp
+    touch /var/easydeploy/.install/consul_ui
 fi
 
 

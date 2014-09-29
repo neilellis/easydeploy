@@ -75,6 +75,8 @@ sudo apt-get -q -y install jq conntrack
 if [ ! -f .bootstrapped ]
 then
 
+    sudo apt-get install linux-image-$(uname -r)
+
     if !  grep "nameserver 8.8.8.8" /etc/resolv.conf
     then
         echo "Fixing resolv.conf"

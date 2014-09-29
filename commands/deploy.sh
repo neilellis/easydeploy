@@ -62,6 +62,9 @@ fi
 
 rscp  ~/.ezd/serf_key ${USERNAME}@${IP_ADDRESS}:~/serf_key
 
+
+rssh  ${USERNAME}@${IP_ADDRESS} "sudo cp -f ~/remote/*.sh /home/easydeploy/bin; [ -d ~/bin/ ] || mkdir ~/bin; cp -f ~/remote/bin/*; ~/bin chmod 755 ~/bin/*; mv -f ~/remote/bashrc_profile ~/.bashrc_profile; sudo cp -f ~/.dockercfg /home/easydeploy/"
+
 rssh  ${USERNAME}@${IP_ADDRESS} "supervisorctl restart all"
 
 

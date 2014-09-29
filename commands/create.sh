@@ -4,8 +4,7 @@ cd $(dirname $0) &> /dev/null
 set -eux
 #./update.sh
 ./scale.sh min
-docker build -t ${DOCKER_IMAGE}:${DEPLOY_ENV} ${DIR}
-docker push ${DOCKER_IMAGE}:${DEPLOY_ENV}
+./deploy.sh
 ./remote.sh "sudo reboot"
 sleep 30
 while ! ./wire.sh

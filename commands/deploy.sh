@@ -63,7 +63,18 @@ fi
 rscp  ~/.ezd/serf_key ${USERNAME}@${IP_ADDRESS}:~/serf_key
 
 
-rssh  ${USERNAME}@${IP_ADDRESS} "sudo cp -f ~/remote/*.sh /home/easydeploy/bin; [ -d ~/bin/ ] || mkdir ~/bin; cp -f ~/remote/bin/*; ~/bin chmod 755 ~/bin/*; mv -f ~/remote/bashrc_profile ~/.bashrc_profile; sudo cp -f ~/.dockercfg /home/easydeploy/"
+rssh  ${USERNAME}@${IP_ADDRESS} "sudo cp -f ~/remote/*.sh /home/easydeploy/bin; [ -d ~/bin/ ] || mkdir ~/bin; cp -f ~/remote/bin/*; \
+ ~/bin chmod 755 ~/bin/*; mv -f ~/remote/bashrc_profile ~/.bashrc_profile; sudo cp -f ~/.dockercfg /home/easydeploy/;\
+[ -d /home/easydeploy/project/ezd/bin/ ] || mkdir -p /home/easydeploy/project/ezd/bin/;    \
+[ -d /home/easydeploy/project/ezd/etc/ ] || mkdir -p /home/easydeploy/project/ezd/etc/; \
+cp -rf ~/project/*  /home/easydeploy/project/ ; \
+[ -d ~/user-scripts ] && sudo cp -rf ~/user-scripts/*  /home/easydeploy/project/ezd/bin/ ; \
+[ -d ~/user-config ] && sudo cp -rf ~/user-config/*  /home/easydeploy/project/ezd/etc/ ; \
+sudo chown easydeploy:easydeploy /home/easydeploy/.dockercfg ; \
+sudo chown -R easydeploy:easydeploy /home/easydeploy/project ; \
+sudo chmod 700 /home/easydeploy/.dockercfg ; \
+sudo chmod 755 /home/easydeploy/bin/* ; \
+sudo chmod 755 /home/easydeploy/project/ezd/bin/* ||: "
 
 rssh  ${USERNAME}@${IP_ADDRESS} "supervisorctl restart all"
 

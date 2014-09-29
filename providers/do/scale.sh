@@ -20,7 +20,7 @@ then
     for i in $(seq 0 $(($1 - $current - 1)))
     do
         echo "Creating new ${MACHINE_NAME}"
-        ../../commands/deploy-and-provision.sh
+        ./provision.sh $(mc_name)
     done
 else
     echo "Nothing to do."

@@ -16,6 +16,7 @@ function rebuild() {
     echo "Rebuilding $MACHINE_NAME ($1)"
     for i in $(seq 1 60)
     do
+        $tugboat halt -c -i $1
         if $tugboat rebuild -c -k $2 -i $1
          then
             break;

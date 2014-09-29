@@ -13,7 +13,7 @@ then
             ./bootstrap.sh $machine
     done
 else
-   ../providers/${PROVIDER}/list-machines-by-ip.sh $(mc_name) | parallel --gnu -P 0 --no-run-if-empty  "./deploy.sh {}"
+   ../providers/${PROVIDER}/list-machines-by-ip.sh $(mc_name) | parallel --gnu -P 0 --no-run-if-empty  "./deploy.sh {}; ./bootstrap.sh {}"
 fi
 
 

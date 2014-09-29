@@ -63,7 +63,7 @@ INSTALL_SYSDIG_FLAG=
 
 [[ -f ~/user-scripts/pre-bootstrap.sh ]] &&  . ~/user-scripts/pre-bootstrap.sh || :
 
-if [ ! -f .bootstrapped ]
+if [ ! -f ~/.bootstrapped ]
 then
 
     sudo apt-get -q install -y dnsutils bind9
@@ -179,7 +179,7 @@ EOF
 
     [ -f ~/user-scripts/post-bootstrap.sh ] && bash ~/user-scripts/post-bootstrap.sh
 
-    touch .bootstrapped
+    touch ~/.bootstrapped
 
 fi
 

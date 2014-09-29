@@ -436,7 +436,7 @@ then
     sudo chmod +x /usr/local/bin/docker-ns
     sudo chmod a+x /usr/local/bin/weave
 #    sudo wget -O /usr/local/bin/weave  https://raw.githubusercontent.com/zettio/weave/master/weaver/weave
-    sudo chmod a+x /usr/local/bin/weave
+#    sudo chmod a+x /usr/local/bin/weave
 fi
 
 if [ ! -f /usr/local/bin/fig ]

@@ -4,7 +4,7 @@ cd $(dirname $0) &> /dev/null
 set -eux
 #./update.sh
 ./scale.sh min
-./remote.sh "sudo /ezbin/clean.sh; sudo reboot"
+./rebuild-app.sh
 while ! ./wire.sh
 do
 

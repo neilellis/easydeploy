@@ -142,12 +142,6 @@ then
     sudo apt-get -q install -y ${EASYDEPLOY_PACKAGES}
 fi
 
-#GNU Parallel
-sudo apt-get install -y parallel
-if [[ -f /etc/parallel/config ]]
-then
-    sudo rm /etc/parallel/config
-fi
 
 #Sync between nodes using btsync
 echo "Installing Bit Torrent sync"
@@ -158,16 +152,22 @@ then
     mv btsync   /usr/local/bin/btsync
     chmod 755 /usr/local/bin/btsync
     sudo apt-get install -q -y rhash
-    export EASYDEPLOY_GLOBAL_SYNC_SECRET="$(cat /home/easydeploy/.ssh/id_rsa | sed -e 's/0/1/g' | rhash --sha512 - | cut -c1-64 )"
-    export EASYDEPLOY_COMPONENT_SYNC_SECRET="$(cat /home/easydeploy/.ssh/id_rsa /var/easydeploy/share/.config/component /var/easydeploy/share/.config/project  /var/easydeploy/share/.config/deploy_env | rhash --sha512 - | cut -c1-64)"
-    export EASYDEPLOY_ENV_SYNC_SECRET="$(cat /home/easydeploy/.ssh/id_rsa /var/easydeploy/share/.config/deploy_env /var/easydeploy/share/.config/project | rhash --sha512 - | cut -c1-64)"
+fi
 
-    known_hosts="\"localhost\""
-    for m in $(cat ~/   machines.txt | cut -d: -f2 | tr '\n' ' ')
-    do
-        known_hosts="${known_hosts},\"${m}\""
-    done
 
+export EASYDEPLOY_GLOBAL_SYNC_SECRET="$(cat /home/easydeploy/.ssh/id_rsa | sed -e 's/0/1/g' | rhash --sha512 - | cut -c1-64 )"
+export EASYDEPLOY_COMPONENT_SYNC_SECRET="$(cat /home/easydeploy/.ssh/id_rsa /var/easydeploy/share/.config/component /var/easydeploy/share/.config/project  /var/easydeploy/share/.config/deploy_env | rhash --sha512 - | cut -c1-64)"
+export EASYDEPLOY_ENV_SYNC_SECRET="$(cat /home/easydeploy/.ssh/id_rsa /var/easydeploy/share/.config/deploy_env /var/easydeploy/share/.config/project | rhash --sha512 - | cut -c1-64)"
+
+known_hosts="\"localhost\""
+for m in $(cat ~/   machines.txt | cut -d: -f2 | tr '\n' ' ')
+do
+    known_hosts="${known_hosts},\"${m}\""
+done
+
+
+sudo chown -R easydeploy:easydeploy /var/easydeploy/share/sync
+sudo chown easydeploy:easydeploy /etc/btsync.conf
 
 sudo cat >  /etc/btsync.conf <<EOF
 {
@@ -224,9 +224,6 @@ sudo cat >  /etc/btsync.conf <<EOF
     ]
 }
 EOF
-    sudo chown -R easydeploy:easydeploy /var/easydeploy/share/sync
-    sudo chown easydeploy:easydeploy /etc/btsync.conf
-fi
 
 
 #Serf is used for service discovery and admin tasks
@@ -310,7 +307,6 @@ EOF
 
 fi
 
-sudo apt-get -q install -y dnsutils bind9
 
 cat > /etc/bind/ezd.conf <<EOF
 zone "ezd" IN {
@@ -362,8 +358,6 @@ EOF
 
 
 
-echo "nameserver 127.0.0.1" > /etc/resolvconf/resolv.conf.d/head
-service bind9 restart
 
 
 ports=( ${EASYDEPLOY_PRIMARY_PORT} ${EASYDEPLOY_PORTS} ${EASYDEPLOY_EXTERNAL_PORTS} )
@@ -401,15 +395,6 @@ then
     touch /var/easydeploy/.install/sysdig
 fi
 
-echo "Adding cron tasks"
-sudo apt-get -q install -y duplicity
-pathline="PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:"
-echo $pathline > /etc/cron.d/restart
-echo "*/13 * * * * root /bin/bash -l -c '/home/easydeploy/bin/check_for_restart.sh &>  /var/log/easydeploy/restart.log'" >> /etc/cron.d/restart
-echo $pathline > /etc/cron.d/backup
-echo "7 * * * * easydeploy /bin/bash -l -c '/home/easydeploy/bin/backup.sh &>  /var/log/easydeploy/backup.log'" >> /etc/cron.d/backup
-echo $pathline > /etc/cron.d/security
-echo "0 */4 * * * root /bin/bash -l -c '/usr/bin/unattended-upgrade &>  /var/log/easydeploy/security-update.log'" >> /etc/cron.d/security
 
 if [[ ! -z "${EASYDEPLOY_UPDATE_CRON}" ]]
 then
@@ -417,8 +402,6 @@ echo $pathline > /etc/cron.d/update
 echo "${EASYDEPLOY_UPDATE_CRON} root /bin/bash -l -c '/home/easydeploy/bin/update.sh $[ ( $RANDOM % 3600 )  + 1 ]s &> /var/log/easydeploy/update.log'" >> /etc/cron.d/update
 fi
 
-echo $pathline > /etc/cron.d/clean
-echo "0 5 * * * root /bin/bash -l -c '/home/easydeploy/bin/clean.sh &>  /var/log/easydeploy/clean.log'" >> /etc/cron.d/clean
 
 chmod 755 /etc/cron.d/*
 
@@ -445,13 +428,13 @@ then
     touch /var/easydeploy/.install/docker
 fi
 
-sudo curl https://raw.githubusercontent.com/zettio/weave/master/weaver/docker-ns > /usr/local/bin/docker-ns
-sudo curl https://raw.githubusercontent.com/dpw/weave/87_multicast_route/weaver/weave > /usr/local/bin/weave
-sudo chmod +x /usr/local/bin/docker-ns
-sudo chmod a+x /usr/local/bin/weave
 
 if [ ! -f /usr/local/bin/weave ]
 then
+    sudo curl https://raw.githubusercontent.com/zettio/weave/master/weaver/docker-ns > /usr/local/bin/docker-ns
+    sudo curl https://raw.githubusercontent.com/dpw/weave/87_multicast_route/weaver/weave > /usr/local/bin/weave
+    sudo chmod +x /usr/local/bin/docker-ns
+    sudo chmod a+x /usr/local/bin/weave
 #    sudo wget -O /usr/local/bin/weave  https://raw.githubusercontent.com/zettio/weave/master/weaver/weave
     sudo chmod a+x /usr/local/bin/weave
 fi

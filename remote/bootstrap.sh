@@ -63,17 +63,13 @@ INSTALL_SYSDIG_FLAG=
 
 [[ -f ~/user-scripts/pre-bootstrap.sh ]] &&  . ~/user-scripts/pre-bootstrap.sh || :
 
-
-#Missing
-echo "easydeploy ALL=(ALL:ALL) NOPASSWD: /usr/local/bin/weave, /usr/local/bin/docker-ns" > /etc/sudoers.d/easydeploy
-echo "easyadmin	 ALL=(ALL:ALL) NOPASSWD: /usr/bin/supervisorctl, /bin/su easydeploy, /bin/kill, /sbin/shutdown, /sbin/reboot, /bin/ls, /ezbin/*,  /ezubin/*, /usr/bin/unattended-upgrade"  > /etc/sudoers.d/easyadmin
-sudo apt-get -q -y install jq conntrack
-
-#End missing
-
-
 if [ ! -f .bootstrapped ]
 then
+
+    sudo apt-get -q install -y dnsutils bind9
+
+    echo "nameserver 127.0.0.1" > /etc/resolvconf/resolv.conf.d/head
+    service bind9 restart
 
     sudo apt-get install linux-image-$(uname -r)
 
@@ -132,7 +128,14 @@ EOF
     echo "Installing basic pre-requisites"
     sudo apt-get -qq update
 
-    sudo apt-get -q install  -y git software-properties-common unattended-upgrades incron fileschanged dialog zip sharutils apparmor monit ntp netcat-traditional mosh parallel jq ethtool conntrack
+    sudo apt-get -q install  -y git software-properties-common unattended-upgrades incron fileschanged dialog zip sharutils apparmor monit ntp netcat-traditional mosh parallel jq ethtool conntrack parallel
+
+
+    #GNU Parallel
+    if [[ -f /etc/parallel/config ]]
+    then
+        sudo rm /etc/parallel/config
+    fi
 
     if [[ -n "$INSTALL_JAVA_FLAG" ]]
     then
@@ -160,6 +163,19 @@ EOF
     echo 'PATH=$PATH:$HOME/bin:/ezbin:/ezubin' >> ~/.bash_profile
     echo 'PATH=$PATH:$HOME/bin:$HOME/usr/bin:/ezbin:/ezubin' >> /home/easydeploy/.bash_profile
     echo 'PATH=$PATH:$HOME/bin:$HOME/usr/bin:/ezbin:/ezubin' >> /home/easyadmin/.bash_profile
+
+    echo "Adding cron tasks"
+    sudo apt-get -q install -y duplicity
+    pathline="PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:"
+    echo $pathline > /etc/cron.d/restart
+    echo "*/13 * * * * root /bin/bash -l -c '/home/easydeploy/bin/check_for_restart.sh &>  /var/log/easydeploy/restart.log'" >> /etc/cron.d/restart
+    echo $pathline > /etc/cron.d/backup
+    echo "7 * * * * easydeploy /bin/bash -l -c '/home/easydeploy/bin/backup.sh &>  /var/log/easydeploy/backup.log'" >> /etc/cron.d/backup
+    echo $pathline > /etc/cron.d/security
+    echo "0 */4 * * * root /bin/bash -l -c '/usr/bin/unattended-upgrade &>  /var/log/easydeploy/security-update.log'" >> /etc/cron.d/security
+    echo $pathline > /etc/cron.d/clean
+    echo "0 5 * * * root /bin/bash -l -c '/home/easydeploy/bin/clean.sh &>  /var/log/easydeploy/clean.log'" >> /etc/cron.d/clean
+
 
     [ -f ~/user-scripts/post-bootstrap.sh ] && bash ~/user-scripts/post-bootstrap.sh
 

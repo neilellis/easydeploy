@@ -4,4 +4,4 @@ cd $(dirname $0) &> /dev/null
 set -eux
 ./rebuild-machines.sh
 ./scale.sh min
-./rebuild-app.sh
+./remote.sh "sudo reboot"

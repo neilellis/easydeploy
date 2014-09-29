@@ -51,6 +51,8 @@ export EASYDEPLOY_SERVICE_CHECK_INTERVAL=300s
 export EASYDEPLOY_UPDATE_CRON=none
 export DEBIAN_FRONTEND=noninteractive
 
+export SERF_VERSION=0.6.3
+
 echo "Creating directories"
 sudo [ -d /home/easydeploy/bin ] || mkdir /home/easydeploy/bin
 sudo [ -d /home/easydeploy/usr/bin ] || mkdir -p /home/easydeploy/usr/bin
@@ -231,8 +233,8 @@ if [ ! -f /var/easydeploy/.install/serf ]
 then
     echo "Installing serf for node discovery and communication"
     sudo apt-get -q install -y unzip
-    [ -f 0.5.0_linux_amd64.zip ] || wget -q https://dl.bintray.com/mitchellh/serf/0.5.0_linux_amd64.zip
-    unzip 0.5.0_linux_amd64.zip
+    [ -f ${SERF_VERSION}_linux_amd64.zip ] || wget -q https://dl.bintray.com/mitchellh/serf/${SERF_VERSION}_linux_amd64.zip
+    unzip ${SERF_VERSION}_linux_amd64.zip
     sudo mv -f serf /usr/local/bin
     [ -d /etc/serf ] || sudo mkdir /etc/serf
     sudo cp -f ~/remote/serf-event-handler.sh /etc/serf/event-handler.sh
@@ -597,13 +599,13 @@ echo "Starting/Restarting services"
 #[ -e  /tmp/supervisor.sock ] && sudo unlink /tmp/supervisor.sock
 #[ -e  /var/run/supervisor.sock  ] && sudo unlink /var/run/supervisor.sock
 #sleep 10
-sudo service docker restart
+#sudo service docker restart
 #sudo service supervisor restart || true
-sudo supervisorctl restart all  || true
-while supervisorctl status | grep "STARTING"
-do
-    sleep 10
-done
+#sudo supervisorctl restart all  || true
+#while supervisorctl status | grep "STARTING"
+#do
+#    sleep 10
+#done
 
 
 echo "Done"

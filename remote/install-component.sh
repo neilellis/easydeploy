@@ -183,8 +183,6 @@ do
 done
 
 
-sudo chown -R easydeploy:easydeploy /var/easydeploy/share/sync
-sudo chown easydeploy:easydeploy /etc/btsync.conf
 
 sudo cat >  /etc/btsync.conf <<EOF
 {
@@ -241,6 +239,9 @@ sudo cat >  /etc/btsync.conf <<EOF
     ]
 }
 EOF
+
+sudo chown -R easydeploy:easydeploy /var/easydeploy/share/sync
+sudo chown easydeploy:easydeploy /etc/btsync.conf
 
 
 #Serf is used for service discovery and admin tasks

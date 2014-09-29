@@ -9,7 +9,7 @@ function droplets() {
     $tugboat droplets | grep "^${MACHINE_NAME} " |  cut -d":" -f5| tr -d ')' | tr -d ' '
 }
 
-export image=$($tugboat image | grep "^$(template_name) " |  cut -d":" -f2| tr -d ')' | cut -d, -f1 | tr -d ' ' | tail -1)
+#export image=$($tugboat image | grep "^$(template_name) " |  cut -d":" -f2| tr -d ')' | cut -d, -f1 | tr -d ' ' | tail -1)
 
 
 function rebuild() {
@@ -18,7 +18,7 @@ function rebuild() {
     do
         $tugboat halt -c -i $1
         $tugboat wait -i $1 -s off
-        if $tugboat rebuild -c -k $2 -i $1
+        if $tugboat rebuild -c -k $2 -i ${DO_BASE_IMAGE}
          then
             break;
          else

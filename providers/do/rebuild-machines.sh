@@ -27,7 +27,7 @@ function rebuild() {
         echo "Retrying rebuild."
     done
     echo "Waiting for image change."
-    while (( $($tugboat info -i $1 | grep "Image ID:" | cut -d: -f2 | tr -d ' ') != ${image} ))
+    while (( $($tugboat info -i $1 | grep "Image ID:" | cut -d: -f2 | tr -d ' ') != ${DO_BASE_IMAGE} ))
      do
         echo -n "."
         sleep 5
@@ -40,9 +40,9 @@ export -f rebuild
 
 if [ -z "${USE_PARALLEL}" ]
 then
-    droplets | while read m; do rebuild $m $image; done
+    droplets | while read m; do rebuild $m ; done
 else
-    droplets | parallel --gnu -P 0 --no-run-if-empty "rebuild {} $image"
+    droplets | parallel --gnu -P 0 --no-run-if-empty "rebuild {} "
 fi
 sleep 30
 

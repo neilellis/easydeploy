@@ -10,7 +10,7 @@ then
     for machine in $machines
     do
             ./deploy.sh $machine
-            ../commands/bootstrap.sh $@
+            ./bootstrap.sh $@
     done
 else
    ../providers/${PROVIDER}/list-machines-by-ip.sh $(mc_name) | parallel --gnu -P 0 --no-run-if-empty  "./deploy.sh {}"

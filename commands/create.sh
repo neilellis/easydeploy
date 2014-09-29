@@ -5,11 +5,13 @@ set -eux
 #./update.sh
 ./scale.sh min
 ./remote.sh "sudo reboot"
+sleep 30
 while ! ./wire.sh
 do
 
+    ./remote.sh "sudo reboot"
     echo "Retrying to wire"
-    sleep 60
+    sleep 120
 done
 
 

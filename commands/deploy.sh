@@ -62,7 +62,7 @@ fi
 
 rscp  ~/.ezd/serf_key ${USERNAME}@${IP_ADDRESS}:~/serf_key
 
-rssh  ${USERNAME}@${IP_ADDRESS} "supevisorctl restart all"
+rssh  ${USERNAME}@${IP_ADDRESS} "supervisorctl restart all"
 
 
 

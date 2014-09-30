@@ -6,7 +6,7 @@ export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/ezbin:
 alias trun="tail -F /ezlog/run*"
 alias tweave="tail -F /ezlog/weave*"
 alias tconsul="tail -F /ezlog/consul*"
-alias src="supervisorctl restart $(</var/easydeploy/.config/component):"
+alias src="supervisorctl restart $(</var/easydeploy/share/.config/component):"
 alias health="/ezbin/health_check.sh"
 
 

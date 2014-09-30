@@ -7,6 +7,7 @@ alias trun="tail -F /ezlog/run*"
 alias tweave="tail -F /ezlog/weave*"
 alias tconsul="tail -F /ezlog/consul*"
 alias src="supervisorctl restart $(</var/easydeploy/.config/component):"
+alias health="/ezbin/health_check.sh"
 
 
 

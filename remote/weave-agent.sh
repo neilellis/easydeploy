@@ -21,6 +21,6 @@ do
             weave expose ${subnet}.2/8
             first=
         fi
-    sleep 600
+    sleep 60
     fi
 done

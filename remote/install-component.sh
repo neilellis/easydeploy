@@ -595,6 +595,13 @@ then
     touch /var/easydeploy/.install/hardened
 fi
 
+if [[ $EASYDEPLOY_STATE == "stateless" ]]
+then
+    docker rmi ${DOCKER_IMAGE}:${DEPLOY_ENV} || :
+    docker pull ${DOCKER_IMAGE}:${DEPLOY_ENV}
+fi
+
+
 [ -f  /home/easydeploy/project/ezd/bin/post-install.sh ] && sudo bash /home/easydeploy/project/ezd/bin/post-install.sh
 [ -f  /home/easydeploy/project/ezd/bin/post-install-userland.sh ] && sudo su  easydeploy "cd; bash /home/easydeploy/project/ezd/bin/post-install-userland.sh"
 

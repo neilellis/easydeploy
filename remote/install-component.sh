@@ -594,6 +594,7 @@ then
     sudo apt-get -q install -y fail2ban
     touch /var/easydeploy/.install/hardened
 fi
+. /home/easydeploy/bin/env.sh
 
 if [[ $EASYDEPLOY_STATE == "stateless" ]]
 then

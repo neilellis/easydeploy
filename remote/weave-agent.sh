@@ -11,7 +11,7 @@ do
         echo "Could not obtain subnet address."
         sleep 30
     else
-        if [[ ! -f /var/easydeploy/share/.config/weave_subnet ]]  || [[ $(</var/easydeploy/share/.config/weave_subnet) != $subnet ]] || [[ -n $first ]]
+        if [[ ! -f /var/easydeploy/share/.config/weave_subnet ]]  || [[ $(</var/easydeploy/share/.config/weave_subnet) != $subnet ]] || [[ -n $first ]]  || ( ! weave status )
         then
             weave stop
             echo $subnet > /var/easydeploy/share/.config/weave_subnet

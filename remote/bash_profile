@@ -8,6 +8,7 @@ alias tweave="tail -F /ezlog/weave*"
 alias tconsul="tail -F /ezlog/consul*"
 alias src="supervisorctl restart $(</ezshare/.config/component):"
 alias health="/ezbin/health_check.sh"
+alias supstat="supervisorctl status"
 
 
 

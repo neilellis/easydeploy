@@ -598,7 +598,6 @@ fi
 if [[ $EASYDEPLOY_STATE == "stateless" ]]
 then
     docker rmi ${DOCKER_IMAGE}:${DEPLOY_ENV} || :
-    docker pull ${DOCKER_IMAGE}:${DEPLOY_ENV}
 fi
 
 

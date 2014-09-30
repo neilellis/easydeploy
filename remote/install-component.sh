@@ -598,7 +598,9 @@ fi
 
 if [[ $EASYDEPLOY_STATE == "stateless" ]]
 then
-    docker rmi ${DOCKER_IMAGE}:${DEPLOY_ENV} || :
+    service docker stop
+    rm -rf /var/lib/docker
+    service docker start
 fi
 
 

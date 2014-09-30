@@ -594,12 +594,14 @@ then
     sudo apt-get -q install -y fail2ban
     touch /var/easydeploy/.install/hardened
 fi
+
 . /home/easydeploy/bin/env.sh
 
 if [[ $EASYDEPLOY_STATE == "stateless" ]]
 then
-    service docker stop
-    rm -rf /var/lib/docker
+    docker kill $(docker ps -q -a) || :
+    service docker stop || :
+    rm -rf /var/lib/docker || :
     service docker start
 fi
 

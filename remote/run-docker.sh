@@ -41,6 +41,7 @@ fi
 
 serf tags -set health=ok
 cd ~/project
+
 if [[ -f ~/ezd/bin/pre-build.sh ]]
 then
     ./ezd/bin/pre-build.sh
